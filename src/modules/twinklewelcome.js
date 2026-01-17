@@ -231,21 +231,21 @@ Twinkle.welcome.populateWelcomeList = function(e) {
 Twinkle.welcome.templates = {
 	standard: {
 		'Velkomstskabeloner': {
-			welcome: {
+			'Velkommen': {
 				description: 'standardvelkomst',
 				linkedArticle: true,
-				syntax: '{{velkommen|~~~~}} '
+				syntax: '{{Velkommen|~~~~}} '
 			},
-			'welcome-is-not': {
+			'VelkommenErIkke': {
 				description: 'velkommen og samtidig minde om, hvad Wikipedia ikke er',
 				linkedArticle: true,
-				syntax: '{{VelkommenErIkke|~~~~}} ~~~~'
+				syntax: '{{welkommenerikke|~~~~}} ~~~~'
 			},
-			'welcome-politic': {
+			'VelkommenPolitiker': {
 				description: 'velkomst til politikere, der minder om, at man ikke bør skrive om sig selv',
 				syntax: '{{VelkommenPolitiker|~~~~}}'
 			},
-			'welcome-email': {
+			'VelkommenEmail': {
 				description: 'velkomst til brugere, der har anvendt en e-mailadresse som brugernavn',
 				syntax: '{{VelkommenEmail|~~~~}}'
 			},
@@ -360,7 +360,7 @@ Twinkle.welcome.templates = {
 
 	unregistered: {
 		'Velkomstskabeloner til uregistrerede brugere': {
-			'welcome-unregistered': {
+			'VelkommenIP': {
 				description: 'for unregistered users; encourages creating an account',
 				linkedArticle: true,
 				syntax: '{{VelkommenIP|~~~~}}'
@@ -524,7 +524,7 @@ Twinkle.welcome.templates = {
 
 	nonEnglish: {
 		'Velkomstskabeloner på ikke-dansk': {
-			welcomeen: {
+			'Welcome': {
 				description: 'standardvelkomst på engelsk',
 				syntax: '{{Welcome|~~~~}}'
 			}
