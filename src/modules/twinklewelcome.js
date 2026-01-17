@@ -361,7 +361,7 @@ Twinkle.welcome.templates = {
 	unregistered: {
 		'Velkomstskabeloner til uregistrerede brugere': {
 			'VelkommenIP': {
-				description: 'for unregistered users; encourages creating an account',
+				description: 'for uregistrerede brugere; opfordrer til at oprette en konto',
 				linkedArticle: true,
 				syntax: '{{VelkommenIP|~~~~}}'
 			},
