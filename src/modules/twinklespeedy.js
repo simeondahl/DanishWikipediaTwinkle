@@ -1063,7 +1063,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	// first figure out what mode we're in
 	const mode = {
 		isSysop: !!form.tag_only && !form.tag_only.checked,
-		isMultiple: form.tag_only && !form.tag_only.checked ? form.delmultiple.checked : form.multiple.checked,
+		isMultiple: false, // form.tag_only && !form.tag_only.checked ? form.delmultiple.checked : form.multiple.checked,
 		isRadioClick: Twinkle.getPref('speedySelectionStyle') === 'radioClick'
 	};
 
