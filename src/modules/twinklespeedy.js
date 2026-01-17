@@ -24,738 +24,792 @@ Twinkle.speedy = function twinklespeedy() {
 		return;
 	}
 
-	Twinkle.addPortletLink(Twinkle.speedy.callback, 'CSD', 'tw-csd', Morebits.userIsSysop ? 'Delete page according to WP:CSD' : 'Request speedy deletion according to WP:CSD');
+	Twinkle.addPortletLink(Twinkle.speedy.callback, 'RFS', 'tw-csd', Morebits.userIsSysop ? 'Slet siden i henhold til WP:RFS' : 'Anmod om hurtig sletning i henhold til WP:RFS');
 };
 
 Twinkle.speedy.data = [
 	{
 		list: 'customRationale',
-		label: 'Custom rationale' + (Morebits.userIsSysop ? ' (custom deletion reason)' : ' using {{db}} template'),
-		code: 'db',
-		db: 'reason',
-		tooltip: '{{db}} is short for "delete because". At least one of the other deletion criteria must still apply to the page, and you must make mention of this in your rationale. This is not a "catch-all" for when you can\'t find any criteria that fit.',
+		label: 'Brugerdefineret begrundelse' + (Morebits.userIsSysop ? ' (brugerdefineret slettebegrundelse)' : ' ved brug af {{hurtigslet}}-skabelonen'),
+		code: 'hurtigslet',
+		db: 'hurtigslet',
+		tooltip: 'Mindst ét af de øvrige slettekriterier skal stadig være opfyldt for siden, og du skal nævne dette i din begrundelse. Dette er en løsning, når du ikke kan finde et kriterium, der passer.',
 		subgroup: {
 			name: 'reason_1',
 			type: 'input',
-			label: 'Rationale:',
+			label: 'Begrundelse:',
 			size: 60
 		},
 		hideWhenMultiple: true
 	},
-	{
-		list: 'talkList',
-		label: 'G8: Talk pages with no corresponding subject page',
-		code: 'g8',
-		db: 'talk',
-		tooltip: 'This excludes any page that is useful to the project - in particular, user talk pages, talk page archives, and talk pages for files that exist on Wikimedia Commons.'
-	},
-	{
-		list: 'fileList',
-		label: 'F1: Redundant file',
-		code: 'f1',
-		db: 'redundantimage',
-		tooltip: 'Any file that is a redundant copy, in the same file format and same or lower resolution, of something else on Wikipedia. Likewise, other media that is a redundant copy, in the same format and of the same or lower quality. This does not apply to files duplicated on Wikimedia Commons, because of licence issues; these should be tagged with {{subst:ncd|Image:newname.ext}} or {{subst:ncd}} instead',
-		subgroup: {
-			name: 'redundantimage_filename',
-			type: 'input',
-			label: 'File this is redundant to:',
-			tooltip: 'The "File:" prefix can be left off.'
-		}
-	},
-	{
-		list: 'fileList',
-		label: 'F2: Corrupt, missing, or empty file',
-		code: 'f2',
-		db: 'noimage',
-		tooltip: 'Before deleting this type of file, verify that the MediaWiki engine cannot read it by previewing a resized thumbnail of it. This also includes empty (i.e., no content) file description pages for Commons files'
-	},
-	{
-		list: 'fileList',
-		label: 'F2: Unneeded file description page for a file on Commons',
-		code: 'f2',
-		db: 'fpcfail',
-		tooltip: 'An image, hosted on Commons, but with tags or information on its English Wikipedia description page that are no longer needed. (For example, a failed featured picture candidate.)',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'fileList',
-		label: 'F3: Improper license',
-		code: 'f3',
-		db: 'noncom',
-		tooltip: 'Files licensed as "for non-commercial use only", "non-derivative use" or "used with permission" that were uploaded on or after 2005-05-19, except where they have been shown to comply with the limited standards for the use of non-free content. This includes files licensed under a "Non-commercial Creative Commons License". Such files uploaded before 2005-05-19 may also be speedily deleted if they are not used in any articles'
-	},
-	{
-		list: 'fileList',
-		label: 'F4: Lack of licensing information',
-		code: 'f4',
-		db: 'unksource',
-		tooltip: 'Files in category "Files with unknown source", "Files with unknown copyright status", or "Files with no copyright tag" that have been tagged with a template that places them in the category for more than seven days, regardless of when uploaded. Note, users sometimes specify their source in the upload summary, so be sure to check the circumstances of the file.',
-		hideWhenUser: true
-	},
-	{
-		list: 'fileList',
-		label: 'F5: Unused non-free copyrighted file',
-		code: 'f5',
-		db: 'f5',
-		tooltip: 'Files that are not under a free license or in the public domain that are not used in any article, whose only use is in a deleted article, and that are very unlikely to be used on any other article. Reasonable exceptions may be made for files uploaded for an upcoming article. For other unused non-free files, use the "Orphaned non-free use" option in Twinkle\'s DI tab.',
-		hideWhenUser: true
-	},
-	{
-		list: 'fileList',
-		label: 'F6: Missing fair-use rationale',
-		code: 'f6',
-		db: 'norat',
-		tooltip: 'Any file without a fair use rationale may be deleted seven days after it is uploaded.  Boilerplate fair use templates do not constitute a fair use rationale.  Files uploaded before 2006-05-04 should not be deleted immediately; instead, the uploader should be notified that a fair-use rationale is needed.  Files uploaded after 2006-05-04 can be tagged using the "No non-free use rationale" option in Twinkle\'s DI module. Such files can be found in the dated subcategories of Category:Files with no non-free use rationale.',
-		hideWhenUser: true
-	},
-	{
-		list: 'fileList',
-		label: 'F7: Fair-use media from a commercial image agency which is not the subject of sourced commentary',
-		code: 'f7',
-		db: 'badfairuse',
-		tooltip: 'Non-free images or media from a commercial source (e.g., Associated Press, Getty), where the file itself is not the subject of sourced commentary, are considered an invalid claim of fair use and fail the strict requirements of WP:NFCC. For cases that require a waiting period (invalid or otherwise disputed rationales or replaceable images), use the options on Twinkle\'s DI tab.',
-		subgroup: {
-			name: 'badfairuse_rationale',
-			type: 'input',
-			label: 'Optional explanation:',
-			size: 60
-		},
-		hideWhenMultiple: true
-	},
-	{
-		list: 'fileList',
-		label: 'F8: File available as an identical or higher-resolution copy on Wikimedia Commons',
-		code: 'f8',
-		db: 'commons',
-		tooltip: 'Provided the following conditions are met: 1: The file format of both images is the same. 2: The file\'s license and source status is beyond reasonable doubt, and the license is undoubtedly accepted at Commons. 3: All information on the file description page is present on the Commons file description page. That includes the complete upload history with links to the uploader\'s local user pages. 4: The file is not protected, and the file description page does not contain a request not to move it to Commons. 5: If the file is available on Commons under a different name than locally, all local references to the file must be updated to point to the title used at Commons. 6: For {{c-uploaded}} files: They may be speedily deleted as soon as they are off the Main Page',
-		subgroup: {
-			name: 'commons_filename',
-			type: 'input',
-			label: 'Filename on Commons:',
-			value: Morebits.pageNameNorm,
-			tooltip: 'This can be left blank if the file has the same name on Commons as here. The "File:" prefix is optional.'
-		},
-		hideWhenMultiple: true
-	},
-	{
-		list: 'fileList',
-		label: 'F9: Unambiguous copyright infringement',
-		code: 'f9',
-		db: 'imgcopyvio',
-		tooltip: 'The file was copied from a website or other source that does not have a license compatible with Wikipedia, and the uploader neither claims fair use nor makes a credible assertion of permission of free use. Sources that do not have a license compatible with Wikipedia include stock photo libraries such as Getty Images or Corbis. Non-blatant copyright infringements should be discussed at Wikipedia:Files for deletion',
-		subgroup: [
-			{
-				name: 'imgcopyvio_url',
-				type: 'input',
-				label: 'URL of the copyvio, including the "http://".  If the copyvio is of a non-internet source and you cannot provide a URL, you must use the deletion rationale box.',
-				size: 60
-			},
-			{
-				name: 'imgcopyvio_rationale',
-				type: 'input',
-				label: 'Deletion rationale for non-internet copyvios:',
-				size: 60
-			}
-		]
-	},
-	{
-		list: 'fileList',
-		label: 'F11: No evidence of permission',
-		code: 'f11',
-		db: 'nopermission',
-		tooltip: 'If an uploader has specified a license and has named a third party as the source/copyright holder without providing evidence that this third party has in fact agreed, the item may be deleted seven days after notification of the uploader',
-		hideWhenUser: true
-	},
-	{
-		list: 'fileList',
-		label: 'G8: File description page with no corresponding file',
-		code: 'g8',
-		db: 'imagepage',
-		tooltip: 'This is only for use when the file doesn\'t exist at all. Corrupt files, and local description pages for files on Commons, should use F2; implausible redirects should use R3; and broken Commons redirects should use R4.'
-	},
-	{
-		list: 'articleList',
-		label: 'A1: No context. Articles lacking sufficient context to identify the subject of the article.',
-		code: 'a1',
-		db: 'nocontext',
-		tooltip: 'Example: "He is a funny man with a red car. He makes people laugh." This applies only to very short articles. Context is different from content, treated in A3, below.'
-	},
-	{
-		list: 'articleList',
-		label: 'A2: Foreign language articles that exist on another Wikimedia project',
-		code: 'a2',
-		db: 'foreign',
-		tooltip: 'If the article in question does not exist on another project, the template {{notenglish}} should be used instead. All articles in a non-English language that do not meet this criteria (and do not meet any other criteria for speedy deletion) should be listed at Pages Needing Translation (PNT) for review and possible translation',
-		subgroup: {
-			name: 'foreign_source',
-			type: 'input',
-			label: 'Interwiki link to the article on the foreign-language wiki:',
-			tooltip: 'For example, fr:Bonjour'
-		}
-	},
-	{
-		list: 'articleList',
-		label: 'A3: No content whatsoever',
-		code: 'a3',
-		db: 'nocontent',
-		tooltip: 'Any article consisting only of links elsewhere (including hyperlinks, category tags and "see also" sections), a rephrasing of the title, and/or attempts to correspond with the person or group named by its title. This does not include disambiguation pages'
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (people, groups, companies, web content, individual animals, or organized events)',
-		code: 'a7',
-		db: 'a7',
-		tooltip: 'An article about a real person, group of people, band, club, company, web content, individual animal, tour, or party that does not assert the importance or significance of its subject. If controversial, or if a previous AfD has resulted in the article being kept, the article should be nominated for AfD instead',
-		hideWhenSingle: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (person)',
-		code: 'a7',
-		db: 'person',
-		tooltip: 'An article about a real person that does not assert the importance or significance of its subject. If controversial, or if there has been a previous AfD that resulted in the article being kept, the article should be nominated for AfD instead',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (musician(s) or band)',
-		code: 'a7',
-		db: 'band',
-		tooltip: 'Article about a band, singer, musician, or musical ensemble that does not assert the importance or significance of the subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (club, society or group)',
-		code: 'a7',
-		db: 'club',
-		tooltip: 'Article about a club, society or group that does not assert the importance or significance of the subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (company or organization)',
-		code: 'a7',
-		db: 'corp',
-		tooltip: 'Article about a company or organization that does not assert the importance or significance of the subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (website or web content)',
-		code: 'a7',
-		db: 'web',
-		tooltip: 'Article about a web site, blog, online forum, webcomic, podcast, or similar web content that does not assert the importance or significance of its subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (individual animal)',
-		code: 'a7',
-		db: 'animal',
-		tooltip: 'Article about an individual animal (e.g. pet) that does not assert the importance or significance of its subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A7: No indication of importance (organized event)',
-		code: 'a7',
-		db: 'event',
-		tooltip: 'Article about an organized event (tour, function, meeting, party, etc.) that does not assert the importance or significance of its subject',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'articleList',
-		label: 'A9: Unremarkable musical recording where artist\'s article doesn\'t exist',
-		code: 'a9',
-		db: 'a9',
-		tooltip: 'An article about a musical recording which does not indicate why its subject is important or significant, and where the artist\'s article has never existed or has been deleted'
-	},
-	{
-		list: 'articleList',
-		label: 'A10: Recently created article that duplicates an existing topic',
-		code: 'a10',
-		db: 'a10',
-		tooltip: 'A recently created article with no relevant page history that does not aim to expand upon, detail or improve information within any existing article(s) on the subject, and where the title is not a plausible redirect. This does not include content forks, split pages or any article that aims at expanding or detailing an existing one.',
-		subgroup: {
-			name: 'a10_article',
-			type: 'input',
-			label: 'Article that is duplicated:'
-		}
-	},
-	{
-		list: 'articleList',
-		label: 'A11: Obviously made up by creator, and no claim of significance',
-		code: 'a11',
-		db: 'madeup',
-		tooltip: 'An article which plainly indicates that the subject was invented/coined/discovered by the article\'s creator or someone they know personally, and does not credibly indicate why its subject is important or significant'
-	},
-	{
-		list: 'categoryList',
-		label: 'C1: Empty categories',
-		code: 'c1',
-		db: 'catempty',
-		tooltip: 'Categories that have been unpopulated for at least seven days. This does not apply to categories being discussed at WP:CFD, disambiguation categories, and certain other exceptions. If the category isn\'t relatively new, it possibly contained articles earlier, and deeper investigation is needed'
-	},
-	{
-		list: 'categoryList',
-		label: 'C4: Permanently unused maintenance categories',
-		code: 'c4',
-		db: 'c4',
-		tooltip: 'Unused maintenance categories, such as empty dated maintenance categories for dates in the past, tracking categories no longer used by a template after a rewrite, or empty subcategories of Category:Wikipedia sockpuppets or Category:Suspected Wikipedia sockpuppets. Empty maintenance categories are not necessarily unused—this criterion is for categories which will always be empty, not just currently empty.',
-		subgroup: {
-			name: 'c4_rationale',
-			type: 'input',
-			label: 'Optional explanation:',
-			size: 60
-		}
-	},
-	{
-		list: 'templateList',
-		label: 'T5: Unused template subpages',
-		code: 't5',
-		db: 't5',
-		tooltip: 'Unused subpages of templates and Lua modules. This does not apply to /testcases and /sandbox subpages, or subpages of Module:Sandbox.'
-	},
-	{
-		list: 'userList',
-		label: 'U1: User request',
-		code: 'u1',
-		db: 'userreq',
-		tooltip: 'Personal subpages, upon request by their user. In some rare cases there may be administrative need to retain the page. Also, sometimes, main user pages may be deleted as well. See Wikipedia:User page for full instructions and guidelines',
-		subgroup: mw.config.get('wgNamespaceNumber') === 3 && !mw.config.get('wgTitle').includes('/') ? {
-			name: 'userreq_rationale',
-			type: 'input',
-			label: 'A mandatory rationale to explain why this user talk page should be deleted:',
-			tooltip: 'User talk pages are deleted only in highly exceptional circumstances. See WP:DELTALK.',
-			size: 60
-		} : null,
-		hideSubgroupWhenMultiple: true
-	},
-	{
-		list: 'userList',
-		code: 'u2',
-		label: 'U2: Nonexistent user',
-		db: 'nouser',
-		tooltip: 'User pages of users that do not exist (Check Special:Listusers)'
-	},
-	{
-		list: 'userList',
-		label: 'U6: Abandoned user subpages',
-		code: 'u6',
-		db: 'u6',
-		tooltip: 'User subpages of users who have made few or no edits outside of user space, which have not been edited by a human in at least six months, excluding redirects, .js pages, .css pages, and Wikipedia Books. Promising drafts may be moved to draftspace by any editor as an alternative to deletion.',
-		hideWhenRedirect: true
-	},
-	{
-		list: 'userList',
-		label: 'U7: Excessively unrelated non-draft subpages',
-		code: 'u7',
-		db: 'u7',
-		tooltip: 'User subpages of users who have made few or no edits outside of user space, were created more than six months ago, could not be interpreted as draft articles (even very bad ones), and consist entirely of creative writing, lengthy professional or personal content, or commercial links.',
-		hideWhenRedirect: true,
-		subgroup: [
-			{
-				name: 'u7_subcriteria',
-				type: 'checkbox',
-				list: [
-					{
-						label: 'Creative or persuasive writing unrelated to Wikipedia',
-						value: 'creative',
-						name: 'creative',
-						tooltip: 'The page contains creative or persuasive writing unrelated to Wikipedia (e.g. fan fictions or political essays).'
-					},
-					{
-						label: 'Lengthy descriptions of a person\'s professional accomplishments',
-						value: 'professional',
-						name: 'professional',
-						tooltip: 'The page contains lengthy descriptions of a person\'s professional accomplishments that are written in the first person or are formatted like a résumé or curriculum vitae, and do not serve as paid-contribution disclosures'
-					},
-					{
-						label: 'Lengthy content about the user\'s personal life',
-						value: 'personal',
-						name: 'personal',
-						tooltip: 'The page contains lengthy content about the user\'s personal life, things in their environment (e.g. friends, pets, or belongings), or things they have invented.'
-					},
-					{
-						label: 'Links to commercial websites',
-						value: 'links',
-						name: 'links',
-						tooltip: 'The page contains links to websites that are primarily commercial in nature.'
-					}
-				]
-			}
-		]
-	},
-	{
-		list: 'userList',
-		label: 'G11: Promotional user page under a promotional user name',
-		code: 'g11',
-		db: 'spamuser',
-		tooltip: 'A promotional user page, with a username that promotes or implies affiliation with the thing being promoted. Note that simply having a page on a company or product in one\'s userspace does not qualify it for deletion. If a user page is spammy but the username is not, then consider tagging with regular G11 instead.',
-		hideWhenMultiple: true,
-		hideWhenRedirect: true
-	},
-	{
-		list: 'userList',
-		label: 'G13: AfC draft submission or a blank draft, stale by over 6 months',
-		code: 'g13',
-		db: 'afc',
-		tooltip: 'Any rejected or unsubmitted AfC draft submission or a blank draft, that has not been edited in over 6 months (excluding bot edits).',
-		hideWhenMultiple: true,
-		hideWhenRedirect: true
-	},
+
+	// {
+		// list: 'talkList',
+		// label: 'G8: Talk pages with no corresponding subject page',
+		// code: 'g8',
+		// db: 'talk',
+		// tooltip: 'This excludes any page that is useful to the project - in particular, user talk pages, talk page archives, and talk pages for files that exist on Wikimedia Commons.'
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F1: Redundant file',
+		// code: 'f1',
+		// db: 'redundantimage',
+		// tooltip: 'Any file that is a redundant copy, in the same file format and same or lower resolution, of something else on Wikipedia. Likewise, other media that is a redundant copy, in the same format and of the same or lower quality. This does not apply to files duplicated on Wikimedia Commons, because of licence issues; these should be tagged with {{subst:ncd|Image:newname.ext}} or {{subst:ncd}} instead',
+		// subgroup: {
+			// name: 'redundantimage_filename',
+			// type: 'input',
+			// label: 'File this is redundant to:',
+			// tooltip: 'The "File:" prefix can be left off.'
+		// }
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F2: Corrupt, missing, or empty file',
+		// code: 'f2',
+		// db: 'noimage',
+		// tooltip: 'Before deleting this type of file, verify that the MediaWiki engine cannot read it by previewing a resized thumbnail of it. This also includes empty (i.e., no content) file description pages for Commons files'
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F2: Unneeded file description page for a file on Commons',
+		// code: 'f2',
+		// db: 'fpcfail',
+		// tooltip: 'An image, hosted on Commons, but with tags or information on its English Wikipedia description page that are no longer needed. (For example, a failed featured picture candidate.)',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F3: Improper license',
+		// code: 'f3',
+		// db: 'noncom',
+		// tooltip: 'Files licensed as "for non-commercial use only", "non-derivative use" or "used with permission" that were uploaded on or after 2005-05-19, except where they have been shown to comply with the limited standards for the use of non-free content. This includes files licensed under a "Non-commercial Creative Commons License". Such files uploaded before 2005-05-19 may also be speedily deleted if they are not used in any articles'
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F4: Lack of licensing information',
+		// code: 'f4',
+		// db: 'unksource',
+		// tooltip: 'Files in category "Files with unknown source", "Files with unknown copyright status", or "Files with no copyright tag" that have been tagged with a template that places them in the category for more than seven days, regardless of when uploaded. Note, users sometimes specify their source in the upload summary, so be sure to check the circumstances of the file.',
+		// hideWhenUser: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F5: Unused non-free copyrighted file',
+		// code: 'f5',
+		// db: 'f5',
+		// tooltip: 'Files that are not under a free license or in the public domain that are not used in any article, whose only use is in a deleted article, and that are very unlikely to be used on any other article. Reasonable exceptions may be made for files uploaded for an upcoming article. For other unused non-free files, use the "Orphaned non-free use" option in Twinkle\'s DI tab.',
+		// hideWhenUser: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F6: Missing fair-use rationale',
+		// code: 'f6',
+		// db: 'norat',
+		// tooltip: 'Any file without a fair use rationale may be deleted seven days after it is uploaded.  Boilerplate fair use templates do not constitute a fair use rationale.  Files uploaded before 2006-05-04 should not be deleted immediately; instead, the uploader should be notified that a fair-use rationale is needed.  Files uploaded after 2006-05-04 can be tagged using the "No non-free use rationale" option in Twinkle\'s DI module. Such files can be found in the dated subcategories of Category:Files with no non-free use rationale.',
+		// hideWhenUser: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F7: Fair-use media from a commercial image agency which is not the subject of sourced commentary',
+		// code: 'f7',
+		// db: 'badfairuse',
+		// tooltip: 'Non-free images or media from a commercial source (e.g., Associated Press, Getty), where the file itself is not the subject of sourced commentary, are considered an invalid claim of fair use and fail the strict requirements of WP:NFCC. For cases that require a waiting period (invalid or otherwise disputed rationales or replaceable images), use the options on Twinkle\'s DI tab.',
+		// subgroup: {
+			// name: 'badfairuse_rationale',
+			// type: 'input',
+			// label: 'Optional explanation:',
+			// size: 60
+		// },
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F8: File available as an identical or higher-resolution copy on Wikimedia Commons',
+		// code: 'f8',
+		// db: 'commons',
+		// tooltip: 'Provided the following conditions are met: 1: The file format of both images is the same. 2: The file\'s license and source status is beyond reasonable doubt, and the license is undoubtedly accepted at Commons. 3: All information on the file description page is present on the Commons file description page. That includes the complete upload history with links to the uploader\'s local user pages. 4: The file is not protected, and the file description page does not contain a request not to move it to Commons. 5: If the file is available on Commons under a different name than locally, all local references to the file must be updated to point to the title used at Commons. 6: For {{c-uploaded}} files: They may be speedily deleted as soon as they are off the Main Page',
+		// subgroup: {
+			// name: 'commons_filename',
+			// type: 'input',
+			// label: 'Filename on Commons:',
+			// value: Morebits.pageNameNorm,
+			// tooltip: 'This can be left blank if the file has the same name on Commons as here. The "File:" prefix is optional.'
+		// },
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F9: Unambiguous copyright infringement',
+		// code: 'f9',
+		// db: 'imgcopyvio',
+		// tooltip: 'The file was copied from a website or other source that does not have a license compatible with Wikipedia, and the uploader neither claims fair use nor makes a credible assertion of permission of free use. Sources that do not have a license compatible with Wikipedia include stock photo libraries such as Getty Images or Corbis. Non-blatant copyright infringements should be discussed at Wikipedia:Files for deletion',
+		// subgroup: [
+			// {
+				// name: 'imgcopyvio_url',
+				// type: 'input',
+				// label: 'URL of the copyvio, including the "http://".  If the copyvio is of a non-internet source and you cannot provide a URL, you must use the deletion rationale box.',
+				// size: 60
+			// },
+			// {
+				// name: 'imgcopyvio_rationale',
+				// type: 'input',
+				// label: 'Deletion rationale for non-internet copyvios:',
+				// size: 60
+			// }
+		// ]
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'F11: No evidence of permission',
+		// code: 'f11',
+		// db: 'nopermission',
+		// tooltip: 'If an uploader has specified a license and has named a third party as the source/copyright holder without providing evidence that this third party has in fact agreed, the item may be deleted seven days after notification of the uploader',
+		// hideWhenUser: true
+	// },
+	// {
+		// list: 'fileList',
+		// label: 'G8: File description page with no corresponding file',
+		// code: 'g8',
+		// db: 'imagepage',
+		// tooltip: 'This is only for use when the file doesn\'t exist at all. Corrupt files, and local description pages for files on Commons, should use F2; implausible redirects should use R3; and broken Commons redirects should use R4.'
+	// },
 	{
 		list: 'generalList',
-		label: 'G1: Patent nonsense. Pages consisting purely of incoherent text or gibberish with no meaningful content or history.',
+		label: 'G1/G2: Hvis siden indhold er det rene sludder eller hærværk',
 		code: 'g1',
-		db: 'nonsense',
-		tooltip: 'This does not include poor writing, partisan screeds, obscene remarks, vandalism, fictional material, material not in English, poorly translated material, implausible theories, or hoaxes. In short, if you can understand it, G1 does not apply.',
-		hideInNamespaces: [ 2 ] // Not applicable in userspace
+		db: 'nonsens',
+		tooltip: ''
 	},
 	{
 		list: 'generalList',
-		label: 'G2: Test page',
-		code: 'g2',
-		db: 'test',
-		tooltip: 'A page created to test editing or other Wikipedia functions. Pages in the User namespace are not included, nor are valid but unused or duplicate templates.',
-		hideInNamespaces: [ 2 ] // Not applicable in userspace
-	},
-	{
-		list: 'generalList',
-		label: 'G3: Pure vandalism',
+		label: 'G3: Hvis siden udgør chikane, personangreb eller nedladende adfærd over for andre brugere eller personer',
 		code: 'g3',
-		db: 'vandalism',
-		tooltip: 'Plain pure vandalism (including redirects left behind from pagemove vandalism)'
+		db: 'chikane',
+		tooltip: ''
 	},
 	{
 		list: 'generalList',
-		label: 'G3: Blatant hoax',
-		code: 'g3',
-		db: 'hoax',
-		tooltip: 'Blatant and obvious hoax, to the point of vandalism',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G4: Recreation of material deleted via a deletion discussion',
+		label: 'G4: Hvis siden åbenlyst er oprettet ved en fejl',
 		code: 'g4',
-		db: 'repost',
-		tooltip: 'A copy, by any title, of a page that was deleted via an XfD process or Deletion review, provided that the copy is substantially identical to the deleted version. This clause does not apply to content that has been "userfied", to content undeleted as a result of Deletion review, or if the prior deletions were proposed or speedy deletions, although in this last case, other speedy deletion criteria may still apply',
-		subgroup: {
-			name: 'repost_xfd',
-			type: 'input',
-			label: 'Page where the deletion discussion took place:',
-			tooltip: 'Must start with "Wikipedia:"',
-			size: 60
-		}
+		db: 'fejloprettelse',
+		tooltip: ''
 	},
 	{
 		list: 'generalList',
-		label: 'G5: Created by a banned or blocked user',
+		label: 'G5: Hvis siden overtræder ophavsret, fx ved direkte kopiering fra eksterne kilder uden tilladelse',
 		code: 'g5',
-		db: 'banned',
-		tooltip: 'Pages created by banned or blocked users in violation of their ban or block, and which have no substantial edits by others',
-		subgroup: {
-			name: 'banned_user',
-			type: 'input',
-			label: 'Username of banned user (if available):',
-			tooltip: 'Should not start with "User:"'
-		}
-	},
-	{
-		list: 'generalList',
-		label: 'G5: Created in violation of a general sanction',
-		code: 'g5',
-		db: 'gs',
-		tooltip: 'Pages created in violation of a contentious topic restriction or other general sanction, with no substantial edits by others',
-		subgroup: {
-			name: 'code',
-			type: 'select',
-			label: 'Code of the relevant general sanction:',
-			list: [
-					{ type: 'option', value: 'rusukr', label: 'RUSUKR – Russo-Ukrainian War' },
-					{ type: 'option', value: 'a-i', label: 'A-I – Arab-Israeli conflict' },
-					{ type: 'option', value: 'kurd', label: 'KURD – Kurds and Kurdistan' },
-					{ type: 'option', value: 'a-a', label: 'A-A – Armenia-Azerbaijan' },
-					{ type: 'option', value: 'apl', label: 'APL – Antisemitism in Poland' },
-					{ type: 'option', value: 'sasg', label: 'SASG – South Asian social groups' },
-					{ type: 'option', value: 'imh', label: 'IMH – Indian military history' }
-				]
-		}
-	},
-	{
-		list: 'generalList',
-		label: 'G6: Error',
-		code: 'g6',
-		db: 'error',
-		tooltip: 'A page that was obviously created in error, or a redirect left over from moving a page that was obviously created at the wrong title.',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G6: Move',
-		code: 'g6',
-		db: 'move',
-		tooltip: 'Making way for an uncontroversial move like reversing a redirect',
-		subgroup: [
-			{
-				name: 'move_page',
-				type: 'input',
-				label: 'Page to be moved here:'
-			},
-			{
-				name: 'move_reason',
-				type: 'input',
-				label: 'Reason:',
-				size: 60
-			}
-		],
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G6: XfD',
-		code: 'g6',
-		db: 'xfd',
-		tooltip: 'A deletion discussion (at AfD, FfD, RfD, TfD, CfD, or MfD) was closed as "delete", but the page wasn\'t actually deleted.',
-		subgroup: {
-			name: 'xfd_fullvotepage',
-			type: 'input',
-			label: 'Page where the deletion discussion was held:',
-			tooltip: 'Must start with "Wikipedia:"',
-			size: 40
-		},
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G6: AfC move',
-		code: 'g6',
-		db: 'afc-move',
-		tooltip: 'Making way for acceptance of a draft submitted to AfC',
-		subgroup: {
-			name: 'draft_page',
-			type: 'input',
-			label: 'Draft to be moved here:'
-		},
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G6: Copy-and-paste page move',
-		code: 'g6',
-		db: 'copypaste',
-		tooltip: 'This only applies for a copy-and-paste page move of another page that needs to be temporarily deleted to make room for a clean page move.',
-		subgroup: {
-			name: 'copypaste_sourcepage',
-			type: 'input',
-			label: 'Original page that was copy-pasted here:'
-		},
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G6: Housekeeping and non-controversial cleanup',
-		code: 'g6',
-		db: 'g6',
-		tooltip: 'Other routine maintenance tasks',
-		subgroup: {
-			name: 'g6_rationale',
-			type: 'input',
-			label: 'Rationale:',
-			size: 60
-		}
-	},
-	{
-		list: 'generalList',
-		label: 'G7: Author requests deletion, or author blanked',
-		code: 'g7',
-		db: 'author',
-		tooltip: 'Any page for which deletion is requested by the original author in good faith, provided the page\'s only substantial content was added by its author. If the author blanks the page, this can also be taken as a deletion request.',
-		subgroup: {
-			name: 'author_rationale',
-			type: 'input',
-			label: 'Optional explanation:',
-			tooltip: 'Perhaps linking to where the author requested this deletion.',
-			size: 60
-		},
-		hideSubgroupWhenSysop: true
-	},
-	{
-		list: 'generalList',
-		label: 'G8: Pages dependent on a non-existent or deleted page',
-		code: 'g8',
-		db: 'g8',
-		tooltip: 'such as talk pages with no corresponding subject page; subpages with no parent page; file pages without a corresponding file; redirects to non-existent targets; or categories populated by deleted or retargeted templates. This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
-		subgroup: {
-			name: 'g8_rationale',
-			type: 'input',
-			label: 'Optional explanation:',
-			size: 60
-		},
-		hideSubgroupWhenSysop: true
-	},
-	{
-		list: 'generalList',
-		label: 'G8: Subpages with no parent page',
-		code: 'g8',
-		db: 'subpage',
-		tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
-		hideWhenMultiple: true,
-		hideInNamespaces: [ 0, 6, 8 ] // hide in main, file, and mediawiki-spaces
-	},
-	{
-		list: 'generalList',
-		label: 'G10: Attack page',
-		code: 'g10',
-		db: 'attack',
-		tooltip: 'Pages that serve no purpose but to disparage or threaten their subject or some other entity (e.g., "John Q. Doe is an imbecile"). This includes a biography of a living person that is negative in tone and unsourced, where there is no NPOV version in the history to revert to. Administrators deleting such pages should not quote the content of the page in the deletion summary!'
-	},
-	{
-		list: 'generalList',
-		label: 'G10: Wholly negative, unsourced BLP',
-		code: 'g10',
-		db: 'negublp',
-		tooltip: 'A biography of a living person that is entirely negative in tone and unsourced, where there is no neutral version in the history to revert to.',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'generalList',
-		label: 'G11: Unambiguous advertising or promotion',
-		code: 'g11',
-		db: 'spam',
-		tooltip: 'Pages which exclusively promote a company, product, group, service, or person and which would need to be fundamentally rewritten in order to become encyclopedic. Note that an article about a company or a product which describes its subject from a neutral point of view does not qualify for this criterion; an article that is blatant advertising should have inappropriate content as well'
-	},
-	{
-		list: 'generalList',
-		label: 'G12: Unambiguous copyright infringement',
-		code: 'g12',
 		db: 'copyvio',
-		tooltip: 'Either: (1) Material was copied from another website that does not have a license compatible with Wikipedia, or is photography from a stock photo seller (such as Getty Images or Corbis) or other commercial content provider; (2) There is no non-infringing content in the page history worth saving; or (3) The infringement was introduced at once by a single person rather than created organically on wiki and then copied by another website such as one of the many Wikipedia mirrors',
-		subgroup: [
-			{
-				name: 'copyvio_url',
-				type: 'input',
-				label: 'URL (if available):',
-				tooltip: 'If the material was copied from an online source, put the URL here, including the "http://" or "https://" protocol.',
-				size: 60
-			},
-			{
-				name: 'copyvio_url2',
-				type: 'input',
-				label: 'Additional URL:',
-				tooltip: 'Optional. Should begin with "http://" or "https://"',
-				size: 60
-			},
-			{
-				name: 'copyvio_url3',
-				type: 'input',
-				label: 'Additional URL:',
-				tooltip: 'Optional. Should begin with "http://" or "https://"',
-				size: 60
-			}
-		]
+		tooltip: '',
+		subgroup: {
+			name: 'url',
+			type: 'input',
+			label: 'URL:',
+			size: 60
+		}
 	},
 	{
-		list: 'generalList',
-		label: 'G13: Page in draft namespace or userspace AfC submission, stale by over 6 months',
-		code: 'g13',
-		db: 'afc',
-		tooltip: 'Any rejected or unsubmitted AfC submission in userspace or any non-redirect page in draft namespace, that has not been edited for more than 6 months. Blank drafts in either namespace are also included.',
-		hideWhenRedirect: true,
-		showInNamespaces: [2, 118] // user, draft namespaces only
+		list: 'articleList',
+		label: 'A1: Artiklen fremstår ikke som en encyklopædisk artikel',
+		code: 'a1',
+		db: 'uencyklopædisk',
+		tooltip: ''
+		
 	},
 	{
-		list: 'generalList',
-		label: 'G14: Unnecessary disambiguation page',
-		code: 'g14',
-		db: 'disambig',
-		tooltip: 'This only applies for orphaned disambiguation pages which either: (1) disambiguate only one existing Wikipedia page and whose title ends in "(disambiguation)" (i.e., there is a primary topic); or (2) disambiguate no (zero) existing Wikipedia pages, regardless of its title.  It also applies to orphan "Foo (disambiguation)" redirects that target pages that are not disambiguation or similar disambiguation-like pages (such as set index articles or lists)'
+		list: 'articleList',
+		label: 'A2: Hvis artiklen er formulereet så den ikke kan forstås af personer, der intet ved om emnet',
+		code: 'a2',
+		db: 'indforstået',
+		tooltip: ''
+
 	},
 	{
-		list: 'generalList',
-		label: 'G15: Unreviewed LLM content',
-		code: 'g15',
-		db: 'llm',
-		tooltip: 'This only applies to pages containing any of: (1) communication intended for the user (e.g., "Here is your Wikipedia article on..."); (2) implausible non-existent references; or (3) nonsensical citations, that would otherwise have been removed with human review.',
-		subgroup: [
-			{
-				name: 'subcriteria',
-				type: 'radio',
-				list: [
-					{
-						label: 'Communication intended for the user',
-						value: 'communication',
-						tooltip: 'The page contains communication intended for the user, such as "Here is your Wikipedia article on...".'
-					},
-					{
-						label: 'Implausible non-existent references',
-						value: 'implausible',
-						tooltip: 'The page contains implausible non-existent references.'
-					},
-					{
-						label: 'Nonsensical citations',
-						value: 'nonsensical',
-						tooltip: 'The page contains nonsensical citations.'
-					}
-				]
-			},
-			{
-				name: 'reason',
-				type: 'input',
-				label: 'Extended reason (optional):',
-				tooltip: 'Specify why one of the three criteria apply to this page.',
-				size: 60
-			}
-		]
+		list: 'articleList',
+		label: 'A3: Hvis artiklen tydeligvis er en maskinoversættelse/dåsedansk',
+		code: 'a3',
+		db: 'maskinoversættelse',
+		tooltip: ''
 	},
 	{
-		list: 'redirectList',
-		label: 'R2: Redirect from mainspace to any other namespace except the Category:, Template:, Wikipedia:, Help: and Portal: namespaces',
-		code: 'r2',
-		db: 'rediruser',
-		tooltip: 'This does not include the pseudo-namespace shortcuts. If this was the result of a page move, consider waiting a day or two before deleting the redirect',
-		showInNamespaces: [ 0 ]
+		list: 'articleList',
+		label: 'A4: Hvis artiklen er på et andet sprog end dansk',
+		code: 'a4',
+		db: 'oversæt',
+		tooltip: ''
 	},
+
 	{
-		list: 'redirectList',
-		label: 'R3: Recently created redirect from an implausible typo or misnomer',
-		code: 'r3',
-		db: 'redirtypo',
-		tooltip: 'However, redirects from common misspellings or misnomers are generally useful, as are redirects in other languages'
+		list: 'articleList',
+		label: 'R1,R2,R3,R4,R5,R6,R7: Manglende relevans handler om, at Wikipedias artikler skal beskrive emner, der i forvejen er beskrevet i pålidelige kilder. Hvis dette ikke er tilfældet vil emnet normalt ikke opfylde relevanskriterierne.',
+		code: 'r1',
+		db: 'notabilitet',
+		tooltip: ''
 	},
-	{
-		list: 'redirectList',
-		label: 'R4: File namespace redirect with a name that matches a Commons page',
-		code: 'r4',
-		db: 'redircom',
-		tooltip: 'The redirect should have no incoming links (unless the links are cleary intended for the file or redirect at Commons).',
-		showInNamespaces: [ 6 ]
-	},
-	{
-		list: 'redirectList',
-		label: 'G6: Redirect to malplaced disambiguation page',
-		code: 'g6',
-		db: 'movedab',
-		tooltip: 'This only applies for redirects to disambiguation pages ending in (disambiguation) where a primary topic does not exist.',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'redirectList',
-		label: 'G8: Redirects to non-existent targets',
-		code: 'g8',
-		db: 'redirnone',
-		tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
-		hideWhenMultiple: true
-	},
-	{
-		list: 'timedTextList',
-		label: 'G8: Timed Text pages with no corresponding file',
-		code: 'g8',
-		db: 'timedtext',
-		tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.'
-	}
+
+	// {
+		// list: 'articleList',
+		// label: 'A3: No content whatsoever',
+		// code: 'a3',
+		// db: 'nocontent',
+		// tooltip: 'Any article consisting only of links elsewhere (including hyperlinks, category tags and "see also" sections), a rephrasing of the title, and/or attempts to correspond with the person or group named by its title. This does not include disambiguation pages'
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (people, groups, companies, web content, individual animals, or organized events)',
+		// code: 'a7',
+		// db: 'a7',
+		// tooltip: 'An article about a real person, group of people, band, club, company, web content, individual animal, tour, or party that does not assert the importance or significance of its subject. If controversial, or if a previous AfD has resulted in the article being kept, the article should be nominated for AfD instead',
+		// hideWhenSingle: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (person)',
+		// code: 'a7',
+		// db: 'person',
+		// tooltip: 'An article about a real person that does not assert the importance or significance of its subject. If controversial, or if there has been a previous AfD that resulted in the article being kept, the article should be nominated for AfD instead',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (musician(s) or band)',
+		// code: 'a7',
+		// db: 'band',
+		// tooltip: 'Article about a band, singer, musician, or musical ensemble that does not assert the importance or significance of the subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (club, society or group)',
+		// code: 'a7',
+		// db: 'club',
+		// tooltip: 'Article about a club, society or group that does not assert the importance or significance of the subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (company or organization)',
+		// code: 'a7',
+		// db: 'corp',
+		// tooltip: 'Article about a company or organization that does not assert the importance or significance of the subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (website or web content)',
+		// code: 'a7',
+		// db: 'web',
+		// tooltip: 'Article about a web site, blog, online forum, webcomic, podcast, or similar web content that does not assert the importance or significance of its subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (individual animal)',
+		// code: 'a7',
+		// db: 'animal',
+		// tooltip: 'Article about an individual animal (e.g. pet) that does not assert the importance or significance of its subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A7: No indication of importance (organized event)',
+		// code: 'a7',
+		// db: 'event',
+		// tooltip: 'Article about an organized event (tour, function, meeting, party, etc.) that does not assert the importance or significance of its subject',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A9: Unremarkable musical recording where artist\'s article doesn\'t exist',
+		// code: 'a9',
+		// db: 'a9',
+		// tooltip: 'An article about a musical recording which does not indicate why its subject is important or significant, and where the artist\'s article has never existed or has been deleted'
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A10: Recently created article that duplicates an existing topic',
+		// code: 'a10',
+		// db: 'a10',
+		// tooltip: 'A recently created article with no relevant page history that does not aim to expand upon, detail or improve information within any existing article(s) on the subject, and where the title is not a plausible redirect. This does not include content forks, split pages or any article that aims at expanding or detailing an existing one.',
+		// subgroup: {
+			// name: 'a10_article',
+			// type: 'input',
+			// label: 'Article that is duplicated:'
+		// }
+	// },
+	// {
+		// list: 'articleList',
+		// label: 'A11: Obviously made up by creator, and no claim of significance',
+		// code: 'a11',
+		// db: 'madeup',
+		// tooltip: 'An article which plainly indicates that the subject was invented/coined/discovered by the article\'s creator or someone they know personally, and does not credibly indicate why its subject is important or significant'
+	// },
+	// {
+		// list: 'categoryList',
+		// label: 'C1: Empty categories',
+		// code: 'c1',
+		// db: 'catempty',
+		// tooltip: 'Categories that have been unpopulated for at least seven days. This does not apply to categories being discussed at WP:CFD, disambiguation categories, and certain other exceptions. If the category isn\'t relatively new, it possibly contained articles earlier, and deeper investigation is needed'
+	// },
+	// {
+		// list: 'categoryList',
+		// label: 'C4: Permanently unused maintenance categories',
+		// code: 'c4',
+		// db: 'c4',
+		// tooltip: 'Unused maintenance categories, such as empty dated maintenance categories for dates in the past, tracking categories no longer used by a template after a rewrite, or empty subcategories of Category:Wikipedia sockpuppets or Category:Suspected Wikipedia sockpuppets. Empty maintenance categories are not necessarily unused—this criterion is for categories which will always be empty, not just currently empty.',
+		// subgroup: {
+			// name: 'c4_rationale',
+			// type: 'input',
+			// label: 'Optional explanation:',
+			// size: 60
+		// }
+	// },
+	// {
+		// list: 'templateList',
+		// label: 'T5: Unused template subpages',
+		// code: 't5',
+		// db: 't5',
+		// tooltip: 'Unused subpages of templates and Lua modules. This does not apply to /testcases and /sandbox subpages, or subpages of Module:Sandbox.'
+	// },
+	// {
+		// list: 'userList',
+		// label: 'U1: User request',
+		// code: 'u1',
+		// db: 'userreq',
+		// tooltip: 'Personal subpages, upon request by their user. In some rare cases there may be administrative need to retain the page. Also, sometimes, main user pages may be deleted as well. See Wikipedia:User page for full instructions and guidelines',
+		// subgroup: mw.config.get('wgNamespaceNumber') === 3 && !mw.config.get('wgTitle').includes('/') ? {
+			// name: 'userreq_rationale',
+			// type: 'input',
+			// label: 'A mandatory rationale to explain why this user talk page should be deleted:',
+			// tooltip: 'User talk pages are deleted only in highly exceptional circumstances. See WP:DELTALK.',
+			// size: 60
+		// } : null,
+		// hideSubgroupWhenMultiple: true
+	// },
+	// {
+		// list: 'userList',
+		// code: 'u2',
+		// label: 'U2: Nonexistent user',
+		// db: 'nouser',
+		// tooltip: 'User pages of users that do not exist (Check Special:Listusers)'
+	// },
+	// {
+		// list: 'userList',
+		// label: 'U6: Abandoned user subpages',
+		// code: 'u6',
+		// db: 'u6',
+		// tooltip: 'User subpages of users who have made few or no edits outside of user space, which have not been edited by a human in at least six months, excluding redirects, .js pages, .css pages, and Wikipedia Books. Promising drafts may be moved to draftspace by any editor as an alternative to deletion.',
+		// hideWhenRedirect: true
+	// },
+	// {
+		// list: 'userList',
+		// label: 'U7: Excessively unrelated non-draft subpages',
+		// code: 'u7',
+		// db: 'u7',
+		// tooltip: 'User subpages of users who have made few or no edits outside of user space, were created more than six months ago, could not be interpreted as draft articles (even very bad ones), and consist entirely of creative writing, lengthy professional or personal content, or commercial links.',
+		// hideWhenRedirect: true,
+		// subgroup: [
+			// {
+				// name: 'u7_subcriteria',
+				// type: 'checkbox',
+				// list: [
+					// {
+						// label: 'Creative or persuasive writing unrelated to Wikipedia',
+						// value: 'creative',
+						// name: 'creative',
+						// tooltip: 'The page contains creative or persuasive writing unrelated to Wikipedia (e.g. fan fictions or political essays).'
+					// },
+					// {
+						// label: 'Lengthy descriptions of a person\'s professional accomplishments',
+						// value: 'professional',
+						// name: 'professional',
+						// tooltip: 'The page contains lengthy descriptions of a person\'s professional accomplishments that are written in the first person or are formatted like a résumé or curriculum vitae, and do not serve as paid-contribution disclosures'
+					// },
+					// {
+						// label: 'Lengthy content about the user\'s personal life',
+						// value: 'personal',
+						// name: 'personal',
+						// tooltip: 'The page contains lengthy content about the user\'s personal life, things in their environment (e.g. friends, pets, or belongings), or things they have invented.'
+					// },
+					// {
+						// label: 'Links to commercial websites',
+						// value: 'links',
+						// name: 'links',
+						// tooltip: 'The page contains links to websites that are primarily commercial in nature.'
+					// }
+				// ]
+			// }
+		// ]
+	// },
+	// {
+		// list: 'userList',
+		// label: 'G11: Promotional user page under a promotional user name',
+		// code: 'g11',
+		// db: 'spamuser',
+		// tooltip: 'A promotional user page, with a username that promotes or implies affiliation with the thing being promoted. Note that simply having a page on a company or product in one\'s userspace does not qualify it for deletion. If a user page is spammy but the username is not, then consider tagging with regular G11 instead.',
+		// hideWhenMultiple: true,
+		// hideWhenRedirect: true
+	// },
+	// {
+		// list: 'userList',
+		// label: 'G13: AfC draft submission or a blank draft, stale by over 6 months',
+		// code: 'g13',
+		// db: 'afc',
+		// tooltip: 'Any rejected or unsubmitted AfC draft submission or a blank draft, that has not been edited in over 6 months (excluding bot edits).',
+		// hideWhenMultiple: true,
+		// hideWhenRedirect: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G1: Patent nonsense. Pages consisting purely of incoherent text or gibberish with no meaningful content or history.',
+		// code: 'g1',
+		// db: 'nonsense',
+		// tooltip: 'This does not include poor writing, partisan screeds, obscene remarks, vandalism, fictional material, material not in English, poorly translated material, implausible theories, or hoaxes. In short, if you can understand it, G1 does not apply.',
+		// hideInNamespaces: [ 2 ] // Not applicable in userspace
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G2: Test page',
+		// code: 'g2',
+		// db: 'test',
+		// tooltip: 'A page created to test editing or other Wikipedia functions. Pages in the User namespace are not included, nor are valid but unused or duplicate templates.',
+		// hideInNamespaces: [ 2 ] // Not applicable in userspace
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G3: Pure vandalism',
+		// code: 'g3',
+		// db: 'vandalism',
+		// tooltip: 'Plain pure vandalism (including redirects left behind from pagemove vandalism)'
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G3: Blatant hoax',
+		// code: 'g3',
+		// db: 'hoax',
+		// tooltip: 'Blatant and obvious hoax, to the point of vandalism',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G4: Recreation of material deleted via a deletion discussion',
+		// code: 'g4',
+		// db: 'repost',
+		// tooltip: 'A copy, by any title, of a page that was deleted via an XfD process or Deletion review, provided that the copy is substantially identical to the deleted version. This clause does not apply to content that has been "userfied", to content undeleted as a result of Deletion review, or if the prior deletions were proposed or speedy deletions, although in this last case, other speedy deletion criteria may still apply',
+		// subgroup: {
+			// name: 'repost_xfd',
+			// type: 'input',
+			// label: 'Page where the deletion discussion took place:',
+			// tooltip: 'Must start with "Wikipedia:"',
+			// size: 60
+		// }
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G5: Created by a banned or blocked user',
+		// code: 'g5',
+		// db: 'banned',
+		// tooltip: 'Pages created by banned or blocked users in violation of their ban or block, and which have no substantial edits by others',
+		// subgroup: {
+			// name: 'banned_user',
+			// type: 'input',
+			// label: 'Username of banned user (if available):',
+			// tooltip: 'Should not start with "User:"'
+		// }
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G5: Created in violation of a general sanction',
+		// code: 'g5',
+		// db: 'gs',
+		// tooltip: 'Pages created in violation of a contentious topic restriction or other general sanction, with no substantial edits by others',
+		// subgroup: {
+			// name: 'code',
+			// type: 'select',
+			// label: 'Code of the relevant general sanction:',
+			// list: [
+					// { type: 'option', value: 'rusukr', label: 'RUSUKR – Russo-Ukrainian War' },
+					// { type: 'option', value: 'a-i', label: 'A-I – Arab-Israeli conflict' },
+					// { type: 'option', value: 'kurd', label: 'KURD – Kurds and Kurdistan' },
+					// { type: 'option', value: 'a-a', label: 'A-A – Armenia-Azerbaijan' },
+					// { type: 'option', value: 'apl', label: 'APL – Antisemitism in Poland' },
+					// { type: 'option', value: 'sasg', label: 'SASG – South Asian social groups' },
+					// { type: 'option', value: 'imh', label: 'IMH – Indian military history' }
+				// ]
+		// }
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: Error',
+		// code: 'g6',
+		// db: 'error',
+		// tooltip: 'A page that was obviously created in error, or a redirect left over from moving a page that was obviously created at the wrong title.',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: Move',
+		// code: 'g6',
+		// db: 'move',
+		// tooltip: 'Making way for an uncontroversial move like reversing a redirect',
+		// subgroup: [
+			// {
+				// name: 'move_page',
+				// type: 'input',
+				// label: 'Page to be moved here:'
+			// },
+			// {
+				// name: 'move_reason',
+				// type: 'input',
+				// label: 'Reason:',
+				// size: 60
+			// }
+		// ],
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: XfD',
+		// code: 'g6',
+		// db: 'xfd',
+		// tooltip: 'A deletion discussion (at AfD, FfD, RfD, TfD, CfD, or MfD) was closed as "delete", but the page wasn\'t actually deleted.',
+		// subgroup: {
+			// name: 'xfd_fullvotepage',
+			// type: 'input',
+			// label: 'Page where the deletion discussion was held:',
+			// tooltip: 'Must start with "Wikipedia:"',
+			// size: 40
+		// },
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: AfC move',
+		// code: 'g6',
+		// db: 'afc-move',
+		// tooltip: 'Making way for acceptance of a draft submitted to AfC',
+		// subgroup: {
+			// name: 'draft_page',
+			// type: 'input',
+			// label: 'Draft to be moved here:'
+		// },
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: Copy-and-paste page move',
+		// code: 'g6',
+		// db: 'copypaste',
+		// tooltip: 'This only applies for a copy-and-paste page move of another page that needs to be temporarily deleted to make room for a clean page move.',
+		// subgroup: {
+			// name: 'copypaste_sourcepage',
+			// type: 'input',
+			// label: 'Original page that was copy-pasted here:'
+		// },
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G6: Housekeeping and non-controversial cleanup',
+		// code: 'g6',
+		// db: 'g6',
+		// tooltip: 'Other routine maintenance tasks',
+		// subgroup: {
+			// name: 'g6_rationale',
+			// type: 'input',
+			// label: 'Rationale:',
+			// size: 60
+		// }
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G7: Author requests deletion, or author blanked',
+		// code: 'g7',
+		// db: 'author',
+		// tooltip: 'Any page for which deletion is requested by the original author in good faith, provided the page\'s only substantial content was added by its author. If the author blanks the page, this can also be taken as a deletion request.',
+		// subgroup: {
+			// name: 'author_rationale',
+			// type: 'input',
+			// label: 'Optional explanation:',
+			// tooltip: 'Perhaps linking to where the author requested this deletion.',
+			// size: 60
+		// },
+		// hideSubgroupWhenSysop: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G8: Pages dependent on a non-existent or deleted page',
+		// code: 'g8',
+		// db: 'g8',
+		// tooltip: 'such as talk pages with no corresponding subject page; subpages with no parent page; file pages without a corresponding file; redirects to non-existent targets; or categories populated by deleted or retargeted templates. This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
+		// subgroup: {
+			// name: 'g8_rationale',
+			// type: 'input',
+			// label: 'Optional explanation:',
+			// size: 60
+		// },
+		// hideSubgroupWhenSysop: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G8: Subpages with no parent page',
+		// code: 'g8',
+		// db: 'subpage',
+		// tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
+		// hideWhenMultiple: true,
+		// hideInNamespaces: [ 0, 6, 8 ] // hide in main, file, and mediawiki-spaces
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G10: Attack page',
+		// code: 'g10',
+		// db: 'attack',
+		// tooltip: 'Pages that serve no purpose but to disparage or threaten their subject or some other entity (e.g., "John Q. Doe is an imbecile"). This includes a biography of a living person that is negative in tone and unsourced, where there is no NPOV version in the history to revert to. Administrators deleting such pages should not quote the content of the page in the deletion summary!'
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G10: Wholly negative, unsourced BLP',
+		// code: 'g10',
+		// db: 'negublp',
+		// tooltip: 'A biography of a living person that is entirely negative in tone and unsourced, where there is no neutral version in the history to revert to.',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G11: Unambiguous advertising or promotion',
+		// code: 'g11',
+		// db: 'spam',
+		// tooltip: 'Pages which exclusively promote a company, product, group, service, or person and which would need to be fundamentally rewritten in order to become encyclopedic. Note that an article about a company or a product which describes its subject from a neutral point of view does not qualify for this criterion; an article that is blatant advertising should have inappropriate content as well'
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G12: Unambiguous copyright infringement',
+		// code: 'g12',
+		// db: 'copyvio',
+		// tooltip: 'Either: (1) Material was copied from another website that does not have a license compatible with Wikipedia, or is photography from a stock photo seller (such as Getty Images or Corbis) or other commercial content provider; (2) There is no non-infringing content in the page history worth saving; or (3) The infringement was introduced at once by a single person rather than created organically on wiki and then copied by another website such as one of the many Wikipedia mirrors',
+		// subgroup: [
+			// {
+				// name: 'copyvio_url',
+				// type: 'input',
+				// label: 'URL (if available):',
+				// tooltip: 'If the material was copied from an online source, put the URL here, including the "http://" or "https://" protocol.',
+				// size: 60
+			// },
+			// {
+				// name: 'copyvio_url2',
+				// type: 'input',
+				// label: 'Additional URL:',
+				// tooltip: 'Optional. Should begin with "http://" or "https://"',
+				// size: 60
+			// },
+			// {
+				// name: 'copyvio_url3',
+				// type: 'input',
+				// label: 'Additional URL:',
+				// tooltip: 'Optional. Should begin with "http://" or "https://"',
+				// size: 60
+			// }
+		// ]
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G13: Page in draft namespace or userspace AfC submission, stale by over 6 months',
+		// code: 'g13',
+		// db: 'afc',
+		// tooltip: 'Any rejected or unsubmitted AfC submission in userspace or any non-redirect page in draft namespace, that has not been edited for more than 6 months. Blank drafts in either namespace are also included.',
+		// hideWhenRedirect: true,
+		// showInNamespaces: [2, 118] // user, draft namespaces only
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G14: Unnecessary disambiguation page',
+		// code: 'g14',
+		// db: 'disambig',
+		// tooltip: 'This only applies for orphaned disambiguation pages which either: (1) disambiguate only one existing Wikipedia page and whose title ends in "(disambiguation)" (i.e., there is a primary topic); or (2) disambiguate no (zero) existing Wikipedia pages, regardless of its title.  It also applies to orphan "Foo (disambiguation)" redirects that target pages that are not disambiguation or similar disambiguation-like pages (such as set index articles or lists)'
+	// },
+	// {
+		// list: 'generalList',
+		// label: 'G15: Unreviewed LLM content',
+		// code: 'g15',
+		// db: 'llm',
+		// tooltip: 'This only applies to pages containing any of: (1) communication intended for the user (e.g., "Here is your Wikipedia article on..."); (2) implausible non-existent references; or (3) nonsensical citations, that would otherwise have been removed with human review.',
+		// subgroup: [
+			// {
+				// name: 'subcriteria',
+				// type: 'radio',
+				// list: [
+					// {
+						// label: 'Communication intended for the user',
+						// value: 'communication',
+						// tooltip: 'The page contains communication intended for the user, such as "Here is your Wikipedia article on...".'
+					// },
+					// {
+						// label: 'Implausible non-existent references',
+						// value: 'implausible',
+						// tooltip: 'The page contains implausible non-existent references.'
+					// },
+					// {
+						// label: 'Nonsensical citations',
+						// value: 'nonsensical',
+						// tooltip: 'The page contains nonsensical citations.'
+					// }
+				// ]
+			// },
+			// {
+				// name: 'reason',
+				// type: 'input',
+				// label: 'Extended reason (optional):',
+				// tooltip: 'Specify why one of the three criteria apply to this page.',
+				// size: 60
+			// }
+		// ]
+	// },
+	// {
+		// list: 'redirectList',
+		// label: 'R2: Redirect from mainspace to any other namespace except the Category:, Template:, Wikipedia:, Help: and Portal: namespaces',
+		// code: 'r2',
+		// db: 'rediruser',
+		// tooltip: 'This does not include the pseudo-namespace shortcuts. If this was the result of a page move, consider waiting a day or two before deleting the redirect',
+		// showInNamespaces: [ 0 ]
+	// },
+	// {
+		// list: 'redirectList',
+		// label: 'R3: Recently created redirect from an implausible typo or misnomer',
+		// code: 'r3',
+		// db: 'redirtypo',
+		// tooltip: 'However, redirects from common misspellings or misnomers are generally useful, as are redirects in other languages'
+	// },
+	// {
+		// list: 'redirectList',
+		// label: 'R4: File namespace redirect with a name that matches a Commons page',
+		// code: 'r4',
+		// db: 'redircom',
+		// tooltip: 'The redirect should have no incoming links (unless the links are cleary intended for the file or redirect at Commons).',
+		// showInNamespaces: [ 6 ]
+	// },
+	// {
+		// list: 'redirectList',
+		// label: 'G6: Redirect to malplaced disambiguation page',
+		// code: 'g6',
+		// db: 'movedab',
+		// tooltip: 'This only applies for redirects to disambiguation pages ending in (disambiguation) where a primary topic does not exist.',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'redirectList',
+		// label: 'G8: Redirects to non-existent targets',
+		// code: 'g8',
+		// db: 'redirnone',
+		// tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.',
+		// hideWhenMultiple: true
+	// },
+	// {
+		// list: 'timedTextList',
+		// label: 'G8: Timed Text pages with no corresponding file',
+		// code: 'g8',
+		// db: 'timedtext',
+		// tooltip: 'This excludes any page that is useful to the project, and in particular: deletion discussions that are not logged elsewhere, user and user talk pages, talk page archives, plausible redirects that can be changed to valid targets, and file pages or talk pages for files that exist on Wikimedia Commons.'
+	// }
 ];
 
 /**
@@ -820,12 +874,12 @@ Twinkle.speedy.hasCSD = !!$('#delete-reason').length;
 Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 	Twinkle.speedy.dialog = new Morebits.SimpleWindow(Twinkle.getPref('speedyWindowWidth'), Twinkle.getPref('speedyWindowHeight'));
 	const dialog = Twinkle.speedy.dialog;
-	dialog.setTitle('Choose criteria for speedy deletion');
+	dialog.setTitle('Vælg kriterium for hurtig sletning');
 	dialog.setScriptName('Twinkle');
-	dialog.addFooterLink('Speedy deletion policy', 'WP:CSD');
-	dialog.addFooterLink('CSD prefs', 'WP:TW/PREF#speedy');
-	dialog.addFooterLink('Twinkle help', 'WP:TW/DOC#speedy');
-	dialog.addFooterLink('Give feedback', 'WT:TW');
+	// dialog.addFooterLink('Speedy deletion policy', 'WP:CSD');
+	// dialog.addFooterLink('CSD prefs', 'WP:TW/PREF#speedy');
+	// dialog.addFooterLink('Twinkle help', 'WP:TW/DOC#speedy');
+	// dialog.addFooterLink('Give feedback', 'WT:TW');
 
 	const form = new Morebits.QuickForm(callbackfunc, Twinkle.getPref('speedySelectionStyle') === 'radioClick' ? 'change' : null);
 	if (Morebits.userIsSysop) {
@@ -833,10 +887,10 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 			type: 'checkbox',
 			list: [
 				{
-					label: 'Tag page only, don\'t delete',
+					label: 'Mærk kun siden, slet ikke',
 					value: 'tag_only',
 					name: 'tag_only',
-					tooltip: 'If you just want to tag the page, instead of deleting it now',
+					tooltip: 'Hvis du blot vil mærke siden i stedet for at slette den nu',
 					checked: !(Twinkle.speedy.hasCSD || (mw.config.get('wgRelevantUserName') === mw.config.get('wgUserName')) || Twinkle.getPref('deleteSysopDefaultToDelete')),
 					event: function(event) {
 						const cForm = event.target.form;
@@ -1052,7 +1106,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	};
 
 	if (mode.isSysop && !mode.isMultiple) {
-		appendList('Custom rationale', Twinkle.speedy.customRationale);
+		appendList('Brugerdefineret begrundelse', Twinkle.speedy.customRationale);
 	}
 
 	if (namespace % 2 === 1 && namespace !== 3) {
