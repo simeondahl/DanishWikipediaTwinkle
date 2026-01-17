@@ -176,7 +176,7 @@ Twinkle.speedy.data = [
 	// },
 	{
 		list: 'generalList',
-		label: 'G1/G2: Hvis siden indhold er det rene sludder eller hærværk',
+		label: 'G1/ og G2: Hvis siden indhold er det rene sludder eller hærværk',
 		code: 'g1',
 		db: 'nonsens',
 		tooltip: ''
@@ -241,7 +241,7 @@ Twinkle.speedy.data = [
 
 	{
 		list: 'articleList',
-		label: 'R1,R2,R3,R4,R5,R6,R7: Manglende relevans handler om, at Wikipedias artikler skal beskrive emner, der i forvejen er beskrevet i pålidelige kilder. Hvis dette ikke er tilfældet vil emnet normalt ikke opfylde relevanskriterierne.',
+		label: 'R: Manglende relevans handler om, at Wikipedias artikler skal beskrive emner, der i forvejen er beskrevet i pålidelige kilder. Hvis dette ikke er tilfældet vil emnet normalt ikke opfylde relevanskriterierne.',
 		code: 'r1',
 		db: 'notabilitet',
 		tooltip: ''
@@ -998,36 +998,36 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 	tagOptions.append({
 		type: 'checkbox',
 		list: [
-			{
-				label: 'Notify page creator if possible',
-				value: 'notify',
-				name: 'notify',
-				tooltip: 'A notification template will be placed on the talk page of the creator, IF you have a notification enabled in your Twinkle preferences ' +
-						'for the criterion you choose AND this box is checked. The creator may be welcomed as well.',
-				checked: !Morebits.userIsSysop || !(Twinkle.speedy.hasCSD || Twinkle.getPref('deleteSysopDefaultToDelete')),
-				event: function(event) {
-					event.stopPropagation();
-				}
-			},
-			{
-				label: 'Tag for creation protection (salting) as well',
-				value: 'salting',
-				name: 'salting',
-				tooltip: 'When selected, the speedy deletion tag will be accompanied by a {{salt}} tag requesting that the deleting administrator apply creation protection. Only select if this page has been repeatedly recreated.',
-				event: function(event) {
-					event.stopPropagation();
-				}
-			},
-			{
-				label: 'Tag with multiple criteria',
-				value: 'multiple',
-				name: 'multiple',
-				tooltip: 'When selected, you can select several criteria that apply to the page. For example, G11 and A7 are a common combination for articles.',
-				event: function(event) {
-					Twinkle.speedy.callback.modeChanged(event.target.form);
-					event.stopPropagation();
-				}
-			}
+			// {
+				// label: 'Underret sideopretteren hvis muligt',
+				// value: 'notify',
+				// name: 'notify',
+				// tooltip: 'En notifikationsskabelon vil blive placeret på opretterens diskussionsside, HVIS du har en notifikation aktiveret i dine Twinkle-indstillinger ' +
+						// 'for det kriterium, du vælger, OG dette felt er markeret. Opretteren kan også blive budt velkommen.',
+				// checked: !Morebits.userIsSysop || !(Twinkle.speedy.hasCSD || Twinkle.getPref('deleteSysopDefaultToDelete')),
+				// event: function(event) {
+					// event.stopPropagation();
+				// }
+			// },
+			// {
+				// label: 'Mærk også til oprettelsesbeskyttelse (salting)',
+				// value: 'salting',
+				// name: 'salting',
+				// tooltip: 'Når dette er valgt, vil hurtigsletningsmærkningen blive ledsaget af en {{salt}}-skabelon, der anmoder den sletningsansvarlige administrator om at anvende oprettelsesbeskyttelse. Vælg kun dette, hvis siden gentagne gange er blevet genoprettet.',
+				// event: function(event) {
+					// event.stopPropagation();
+				// }
+			// },
+			// {
+				// label: 'Tag with multiple criteria',
+				// value: 'multiple',
+				// name: 'multiple',
+				// tooltip: 'When selected, you can select several criteria that apply to the page. For example, G11 and A7 are a common combination for articles.',
+				// event: function(event) {
+					// Twinkle.speedy.callback.modeChanged(event.target.form);
+					// event.stopPropagation();
+				// }
+			// }
 		]
 	});
 
@@ -1040,7 +1040,7 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 	form.append({
 		type: 'div',
 		name: 'work_area',
-		label: 'Failed to initialize the CSD module. Please try again, or tell the Twinkle developers about the issue.'
+		label: 'Kunne ikke initialisere CSD-modulet. Prøv venligst igen, eller giv Twinkle-udviklerne besked om problemet.'
 	});
 
 	if (Twinkle.getPref('speedySelectionStyle') !== 'radioClick') {
@@ -1087,12 +1087,12 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 
 		work_area.append({
 			type: 'div',
-			label: 'When finished choosing criteria, click:'
+			label: 'Når du er færdig med at vælge kriterier, klik:'
 		});
 		work_area.append({
 			type: 'button',
 			name: 'submit-multiple',
-			label: mode.isSysop ? 'Delete page' : 'Tag page',
+			label: mode.isSysop ? 'Slet side' : 'Mærk siden',
 			event: function(event) {
 				Twinkle.speedy.callback[evaluateType](event);
 				event.stopPropagation();
@@ -1111,24 +1111,24 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 
 	if (namespace % 2 === 1 && namespace !== 3) {
 		// show db-talk on talk pages, but not user talk pages
-		appendList('Talk pages', Twinkle.speedy.talkList);
+		appendList('Diskussioner', Twinkle.speedy.talkList);
 	}
 
 	if (!Morebits.isPageRedirect()) {
 		switch (namespace) {
 			case 0: // article
 			case 1: // talk
-				appendList('Articles', Twinkle.speedy.articleList);
+				appendList('Artikler', Twinkle.speedy.articleList);
 				break;
 
 			case 2: // user
 			case 3: // user talk
-				appendList('User pages', Twinkle.speedy.userList);
+				appendList('Brugersider', Twinkle.speedy.userList);
 				break;
 
 			case 6: // file
 			case 7: // file talk
-				appendList('Files', Twinkle.speedy.fileList);
+				appendList('Filer', Twinkle.speedy.fileList);
 				if (!mode.isSysop) {
 					work_area.append({ type: 'div', label: 'Tagging for CSD F4 (no license), F5 (orphaned non-free use), F6 (no non-free use rationale), and F11 (no permission) can be done using Twinkle\'s "DI" tab.' });
 				}
@@ -1138,12 +1138,12 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 			case 11: // template talk
 			case 828: // module
 			case 829: // module talk
-				appendList('Templates and modules', Twinkle.speedy.templateList);
+				appendList('Skabeloner og moduler', Twinkle.speedy.templateList);
 				break;
 
 			case 14: // category
 			case 15: // category talk
-				appendList('Categories', Twinkle.speedy.categoryList);
+				appendList('Kategorier', Twinkle.speedy.categoryList);
 				break;
 
 			case 710: // timed text
@@ -1156,9 +1156,9 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 		}
 	} else {
 		if (namespace === 2 || namespace === 3) {
-			appendList('User pages', Twinkle.speedy.userList);
+			appendList('Brugersider', Twinkle.speedy.userList);
 		}
-		appendList('Redirects', Twinkle.speedy.redirectList);
+		appendList('Omdirigeringer', Twinkle.speedy.redirectList);
 	}
 
 	let generalCriteria = Twinkle.speedy.generalList;
@@ -1167,7 +1167,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	if (!mode.isSysop) {
 		generalCriteria = Twinkle.speedy.customRationale.concat(generalCriteria);
 	}
-	appendList('General criteria', generalCriteria);
+	appendList('Generelle kriterier', generalCriteria);
 
 	const old_area = Morebits.QuickForm.getElements(form, 'work_area')[0];
 	form.replaceChild(work_area.render(), old_area);
