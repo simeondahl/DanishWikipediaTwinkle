@@ -204,7 +204,7 @@ Twinkle.speedy.data = [
 		code: 'g5',
 		db: 'copyvio',
 		tooltip: '',
-		hideWhenMultiple: true
+		hideWhenMultiple: true,
 		subgroup: {
 			name: 'url',
 			type: 'input',
