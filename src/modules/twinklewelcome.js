@@ -90,7 +90,7 @@ Twinkle.welcome.normal = function() {
 	if (mw.config.exists('wgRelevantUserName') && !Morebits.ip.isRange(mw.config.get('wgRelevantUserName'))) {
 		Twinkle.addPortletLink(() => {
 			Twinkle.welcome.callback(mw.config.get('wgRelevantUserName'));
-		}, 'VEL', 'twinkle-welcome', 'Byd bruger velkommen');
+		}, 'Vel', 'twinkle-welcome', 'Byd bruger velkommen');
 	}
 };
 
