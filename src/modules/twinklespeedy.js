@@ -35,7 +35,7 @@ Twinkle.speedy.data = [
 		db: 'hurtigslet',
 		tooltip: 'Mindst ét af de øvrige slettekriterier skal stadig være opfyldt for siden, og du skal nævne dette i din begrundelse. Dette er en løsning, når du ikke kan finde et kriterium, der passer.',
 		subgroup: {
-			name: 'reason_1',
+			name: 'hurtigslet_1',
 			type: 'input',
 			label: 'Begrundelse:',
 			size: 60
@@ -176,24 +176,27 @@ Twinkle.speedy.data = [
 	// },
 	{
 		list: 'generalList',
-		label: 'G1/ og G2: Hvis siden indhold er det rene sludder eller hærværk',
+		label: 'G1 eller G2: Hvis siden indhold er det rene sludder eller hærværk',
 		code: 'g1',
 		db: 'nonsens',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 	{
 		list: 'generalList',
 		label: 'G3: Hvis siden udgør chikane, personangreb eller nedladende adfærd over for andre brugere eller personer',
 		code: 'g3',
 		db: 'chikane',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 	{
 		list: 'generalList',
 		label: 'G4: Hvis siden åbenlyst er oprettet ved en fejl',
 		code: 'g4',
 		db: 'fejloprettelse',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 	{
 		list: 'generalList',
@@ -201,6 +204,7 @@ Twinkle.speedy.data = [
 		code: 'g5',
 		db: 'copyvio',
 		tooltip: '',
+		hideWhenMultiple: true
 		subgroup: {
 			name: 'url',
 			type: 'input',
@@ -213,7 +217,8 @@ Twinkle.speedy.data = [
 		label: 'A1: Artiklen fremstår ikke som en encyklopædisk artikel',
 		code: 'a1',
 		db: 'uencyklopædisk',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 		
 	},
 	{
@@ -221,7 +226,8 @@ Twinkle.speedy.data = [
 		label: 'A2: Hvis artiklen er formulereet så den ikke kan forstås af personer, der intet ved om emnet',
 		code: 'a2',
 		db: 'indforstået',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 
 	},
 	{
@@ -229,14 +235,16 @@ Twinkle.speedy.data = [
 		label: 'A3: Hvis artiklen tydeligvis er en maskinoversættelse/dåsedansk',
 		code: 'a3',
 		db: 'maskinoversættelse',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 	{
 		list: 'articleList',
 		label: 'A4: Hvis artiklen er på et andet sprog end dansk',
 		code: 'a4',
 		db: 'oversæt',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 
 	{
@@ -244,7 +252,8 @@ Twinkle.speedy.data = [
 		label: 'R: Manglende relevans handler om, at Wikipedias artikler skal beskrive emner, der i forvejen er beskrevet i pålidelige kilder. Hvis dette ikke er tilfældet vil emnet normalt ikke opfylde relevanskriterierne.',
 		code: 'r1',
 		db: 'notabilitet',
-		tooltip: ''
+		tooltip: '',
+		hideWhenMultiple: true
 	},
 
 	// {
@@ -998,36 +1007,36 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 	tagOptions.append({
 		type: 'checkbox',
 		list: [
-			// {
-				// label: 'Underret sideopretteren hvis muligt',
-				// value: 'notify',
-				// name: 'notify',
-				// tooltip: 'En notifikationsskabelon vil blive placeret på opretterens diskussionsside, HVIS du har en notifikation aktiveret i dine Twinkle-indstillinger ' +
-						// 'for det kriterium, du vælger, OG dette felt er markeret. Opretteren kan også blive budt velkommen.',
-				// checked: !Morebits.userIsSysop || !(Twinkle.speedy.hasCSD || Twinkle.getPref('deleteSysopDefaultToDelete')),
-				// event: function(event) {
-					// event.stopPropagation();
-				// }
-			// },
-			// {
-				// label: 'Mærk også til oprettelsesbeskyttelse (salting)',
-				// value: 'salting',
-				// name: 'salting',
-				// tooltip: 'Når dette er valgt, vil hurtigsletningsmærkningen blive ledsaget af en {{salt}}-skabelon, der anmoder den sletningsansvarlige administrator om at anvende oprettelsesbeskyttelse. Vælg kun dette, hvis siden gentagne gange er blevet genoprettet.',
-				// event: function(event) {
-					// event.stopPropagation();
-				// }
-			// },
-			// {
-				// label: 'Tag with multiple criteria',
-				// value: 'multiple',
-				// name: 'multiple',
-				// tooltip: 'When selected, you can select several criteria that apply to the page. For example, G11 and A7 are a common combination for articles.',
-				// event: function(event) {
-					// Twinkle.speedy.callback.modeChanged(event.target.form);
-					// event.stopPropagation();
-				// }
-			// }
+			{
+				label: 'Underret sideopretteren hvis muligt',
+				value: 'notify',
+				name: 'notify',
+				tooltip: 'En notifikationsskabelon vil blive placeret på opretterens diskussionsside, HVIS du har en notifikation aktiveret i dine Twinkle-indstillinger ' +
+						'for det kriterium, du vælger, OG dette felt er markeret. Opretteren kan også blive budt velkommen.',
+				checked: !Morebits.userIsSysop || !(Twinkle.speedy.hasCSD || Twinkle.getPref('deleteSysopDefaultToDelete')),
+				event: function(event) {
+					event.stopPropagation();
+				}
+			},
+			{
+				label: 'Mærk også til oprettelsesbeskyttelse (salting)',
+				value: 'salting',
+				name: 'salting',
+				tooltip: 'Når dette er valgt, vil hurtigsletningsmærkningen blive ledsaget af en {{salt}}-skabelon, der anmoder den sletningsansvarlige administrator om at anvende oprettelsesbeskyttelse. Vælg kun dette, hvis siden gentagne gange er blevet genoprettet.',
+				event: function(event) {
+					event.stopPropagation();
+				}
+			},
+			{
+				label: 'Tag with multiple criteria',
+				value: 'multiple',
+				name: 'multiple',
+				tooltip: '',
+				event: function(event) {
+					Twinkle.speedy.callback.modeChanged(event.target.form);
+					event.stopPropagation();
+				}
+			}
 		]
 	});
 
@@ -1063,7 +1072,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	// first figure out what mode we're in
 	const mode = {
 		isSysop: !!form.tag_only && !form.tag_only.checked,
-		isMultiple: false, // form.tag_only && !form.tag_only.checked ? form.delmultiple.checked : form.multiple.checked,
+		isMultiple: form.tag_only && !form.tag_only.checked ? form.delmultiple.checked : form.multiple.checked,
 		isRadioClick: Twinkle.getPref('speedySelectionStyle') === 'radioClick'
 	};
 
