@@ -239,7 +239,7 @@ Twinkle.welcome.templates = {
 			'VelkommenErIkke': {
 				description: 'velkommen og samtidig minde om, hvad Wikipedia ikke er',
 				linkedArticle: true,
-				syntax: '{{welkommenerikke|~~~~}} ~~~~'
+				syntax: '{{VelkommenErIkke|~~~~}} ~~~~'
 			},
 			'VelkommenPolitiker': {
 				description: 'velkomst til politikere, der minder om, at man ikke bør skrive om sig selv',
