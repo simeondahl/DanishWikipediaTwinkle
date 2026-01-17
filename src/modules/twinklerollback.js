@@ -123,8 +123,8 @@ Twinkle.rollback.linkBuilder = {
 		const normNode = document.createElement('span');
 		const vandNode = document.createElement('span');
 
-		const normLink = Twinkle.rollback.linkBuilder.buildLink('SteelBlue', 'rollback');
-		const vandLink = Twinkle.rollback.linkBuilder.buildLink('Red', 'vandalism');
+		const normLink = Twinkle.rollback.linkBuilder.buildLink('SteelBlue', 'rul tilbage');
+		const vandLink = Twinkle.rollback.linkBuilder.buildLink('Red', 'vandalisme');
 
 		normLink.style.fontWeight = 'bold';
 		vandLink.style.fontWeight = 'bold';
@@ -151,7 +151,7 @@ Twinkle.rollback.linkBuilder = {
 
 		if (!inline) {
 			const agfNode = document.createElement('span');
-			const agfLink = Twinkle.rollback.linkBuilder.buildLink('DarkOliveGreen', 'rollback (AGF)');
+			const agfLink = Twinkle.rollback.linkBuilder.buildLink('DarkOliveGreen', 'rul tilbage (AGF)');
 			$(agfLink).on('click', (e) => {
 				e.preventDefault();
 				Twinkle.rollback.revert('agf', vandal, rev, page);
@@ -180,7 +180,7 @@ Twinkle.rollback.linkBuilder = {
 		revertToRevisionNode.setAttribute('id', 'tw-revert-to-' + revisionRef);
 		revertToRevisionNode.style.fontWeight = 'bold';
 
-		const revertToRevisionLink = Twinkle.rollback.linkBuilder.buildLink('SaddleBrown', 'restore this version');
+		const revertToRevisionLink = Twinkle.rollback.linkBuilder.buildLink('SaddleBrown', 'gendan denne version');
 		$(revertToRevisionLink).on('click', (e) => {
 			e.preventDefault();
 			Twinkle.rollback.revertToRevision(revisionRef);
@@ -383,7 +383,7 @@ Twinkle.rollback.revert = function revertPage(type, vandal, rev, page) {
 		const notifyStatus = document.createElement('span');
 		mw.notify(notifyStatus, {
 			autoHide: false,
-			title: 'Rollback on ' + page,
+			title: 'Tilbagerulning på ' + page,
 			tag: 'twinklerollback_' + rev // Shouldn't be necessary given disableLink
 		});
 		Morebits.Status.init(notifyStatus);
@@ -413,7 +413,7 @@ Twinkle.rollback.revert = function revertPage(type, vandal, rev, page) {
 		type: 'csrf',
 		format: 'json'
 	};
-	const wikipedia_api = new Morebits.wiki.Api('Grabbing data of earlier revisions', query, Twinkle.rollback.callbacks.main);
+	const wikipedia_api = new Morebits.wiki.Api('Henter data om tidligere versioner', query, Twinkle.rollback.callbacks.main);
 	wikipedia_api.params = params;
 	wikipedia_api.post();
 };
@@ -435,7 +435,7 @@ Twinkle.rollback.revertToRevision = function revertToRevision(oldrev) {
 		type: 'csrf',
 		format: 'json'
 	};
-	const wikipedia_api = new Morebits.wiki.Api('Grabbing data of the earlier revision', query, Twinkle.rollback.callbacks.toRevision);
+	const wikipedia_api = new Morebits.wiki.Api('Henter data om tidligere versioner', query, Twinkle.rollback.callbacks.toRevision);
 	wikipedia_api.params = { rev: oldrev };
 	wikipedia_api.post();
 };
@@ -457,17 +457,17 @@ Twinkle.rollback.callbacks = {
 		const revertToUserHidden = !!rev.userhidden;
 
 		if (revertToRevID !== apiobj.params.rev) {
-			apiobj.statelem.error('The retrieved revision does not match the requested revision. Stopping revert.');
+			apiobj.statelem.error('Den hentede version matcher ikke den anmodede version. Stopper tilbagerulning.');
 			return;
 		}
 
-		const optional_summary = prompt('Please specify a reason for the revert:                                ', ''); // padded out to widen prompt in Firefox
+		const optional_summary = prompt('Angiv venligst en begrundelse for tilbageførslen:                                ', ''); // padded out to widen prompt in Firefox
 		if (optional_summary === null) {
-			apiobj.statelem.error('Aborted by user.');
+			apiobj.statelem.error('Afbrudt af brugeren.');
 			return;
 		}
 
-		const summary = Twinkle.rollback.formatSummary('Restored revision ' + revertToRevID + ' by $USER',
+		const summary = Twinkle.rollback.formatSummary('Gendannet version ' + revertToRevID + ' af $USER',
 			revertToUserHidden ? null : revertToUser, optional_summary);
 
 		const query = {
@@ -501,9 +501,9 @@ Twinkle.rollback.callbacks = {
 		}
 
 		Morebits.wiki.actionCompleted.redirect = mw.config.get('wgPageName');
-		Morebits.wiki.actionCompleted.notice = 'Reversion completed';
+		Morebits.wiki.actionCompleted.notice = 'Tilbageførsel gennemført';
 
-		const wikipedia_api = new Morebits.wiki.Api('Saving reverted contents', query, Twinkle.rollback.callbacks.complete, apiobj.statelem);
+		const wikipedia_api = new Morebits.wiki.Api('Gemmer tilbageført indhold', query, Twinkle.rollback.callbacks.complete, apiobj.statelem);
 		wikipedia_api.params = apiobj.params;
 		wikipedia_api.post();
 	},
@@ -515,7 +515,7 @@ Twinkle.rollback.callbacks = {
 
 		const page = response.query.pages[0];
 		if (!page.actions.edit) {
-			apiobj.statelem.error("Unable to edit the page, it's probably protected.");
+			apiobj.statelem.error("Kan ikke redigere siden, den er sandsynligvis beskyttet.");
 			return;
 		}
 
@@ -528,7 +528,7 @@ Twinkle.rollback.callbacks = {
 		const params = apiobj.params;
 
 		if (revs.length < 1) {
-			statelem.error('We have less than one additional revision, thus impossible to revert.');
+			statelem.error('Vi har mindre end én yderligere version, og derfor er det umuligt at tilbageføre.');
 			return;
 		}
 		const top = revs[0];
@@ -543,20 +543,22 @@ Twinkle.rollback.callbacks = {
 		let userNorm = params.user || Twinkle.rollback.hiddenName;
 		let index = 1;
 		if (params.revid !== lastrevid) {
-			Morebits.Status.warn('Warning', [ 'Latest revision ', Morebits.htmlNode('strong', lastrevid), ' doesn\'t equal our revision ', Morebits.htmlNode('strong', params.revid) ]);
+			Morebits.Status.warn('Warning', [ 'Den seneste version ', Morebits.htmlNode('strong', lastrevid), ' stemmer ikke overens med vores version ', Morebits.htmlNode('strong', params.revid) ]);
+
 			// Treat ipv6 users on same 64 block as the same
 			if (lastuser === params.user || (mw.util.isIPv6Address(params.user) && Morebits.ip.get64(lastuser) === Morebits.ip.get64(params.user))) {
 				switch (params.type) {
 					case 'vand':
 						var diffUser = lastuser !== params.user;
-						Morebits.Status.info('Info', [ 'Latest revision was ' + (diffUser ? '' : 'also ') + 'made by ', Morebits.htmlNode('strong', userNorm),
-							diffUser ? ', which is on the same /64 subnet' : '', '. As we assume vandalism, we will proceed to revert.' ]);
-						break;
+						Morebits.Status.info('Info', [ 'Den seneste version blev ' + (diffUser ? '' : 'også ') + 'foretaget af ', Morebits.htmlNode('strong', userNorm),
+							diffUser ? ', som er på samme /64-undernet' : '', '. Da vi antager hærværk, fortsætter vi med at tilbageføre.' ]);
+
+						break;						
 					case 'agf':
-						Morebits.Status.warn('Warning', [ 'Latest revision was made by ', Morebits.htmlNode('strong', userNorm), '. As we assume good faith, we will stop the revert, as the problem might have been fixed.' ]);
+						Morebits.Status.warn('Warning', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), '. Da vi antager god tro, stopper vi tilbageførslen, da problemet muligvis er blevet rettet.' ]);
 						return;
 					default:
-						Morebits.Status.warn('Notice', [ 'Latest revision was made by ', Morebits.htmlNode('strong', userNorm), ', but we will stop the revert.' ]);
+						Morebits.Status.warn('Notice', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), ', men vi stopper tilbageførslen.' ]);
 						return;
 				}
 			} else if (params.type === 'vand' &&
@@ -564,10 +566,12 @@ Twinkle.rollback.callbacks = {
 					// Besides, none of the trusted bots are going to be revdel'd
 					Twinkle.rollback.trustedBots.includes(top.user) && revs.length > 1 &&
 					revs[1].revid === params.revid) {
-				Morebits.Status.info('Info', [ 'Latest revision was made by ', Morebits.htmlNode('strong', lastuser), ', a trusted bot, and the revision before was made by our vandal, so we will proceed with the revert.' ]);
+				Morebits.Status.info('Info', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', en betroet bot, og versionen før blev foretaget af vores hærværker, så vi fortsætter med at tilbageføre.' ]);
+
 				index = 2;
 			} else {
-				Morebits.Status.error('Error', [ 'Latest revision was made by ', Morebits.htmlNode('strong', lastuser), ', so it might have already been reverted, we will stop the revert.']);
+				Morebits.Status.error('Error', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', så den kan allerede være blevet tilbageført; vi stopper tilbageførslen.' ]);
+
 				return;
 			}
 
@@ -581,26 +585,30 @@ Twinkle.rollback.callbacks = {
 		if (Twinkle.rollback.trustedBots.includes(params.user)) {
 			switch (params.type) {
 				case 'vand':
-					Morebits.Status.info('Info', [ 'Vandalism revert was chosen on ', Morebits.htmlNode('strong', userNorm), '. As this is a trusted bot, we assume you wanted to revert vandalism made by the previous user instead.' ]);
+					Morebits.Status.info('Info', [ 'Tilbageførsel af hærværk blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Da dette er en betroet bot, antager vi, at du i stedet ønskede at tilbageføre hærværk foretaget af den forrige bruger.' ]);
+
 					index = 2;
 					params.user = revs[1].user;
 					params.userHidden = !!revs[1].userhidden;
 					break;
 				case 'agf':
-					Morebits.Status.warn('Notice', [ 'Good faith revert was chosen on ', Morebits.htmlNode('strong', userNorm), '. This is a trusted bot and thus AGF rollback will not proceed.' ]);
+					Morebits.Status.warn('Notice', [ 'Tilbageførsel i god tro blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og derfor vil AGF-tilbagerulning ikke blive udført.' ]);
+
 					return;
 				case 'norm':
 				/* falls through */
 				default:
-					var cont = confirm('Normal revert was chosen, but the most recent edit was made by a trusted bot (' + userNorm + '). Do you want to revert the revision before instead?');
+					var cont = confirm('Normal tilbageførsel blev valgt, men den seneste redigering blev foretaget af en betroet bot (' + userNorm + '). Ønsker du i stedet at tilbageføre den forrige version?');
+
 					if (cont) {
-						Morebits.Status.info('Info', [ 'Normal revert was chosen on ', Morebits.htmlNode('strong', userNorm), '. This is a trusted bot, and per confirmation, we\'ll revert the previous revision instead.' ]);
+						Morebits.Status.info('Info', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og efter bekræftelse vil vi i stedet tilbageføre den forrige version.' ]);
+
 						index = 2;
 						params.user = revs[1].user;
 						params.userHidden = !!revs[1].userhidden;
 						userNorm = params.user || Twinkle.rollback.hiddenName;
 					} else {
-						Morebits.Status.warn('Notice', [ 'Normal revert was chosen on ', Morebits.htmlNode('strong', userNorm), '. This is a trusted bot, but per confirmation, revert on selected revision will proceed.' ]);
+						Morebits.Status.warn('Notice', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, men efter bekræftelse fortsætter tilbageførslen på den valgte version.' ]);
 					}
 					break;
 			}
@@ -615,7 +623,7 @@ Twinkle.rollback.callbacks = {
 				// Treat ipv6 users on same 64 block as the same
 				if (mw.util.isIPv6Address(revs[i].user) && Morebits.ip.get64(revs[i].user) === Morebits.ip.get64(params.user)) {
 					if (!seen64) {
-						new Morebits.Status('Note', 'Treating consecutive IPv6 addresses in the same /64 as the same user');
+						new Morebits.Status('Note', 'Behandler fortløbende IPv6-adresser i samme /64 som den samme bruger');
 						seen64 = true;
 					}
 					continue;
@@ -626,22 +634,23 @@ Twinkle.rollback.callbacks = {
 		}
 
 		if (!found) {
-			statelem.error([ 'No previous revision found. Perhaps ', Morebits.htmlNode('strong', userNorm), ' is the only contributor, or they have made more than ' + mw.language.convertNumber(Twinkle.getPref('revertMaxRevisions')) + ' edits in a row.' ]);
+			statelem.error([ 'Ingen tidligere version fundet. Måske er ', Morebits.htmlNode('strong', userNorm), ' den eneste bidragyder, eller vedkommende har foretaget mere end ' + mw.language.convertNumber(Twinkle.getPref('revertMaxRevisions')) + ' redigeringer i træk.' ]);
 			return;
 		}
 
 		if (!count) {
-			Morebits.Status.error('Error', 'As it is not possible to revert zero revisions, we will stop this revert. It could be that the edit has already been reverted, but the revision ID was still the same.');
+			Morebits.Status.error('Error', 'Da det ikke er muligt at tilbageføre nul versioner, stopper vi denne tilbageførsel. Det kan være, at redigeringen allerede er blevet tilbageført, men versions-id’et var stadig det samme.');
 			return;
 		}
 
 		const good_revision = revs[found];
 		let userHasAlreadyConfirmedAction = false;
 		if (params.type !== 'vand' && count > 1) {
-			if (!confirm(userNorm + ' has made ' + mw.language.convertNumber(count) + ' edits in a row. Are you sure you want to revert them all?')) {
-				Morebits.Status.info('Notice', 'Stopping revert.');
+			if (!confirm(userNorm + ' har foretaget ' + mw.language.convertNumber(count) + ' redigeringer i træk. Er du sikker på, at du vil tilbageføre dem alle?')) {
+				Morebits.Status.info('Notice', 'Stopper tilbageførsel.');
 				return;
 			}
+			
 			userHasAlreadyConfirmedAction = true;
 		}
 
@@ -651,24 +660,24 @@ Twinkle.rollback.callbacks = {
 		params.gooduser = good_revision.user;
 		params.gooduserHidden = !!good_revision.userhidden;
 
-		statelem.status([ ' revision ', Morebits.htmlNode('strong', params.goodid), ' that was made ', Morebits.htmlNode('strong', mw.language.convertNumber(count)), ' revisions ago by ', Morebits.htmlNode('strong', params.gooduserHidden ? Twinkle.rollback.hiddenName : params.gooduser) ]);
+		statelem.status([ ' version ', Morebits.htmlNode('strong', params.goodid), ', som blev foretaget for ', Morebits.htmlNode('strong', mw.language.convertNumber(count)), ' versioner siden af ', Morebits.htmlNode('strong', params.gooduserHidden ? Twinkle.rollback.hiddenName : params.gooduser) ]);
 
 		let summary, extra_summary;
 		switch (params.type) {
 			case 'agf':
-				extra_summary = prompt('An optional comment for the edit summary:                              ', ''); // padded out to widen prompt in Firefox
+				extra_summary = prompt('En valgfri kommentar til redigeringsopsummeringen:                              ', ''); // padded out to widen prompt in Firefox
 				if (extra_summary === null) {
-					statelem.error('Aborted by user.');
+					statelem.error('Afbrudt af brugeren.');
 					return;
 				}
 				userHasAlreadyConfirmedAction = true;
 
-				summary = Twinkle.rollback.formatSummary('Reverted [[WP:AGF|good faith]] edits by $USER',
+				summary = Twinkle.rollback.formatSummary('Tilbageførte redigeringer i [[WP:AGF|god tro]] af $USER',
 					params.userHidden ? null : params.user, extra_summary);
 				break;
 
 			case 'vand':
-				summary = Twinkle.rollback.formatSummary('Reverted ' + params.count + (params.count > 1 ? ' edits' : ' edit') + ' by $USER to last revision by ' +
+				summary = Twinkle.rollback.formatSummary('Tilbageførte ' + params.count + (params.count > 1 ? ' redigeringer' : ' redigering') + ' af $USER til seneste version af ' +
 					(params.gooduserHidden ? Twinkle.rollback.hiddenName : params.gooduser), params.userHidden ? null : params.user);
 				break;
 
@@ -676,15 +685,15 @@ Twinkle.rollback.callbacks = {
 			/* falls through */
 			default:
 				if (Twinkle.getPref('offerReasonOnNormalRevert')) {
-					extra_summary = prompt('An optional comment for the edit summary:                              ', ''); // padded out to widen prompt in Firefox
+					extra_summary = prompt('En valgfri kommentar til redigeringsopsummeringen:                              ', ''); // udfyldt for at gøre prompten bredere i Firefox
 					if (extra_summary === null) {
-						statelem.error('Aborted by user.');
+						statelem.error('Afbrudt af brugeren.');
 						return;
 					}
 					userHasAlreadyConfirmedAction = true;
 				}
 
-				summary = Twinkle.rollback.formatSummary('Reverted ' + params.count + (params.count > 1 ? ' edits' : ' edit') + ' by $USER',
+				summary = Twinkle.rollback.formatSummary('Tilbageførte ' + params.count + (params.count > 1 ? ' redigeringer' : ' redigering') + ' af $USER',
 					params.userHidden ? null : params.user, extra_summary);
 				break;
 		}
@@ -700,8 +709,8 @@ Twinkle.rollback.callbacks = {
 			) &&
 			!userHasAlreadyConfirmedAction;
 
-		if (needToDisplayConfirmation && !confirm('Reverting page: are you sure?')) {
-			statelem.error('Aborted by user.');
+		if (needToDisplayConfirmation && !confirm('Tilbagefører siden: er du sikker?')) {
+			statelem.error('Afbrudt af brugeren.');
 			return;
 		}
 
@@ -756,9 +765,9 @@ Twinkle.rollback.callbacks = {
 		if (!Twinkle.rollback.rollbackInPlace) {
 			Morebits.wiki.actionCompleted.redirect = params.pagename;
 		}
-		Morebits.wiki.actionCompleted.notice = 'Reversion completed';
+		Morebits.wiki.actionCompleted.notice = 'Tilbageførsel gennemført';
 
-		const wikipedia_api = new Morebits.wiki.Api('Saving reverted contents', query, Twinkle.rollback.callbacks.complete, statelem);
+		const wikipedia_api = new Morebits.wiki.Api('Gemmer tilbageført indhold', query, Twinkle.rollback.callbacks.complete, statelem);
 		wikipedia_api.params = params;
 		wikipedia_api.post();
 
@@ -769,17 +778,17 @@ Twinkle.rollback.callbacks = {
 		const edit = response.edit;
 
 		if (edit.captcha) {
-			apiobj.statelem.error('Could not rollback, because the wiki server wanted you to fill out a CAPTCHA.');
+			apiobj.statelem.error('Kunne ikke tilbagerulle, fordi wiki-serveren krævede, at du udfyldte en CAPTCHA.');
 		} else if (edit.nochange) {
-			apiobj.statelem.error('Revision we are reverting to is identical to current revision, stopping revert.');
+			apiobj.statelem.error('Den version, vi tilbageruller til, er identisk med den nuværende version; stopper tilbageførsel.');
 		} else {
 			apiobj.statelem.info('done');
 			const params = apiobj.params;
 
 			if (params.notifyUser && !params.userHidden) { // notifyUser only from main, not from toRevision
-				Morebits.Status.info('Info', [ 'Opening user talk page edit form for user ', Morebits.htmlNode('strong', params.user) ]);
+				Morebits.Status.info('Info', [ 'Åbner redigeringsformularen til brugerens diskussionsside for brugeren ', Morebits.htmlNode('strong', params.user) ]);
 
-				const url = mw.util.getUrl('User talk:' + params.user, {
+				const url = mw.util.getUrl('Brugerdiskussion:' + params.user, {
 					action: 'edit',
 					preview: 'yes',
 					vanarticle: params.pagename.replace(/_/g, ' '),
@@ -821,10 +830,10 @@ Twinkle.rollback.callbacks = {
 					action: 'review',
 					revid: edit.newrevid,
 					token: apiobj.params.csrftoken,
-					comment: 'Automatically reviewing reversion' + Twinkle.summaryAd // until the below
+					comment: 'Gennemgår automatisk tilbageførsel' + Twinkle.summaryAd // until the below
 					// 'tags': Twinkle.changeTags // flaggedrevs tag support: [[phab:T247721]]
 				};
-				const wikipedia_api = new Morebits.wiki.Api('Automatically accepting your changes', query);
+				const wikipedia_api = new Morebits.wiki.Api('Accepterer automatisk dine ændringer', query);
 				wikipedia_api.post();
 			}
 		}
