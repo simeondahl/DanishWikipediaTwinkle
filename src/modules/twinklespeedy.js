@@ -35,7 +35,7 @@ Twinkle.speedy.data = [
 		db: 'hurtigslet',
 		tooltip: 'Mindst ét af de øvrige slettekriterier skal stadig være opfyldt for siden, og du skal nævne dette i din begrundelse. Dette er en løsning, når du ikke kan finde et kriterium, der passer.',
 		subgroup: {
-			name: 'hurtigslet_1',
+			name: 'reason',
 			type: 'input',
 			label: 'Begrundelse:',
 			size: 60
@@ -206,7 +206,7 @@ Twinkle.speedy.data = [
 		tooltip: '',
 		hideWhenMultiple: true,
 		subgroup: {
-			name: 'url',
+			name: 'reason',
 			type: 'input',
 			label: 'URL:',
 			size: 60
