@@ -148,13 +148,13 @@ Twinkle.welcome.callback = function twinklewelcomeCallback(uid) {
 		className: 'morebits-scrollbox'
 	});
 
-	form.append({
-		type: 'input',
-		name: 'article',
-		label: '* Linked article (if supported by template):',
-		value: Twinkle.getPrefill('vanarticle') || '',
-		tooltip: 'En artikel kan blive linket fra velkomsten, hvis skabelonen understøtter det. Lad feltet stå tomt, hvis ingen artikel skal linkes. Skabeloner, der understøtter et linket artikel, er markeret med en stjerne.'
-	});
+	// form.append({
+		// type: 'input',
+		// name: 'article',
+		// label: '* Linked article (if supported by template):',
+		// value: Twinkle.getPrefill('vanarticle') || '',
+		// tooltip: 'En artikel kan blive linket fra velkomsten, hvis skabelonen understøtter det. Lad feltet stå tomt, hvis ingen artikel skal linkes. Skabeloner, der understøtter et linket artikel, er markeret med en stjerne.'
+	// });
 
 	const previewlink = document.createElement('a');
 	$(previewlink).on('click', () => {
