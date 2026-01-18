@@ -148,20 +148,20 @@ Twinkle.welcome.callback = function twinklewelcomeCallback(uid) {
 		className: 'morebits-scrollbox'
 	});
 
-	// form.append({
-		// type: 'input',
-		// name: 'article',
-		// label: '* Linked article (if supported by template):',
-		// value: Twinkle.getPrefill('vanarticle') || '',
-		// tooltip: 'En artikel kan blive linket fra velkomsten, hvis skabelonen understøtter det. Lad feltet stå tomt, hvis ingen artikel skal linkes. Skabeloner, der understøtter et linket artikel, er markeret med en stjerne.'
-	// });
+	form.append({
+		type: 'input',
+		name: 'article',
+		label: '* Linked article (if supported by template):',
+		value: Twinkle.getPrefill('vanarticle') || '',
+		tooltip: 'En artikel kan blive linket fra velkomsten, hvis skabelonen understøtter det. Lad feltet stå tomt, hvis ingen artikel skal linkes. Skabeloner, der understøtter et linket artikel, er markeret med en stjerne.'
+	});
 
 	const previewlink = document.createElement('a');
 	$(previewlink).on('click', () => {
 		Twinkle.welcome.callbacks.preview(result); // |result| is defined below
 	});
 	previewlink.style.cursor = 'pointer';
-	previewlink.textContent = 'Preview';
+	previewlink.textContent = 'linkedArticle';
 	form.append({ type: 'div', name: 'welcomepreview', label: [ previewlink ] });
 
 	form.append({ type: 'submit' });
@@ -233,12 +233,10 @@ Twinkle.welcome.templates = {
 		'Velkomstskabeloner': {
 			'Velkommen': {
 				description: 'standardvelkomst',
-				linkedArticle: true,
 				syntax: '{{Velkommen|~~~~}} '
 			},
 			'VelkommenErIkke': {
 				description: 'velkommen og samtidig minde om, hvad Wikipedia ikke er',
-				linkedArticle: true,
 				syntax: '{{VelkommenErIkke|~~~~}} ~~~~'
 			},
 			'VelkommenPolitiker': {
@@ -362,7 +360,6 @@ Twinkle.welcome.templates = {
 		'Velkomstskabeloner til uregistrerede brugere': {
 			'VelkommenIP': {
 				description: 'for uregistrerede brugere; opfordrer til at oprette en konto',
-				linkedArticle: true,
 				syntax: '{{VelkommenIP|~~~~}}'
 			},
 			// thanks: {
