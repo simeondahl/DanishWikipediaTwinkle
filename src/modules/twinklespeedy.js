@@ -24,7 +24,7 @@ Twinkle.speedy = function twinklespeedy() {
 		return;
 	}
 
-	Twinkle.addPortletLink(Twinkle.speedy.callback, 'RFS', 'tw-csd', Morebits.userIsSysop ? 'Slet siden i henhold til WP:RFS' : 'Anmod om hurtig sletning i henhold til WP:RFS');
+	Twinkle.addPortletLink(Twinkle.speedy.callback, 'HSLET', 'tw-csd', Morebits.userIsSysop ? 'Slet siden i henhold til WP:RFS' : 'Anmod om hurtig sletning i henhold til WP:RFS');
 };
 
 Twinkle.speedy.data = [
@@ -35,7 +35,7 @@ Twinkle.speedy.data = [
 		db: 'hurtigslet',
 		tooltip: 'Mindst ét af de øvrige slettekriterier skal stadig være opfyldt for siden, og du skal nævne dette i din begrundelse. Dette er en løsning, når du ikke kan finde et kriterium, der passer.',
 		subgroup: {
-			name: 'reason',
+			name: 'reason_1',
 			type: 'input',
 			label: 'Begrundelse:',
 			size: 60
@@ -206,7 +206,7 @@ Twinkle.speedy.data = [
 		tooltip: '',
 		hideWhenMultiple: true,
 		subgroup: {
-			name: 'reason',
+			name: 'reason_1',
 			type: 'input',
 			label: 'URL:',
 			size: 60
@@ -958,31 +958,31 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 			type: 'checkbox',
 			list: [
 				{
-					label: 'Also delete all redirects',
+					label: 'Slet også alle omdirigeringer',
 					value: 'redirects',
 					name: 'redirects',
-					tooltip: 'This option deletes all incoming redirects in addition. Avoid this option for procedural (e.g. move/merge) deletions.',
+					tooltip: 'Denne mulighed sletter også alle indgående omdirigeringer. Undgå denne mulighed ved proceduremæssige sletninger (fx flytning/fletning).',
 					checked: Twinkle.getPref('deleteRedirectsOnDelete'),
 					event: function (event) {
 						event.stopPropagation();
 					}
 				},
 				{
-					label: 'Delete under multiple criteria',
+					label: 'Slet efter flere kriterier',
 					value: 'delmultiple',
 					name: 'delmultiple',
-					tooltip: 'When selected, you can select several criteria that apply to the page. For example, G11 and A7 are a common combination for articles.',
+					tooltip: 'Når dette er valgt, kan du vælge flere kriterier, der gælder for siden. For eksempel er G11 og A7 en almindelig kombination for artikler.',
 					event: function(event) {
 						Twinkle.speedy.callback.modeChanged(event.target.form);
 						event.stopPropagation();
 					}
 				},
 				{
-					label: 'Notify page creator of page deletion',
+					label: 'Underret sideopretteren om sletning af siden',
 					value: 'warnusertalk',
 					name: 'warnusertalk',
-					tooltip: 'A notification template will be placed on the talk page of the creator, IF you have a notification enabled in your Twinkle preferences ' +
-						'for the criterion you choose AND this box is checked. The creator may be welcomed as well.',
+					tooltip: 'En notifikationsskabelon vil blive placeret på opretterens diskussionsside, HVIS du har en notifikation aktiveret i dine Twinkle-indstillinger ' +
+						'for det kriterium, du vælger, OG dette felt er markeret. Opretteren kan også blive budt velkommen.',
 					checked: !Twinkle.speedy.hasCSD,
 					event: function(event) {
 						event.stopPropagation();
@@ -1000,7 +1000,7 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 	if (Morebits.userIsSysop) {
 		tagOptions.append({
 			type: 'header',
-			label: 'Tag-related options'
+			label: 'Mærkningsrelaterede indstillinger'
 		});
 	}
 
@@ -1028,7 +1028,7 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 				}
 			},
 			{
-				label: 'Tag with multiple criteria',
+				label: 'Mærk med flere kriterier (understøttes ikke på nuværende tidspunkt)',
 				value: 'multiple',
 				name: 'multiple',
 				tooltip: '',
@@ -1391,27 +1391,27 @@ Twinkle.speedy.callbacks = {
 
 		// disallow notifying yourself
 		if (initialContrib === mw.config.get('wgUserName')) {
-			Morebits.Status.warn('You (' + initialContrib + ') created this page; skipping user notification');
+			Morebits.Status.warn('Du (' + initialContrib + ') oprettede denne side; springer brugerunderretning over');
 			initialContrib = null;
 
 		// don't notify users when their user talk page is nominated/deleted
 		} else if (initialContrib === mw.config.get('wgTitle') && mw.config.get('wgNamespaceNumber') === 3) {
-			Morebits.Status.warn('Notifying initial contributor: this user created their own user talk page; skipping notification');
+			Morebits.Status.warn('Underretter oprindelig bidragyder: denne bruger oprettede sin egen diskussionsside; springer notifikation over');
 			initialContrib = null;
 
 		// quick hack to prevent excessive unwanted notifications, per request. Should actually be configurable on recipient page...
 		} else if ((initialContrib === 'Cyberbot I' || initialContrib === 'SoxBot') && params.normalizeds[0] === 'f2') {
-			Morebits.Status.warn('Notifying initial contributor: page created procedurally by bot; skipping notification');
+			Morebits.Status.warn('Underretter oprindelig bidragyder: siden blev oprettet proceduremæssigt af en bot; springer notifikation over');
 			initialContrib = null;
 
 		// Check for already existing tags
-		} else if (Twinkle.speedy.hasCSD && params.warnUser && !confirm('The page has a deletion-related tag, and thus the creator has likely been notified.  Do you want to notify them for this deletion as well?')) {
-			Morebits.Status.info('Notifying initial contributor', 'canceled by user; skipping notification.');
+		} else if (Twinkle.speedy.hasCSD && params.warnUser && !confirm('Siden har allerede en sletterelateret skabelon, og opretteren er derfor sandsynligvis blevet underrettet. Vil du også underrette vedkommende om denne sletning?')) {
+			Morebits.Status.info('Underretter oprindelig bidragyder', 'annulleret af brugeren; springer notifikation over.');
 			initialContrib = null;
 		}
 
 		if (initialContrib) {
-			const usertalkpage = new Morebits.wiki.Page('User talk:' + initialContrib, 'Notifying initial contributor (' + initialContrib + ')');
+			const usertalkpage = new Morebits.wiki.Page('Brugerdiskussion:' + initialContrib, 'Underretter oprindelig bidragyder (' + initialContrib + ')');
 			let notifytext, i, editsummary;
 
 			// special cases: "db" and "db-multiple"
@@ -1490,9 +1490,9 @@ Twinkle.speedy.callbacks = {
 			const thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Deleting page');
 
 			if (reason === null) {
-				return Morebits.Status.error('Asking for reason', 'User cancelled');
+				return Morebits.Status.error('Spørger efter begrundelse', 'Brugeren annullerede');
 			} else if (!reason || !reason.replace(/^\s*/, '').replace(/\s*$/, '')) {
-				return Morebits.Status.error('Asking for reason', 'The "reason" for deleting was not provided, or Twinkle was unable to compute it. Aborting.');
+				return Morebits.Status.error('Spørger efter begrundelse', 'Begrundelsen for sletningen blev ikke angivet, eller Twinkle kunne ikke beregne den. Afbryder.');
 			}
 
 			const deleteMain = function(callback) {
@@ -1638,7 +1638,7 @@ Twinkle.speedy.callbacks = {
 			const statelem = pageobj.getStatusElement();
 
 			if (!pageobj.exists()) {
-				statelem.error("It seems that the page doesn't exist; perhaps it has already been deleted");
+				statelem.error("Det ser ud til, at siden ikke eksisterer; måske er den allerede blevet slettet");
 				return;
 			}
 
@@ -1659,17 +1659,17 @@ Twinkle.speedy.callbacks = {
 			if (pageobj.canEdit() && ['wikitext', 'Scribunto', 'javascript', 'css', 'sanitized-css'].includes(pageobj.getContentModel()) && mw.config.get('wgNamespaceNumber') !== 710 /* TimedText */) {
 				let text = pageobj.getPageText();
 
-				statelem.status('Checking for tags on the page...');
+				statelem.status('Tjekker for mærkninger på siden...');
 
 				// check for existing deletion tags
 				const tag = /(?:\{\{\s*(db|delete|db-.*?|speedy deletion-.*?)(?:\s*\||\s*\}\}))/.exec(text);
 				// This won't make use of the db-multiple template but it probably should
-				if (tag && !confirm('The page already has the CSD-related template {{' + tag[1] + '}} on it.  Do you want to add another CSD template?')) {
+				if (tag && !confirm('Siden har allerede den RFS-relaterede skabelon {{' + tag[1] + '}}. Vil du tilføje endnu en RFS-skabelon?')) {
 					return;
 				}
 
 				const xfd = /\{\{((?:article for deletion|proposed deletion|prod blp|template for discussion)\/dated|[cfm]fd\b)/i.exec(text) || /#invoke:(RfD)/.exec(text);
-				if (xfd && !confirm('The deletion-related template {{' + xfd[1] + '}} was found on the page. Do you still want to add a CSD template?')) {
+				if (xfd && !confirm('Den sletterelaterede skabelon {{' + xfd[1] + '}} blev fundet på siden. Vil du stadig tilføje en RFS-skabelon?')) {
 					return;
 				}
 
@@ -1713,20 +1713,20 @@ Twinkle.speedy.callbacks = {
 				// Generate edit summary for edit
 				let editsummary;
 				if (params.normalizeds.length > 1) {
-					editsummary = 'Requesting speedy deletion (';
+					editsummary = 'Anmoder om hurtig sletning (';
 					$.each(params.normalizeds, (index, norm) => {
-						editsummary += '[[WP:CSD#' + norm.toUpperCase() + '|CSD ' + norm.toUpperCase() + ']], ';
+						editsummary += '[[WP:RFS#' + norm.toUpperCase() + '|RFS ' + norm.toUpperCase() + ']], ';
 					});
 					editsummary = editsummary.substr(0, editsummary.length - 2); // remove trailing comma
 					editsummary += ').';
 				} else if (params.normalizeds[0] === 'db') {
-					editsummary = 'Requesting [[WP:CSD|speedy deletion]] with rationale "' + params.templateParams[0]['1'] + '".';
+					editsummary = 'Anmoder om [[WP:RFS|hurtig sletning]] med begrundelse "' + params.templateParams[0]['1'] + '".';
 				} else {
-					editsummary = 'Requesting speedy deletion ([[WP:CSD#' + params.normalizeds[0].toUpperCase() + '|CSD ' + params.normalizeds[0].toUpperCase() + ']]).';
+					editsummary = 'Anmoder om hurtig sletning ([[WP:RFS#' + params.normalizeds[0].toUpperCase() + '|RFS ' + params.normalizeds[0].toUpperCase() + ']]).';
 				}
 
 				// Blank attack pages
-				if (params.normalizeds.includes('g10')) {
+				if (params.normalizeds.includes('g3')) {
 					text = code;
 				} else {
 					// Insert tag after short description or any hatnotes
@@ -1745,7 +1745,7 @@ Twinkle.speedy.callbacks = {
 						code += '\n{{salt}}';
 					}
 
-					pageobj.getStatusElement().warn('Unable to edit page, placing tag on talk page');
+					pageobj.getStatusElement().warn('Kan ikke redigere siden; placerer mærkning på diskussionssiden');
 
 					const talkPage = new Morebits.wiki.Page(talkName, 'Automatically placing tag on talk page');
 					talkPage.setNewSectionTitle(pageobj.getPageName() + ' nominated for CSD, request deletion');
@@ -1811,7 +1811,7 @@ Twinkle.speedy.callbacks = {
 			let editsummary = 'Logging speedy deletion nomination';
 			let appendText = '# [[:' + Morebits.pageNameNorm;
 
-			if (!params.normalizeds.includes('g10')) { // no article name in log for G10 taggings
+			if (!params.normalizeds.includes('g3')) { // no article name in log for G10 taggings
 				appendText += ']]' + fileLogLink + ': ';
 				editsummary += ' of [[:' + Morebits.pageNameNorm + ']].';
 			} else {
