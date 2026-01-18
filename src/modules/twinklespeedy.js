@@ -1344,7 +1344,7 @@ Twinkle.speedy.callbacks = {
 			code += '}}';
 		} else {
 			parameters = params.templateParams[0] || [];
-			code = '{{db-' + params.values[0];
+			code = '{{' + params.values[0];
 			for (i in parameters) {
 				if (typeof parameters[i] === 'string') {
 					code += '|' + i + '=' + parameters[i];
