@@ -14,18 +14,18 @@ Twinkle.diff = function twinklediff() {
 	if (mw.config.get('wgNamespaceNumber') < 0 || !mw.config.get('wgArticleId')) {
 		return;
 	}
-	Twinkle.addPortletLink(mw.util.getUrl(mw.config.get('wgPageName'), {diff: 'cur', oldid: 'prev'}), 'Last', 'tw-lastdiff', 'Show most recent diff');
+	Twinkle.addPortletLink(mw.util.getUrl(mw.config.get('wgPageName'), {diff: 'cur', oldid: 'prev'}), 'Seneste', 'tw-lastdiff', 'Vis seneste ændring');
 
-	// Show additional tabs only on diff pages
+	// Vis yderligere faner kun på diff-sider
 	if (mw.config.get('wgDiffNewId')) {
 		Twinkle.addPortletLink(() => {
 			Twinkle.diff.evaluate(false);
-		}, 'Since', 'tw-since', 'Show difference between last diff and the revision made by previous user');
+		}, 'Siden', 'tw-since', 'Vis forskel mellem seneste diff og den forrige brugers version');
 		Twinkle.addPortletLink(() => {
 			Twinkle.diff.evaluate(true);
-		}, 'Since mine', 'tw-sincemine', 'Show difference between last diff and my last revision');
+		}, 'Siden min', 'tw-sincemine', 'Vis forskel mellem seneste diff og min seneste version');
 
-		Twinkle.addPortletLink(mw.util.getUrl(mw.config.get('wgPageName'), {diff: 'cur', oldid: mw.config.get('wgDiffNewId')}), 'Current', 'tw-curdiff', 'Show difference to current revision');
+		Twinkle.addPortletLink(mw.util.getUrl(mw.config.get('wgPageName'), {diff: 'cur', oldid: mw.config.get('wgDiffNewId')}), 'Nuværende', 'tw-curdiff', 'Vis forskel til nuværende version');
 	}
 };
 
@@ -53,7 +53,7 @@ Twinkle.diff.evaluate = function twinklediffEvaluate(me) {
 		format: 'json'
 	};
 	Morebits.Status.init(document.getElementById('mw-content-text'));
-	const wikipedia_api = new Morebits.wiki.Api('Grabbing data of initial contributor', query, Twinkle.diff.callbacks.main);
+	const wikipedia_api = new Morebits.wiki.Api('Henter data om den første bidragyder', query, Twinkle.diff.callbacks.main);
 	wikipedia_api.params = { user: user };
 	wikipedia_api.post();
 };
@@ -64,7 +64,7 @@ Twinkle.diff.callbacks = {
 		const revid = rev && rev[0].revid;
 
 		if (!revid) {
-			self.statelem.error('no suitable earlier revision found, or ' + self.params.user + ' is the only contributor. Aborting.');
+			self.statelem.error('Ingen egnet tidligere version fundet, eller ' + self.params.user + ' er den eneste bidragyder. Afbryder.');
 			return;
 		}
 		window.location = mw.util.getUrl(mw.config.get('wgPageName'), {

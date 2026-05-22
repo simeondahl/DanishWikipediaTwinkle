@@ -6,7 +6,7 @@
  ****************************************
  *** twinkleprotect.js: Protect/RPP module
  ****************************************
- * Mode of invocation:     Tab ("PP"/"RPP")
+ * Mode of invocation:     Tab ("BS"/"AB")
  * Active on:              Non-special, non-MediaWiki pages
  */
 
@@ -17,23 +17,21 @@ Twinkle.protect = function twinkleprotect() {
 		return;
 	}
 
-	Twinkle.addPortletLink(Twinkle.protect.callback, Morebits.userIsSysop ? 'PP' : 'RPP', 'tw-rpp',
-		Morebits.userIsSysop ? 'Protect page' : 'Request page protection');
+	Twinkle.addPortletLink(Twinkle.protect.callback, Morebits.userIsSysop ? 'BS' : 'AB', 'tw-rpp',
+		Morebits.userIsSysop ? 'Beskyt side' : 'Anmod om sidebeskyttelse');
 };
 
 Twinkle.protect.callback = function twinkleprotectCallback() {
 	const Window = new Morebits.SimpleWindow(620, 530);
-	Window.setTitle(Morebits.userIsSysop ? 'Apply, request or tag page protection' : 'Request or tag page protection');
+	Window.setTitle(Morebits.userIsSysop ? 'Anvend, anmod om eller mærk sidebeskyttelse' : 'Anmod om eller mærk sidebeskyttelse');
 	Window.setScriptName('Twinkle');
-	Window.addFooterLink('Protection templates', 'Template:Protection templates');
-	Window.addFooterLink('Protection policy', 'WP:PROT');
-	Window.addFooterLink('Twinkle help', 'WP:TW/DOC#protect');
-	Window.addFooterLink('Give feedback', 'WT:TW');
+	Window.addFooterLink('Beskyttelseskabeloner', 'Skabelon:Beskyttelseskabeloner');
+	Window.addFooterLink('Beskyttelsespolitik', 'Wikipedia:Beskyttelse');
 
 	const form = new Morebits.QuickForm(Twinkle.protect.callback.evaluate);
 	const actionfield = form.append({
 		type: 'field',
-		label: 'Type of action'
+		label: 'Handlingstype'
 	});
 	if (Morebits.userIsSysop) {
 		actionfield.append({
@@ -42,9 +40,9 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 			event: Twinkle.protect.callback.changeAction,
 			list: [
 				{
-					label: 'Protect page',
+					label: 'Beskyt side',
 					value: 'protect',
-					tooltip: 'Apply actual protection to the page.',
+					tooltip: 'Anvend faktisk beskyttelse på siden.',
 					checked: true
 				}
 			]
@@ -56,21 +54,21 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 		event: Twinkle.protect.callback.changeAction,
 		list: [
 			{
-				label: 'Request page protection',
+				label: 'Anmod om sidebeskyttelse',
 				value: 'request',
-				tooltip: 'If you want to request protection via WP:RPP' + (Morebits.userIsSysop ? ' instead of doing the protection by yourself.' : '.'),
+				tooltip: 'Hvis du ønsker at anmode om beskyttelse via Wikipedia:Anmodning om beskyttelse' + (Morebits.userIsSysop ? ' i stedet for at udføre beskyttelsen selv.' : '.'),
 				checked: !Morebits.userIsSysop
 			},
 			{
-				label: 'Tag page with protection template',
+				label: 'Mærk side med beskyttelsesskabelon',
 				value: 'tag',
-				tooltip: 'If the protecting admin forgot to apply a protection template, or you have just protected the page without tagging, you can use this to apply the appropriate protection tag.',
+				tooltip: 'Hvis den beskyttende administrator glemte at tilføje en beskyttelsesskabelon, eller du netop har beskyttet siden uden at mærke den, kan du bruge dette til at tilføje den passende beskyttelseskabelon.',
 				disabled: mw.config.get('wgArticleId') === 0 || mw.config.get('wgPageContentModel') === 'Scribunto' || mw.config.get('wgNamespaceNumber') === 710 // TimedText
 			}
 		]
 	});
 
-	form.append({ type: 'field', label: 'Preset', name: 'field_preset' });
+	form.append({ type: 'field', label: 'Forudindstilling', name: 'field_preset' });
 	form.append({ type: 'field', label: '1', name: 'field1' });
 	form.append({ type: 'field', label: '2', name: 'field2' });
 
@@ -241,33 +239,33 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 
 		if (Twinkle.protect.hasProtectLog) {
 			$linkMarkup.append(
-				$('<a target="_blank" href="' + mw.util.getUrl('Special:Log', {action: 'view', page: mw.config.get('wgPageName'), type: 'protect'}) + '">protection log</a>'));
+				$('<a target="_blank" href="' + mw.util.getUrl('Special:Log', {action: 'view', page: mw.config.get('wgPageName'), type: 'protect'}) + '">beskyttelseslog</a>'));
 			if (!currentlyProtected || (!Twinkle.protect.currentProtectionLevels.edit && !Twinkle.protect.currentProtectionLevels.move)) {
 				const lastProtectAction = Twinkle.protect.protectLog[0];
 				if (lastProtectAction.action === 'unprotect') {
-					$linkMarkup.append(' (unprotected ' + new Morebits.Date(lastProtectAction.timestamp).calendar('utc') + ')');
+					$linkMarkup.append(' (fjernet beskyttelse ' + new Morebits.Date(lastProtectAction.timestamp).calendar('utc') + ')');
 				} else { // protect or modify
-					$linkMarkup.append(' (expired ' + new Morebits.Date(lastProtectAction.params.details[0].expiry).calendar('utc') + ')');
+					$linkMarkup.append(' (udløbet ' + new Morebits.Date(lastProtectAction.params.details[0].expiry).calendar('utc') + ')');
 				}
 			}
 			$linkMarkup.append(Twinkle.protect.hasStableLog ? $('<span> &bull; </span>') : null);
 		}
 
 		if (Twinkle.protect.hasStableLog) {
-			$linkMarkup.append($('<a target="_blank" href="' + mw.util.getUrl('Special:Log', {action: 'view', page: mw.config.get('wgPageName'), type: 'stable'}) + '">pending changes log</a>)'));
+			$linkMarkup.append($('<a target="_blank" href="' + mw.util.getUrl('Special:Log', {action: 'view', page: mw.config.get('wgPageName'), type: 'stable'}) + '">log over afventende ændringer</a>)'));
 			if (!currentlyProtected || !Twinkle.protect.currentProtectionLevels.stabilize) {
 				const lastStabilizeAction = Twinkle.protect.stableLog[0];
 				if (lastStabilizeAction.action === 'reset') {
-					$linkMarkup.append(' (reset ' + new Morebits.Date(lastStabilizeAction.timestamp).calendar('utc') + ')');
+					$linkMarkup.append(' (nulstillet ' + new Morebits.Date(lastStabilizeAction.timestamp).calendar('utc') + ')');
 				} else { // config or modify
-					$linkMarkup.append(' (expired ' + new Morebits.Date(lastStabilizeAction.params.expiry).calendar('utc') + ')');
+					$linkMarkup.append(' (udløbet ' + new Morebits.Date(lastStabilizeAction.params.expiry).calendar('utc') + ')');
 				}
 			}
 		}
 
 		Morebits.Status.init($('div[name="hasprotectlog"] span')[0]);
 		Morebits.Status.warn(
-			currentlyProtected ? 'Previous protections' : 'This page has been protected in the past',
+			currentlyProtected ? 'Tidligere beskyttelser' : 'Denne side har tidligere været beskyttet',
 			$linkMarkup[0]
 		);
 	}
@@ -277,14 +275,14 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 
 	if (currentlyProtected) {
 		$.each(Twinkle.protect.currentProtectionLevels, (type, settings) => {
-			let label = type === 'stabilize' ? 'Pending Changes' : Morebits.string.toUpperCaseFirstChar(type);
+			let label = type === 'stabilize' ? 'Afventende ændringer' : Morebits.string.toUpperCaseFirstChar(type);
 
 			if (type === 'cascading') { // Covered by another page
-				label = 'Cascading protection ';
+				label = 'Cascadebeskyttelse ';
 				protectionNode.push($('<b>' + label + '</b>')[0]);
 				if (settings.source) { // Should by definition exist
 					const sourceLink = '<a target="_blank" href="' + mw.util.getUrl(settings.source) + '">' + settings.source + '</a>';
-					protectionNode.push($('<span>from ' + sourceLink + '</span>')[0]);
+					protectionNode.push($('<span>fra ' + sourceLink + '</span>')[0]);
 				}
 			} else {
 				let level = settings.level;
@@ -296,23 +294,23 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 			}
 
 			if (settings.expiry === 'infinity') {
-				protectionNode.push(' (indefinite) ');
+				protectionNode.push(' (ubestemt) ');
 			} else {
-				protectionNode.push(' (expires ' + new Morebits.Date(settings.expiry).calendar('utc') + ') ');
+				protectionNode.push(' (udløber ' + new Morebits.Date(settings.expiry).calendar('utc') + ') ');
 			}
 			if (settings.admin) {
 				const adminLink = '<a target="_blank" href="' + mw.util.getUrl('User talk:' + settings.admin) + '">' + settings.admin + '</a>';
-				protectionNode.push($('<span>by ' + adminLink + '</span>')[0]);
+				protectionNode.push($('<span>af ' + adminLink + '</span>')[0]);
 			}
-			protectionNode.push($('<span> \u2022 </span>')[0]);
+			protectionNode.push($('<span> • </span>')[0]);
 		});
 		protectionNode = protectionNode.slice(0, -1); // remove the trailing bullet
 		statusLevel = 'warn';
 	} else {
-		protectionNode.push($('<b>no protection</b>')[0]);
+		protectionNode.push($('<b>ingen beskyttelse</b>')[0]);
 	}
 
-	Morebits.Status[statusLevel]('Current protection level', protectionNode);
+	Morebits.Status[statusLevel]('Nuværende beskyttelsesniveau', protectionNode);
 };
 
 Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAction(e) {
@@ -322,16 +320,16 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 
 	switch (e.target.values) {
 		case 'protect':
-			field_preset = new Morebits.QuickForm.Element({ type: 'field', label: 'Preset', name: 'field_preset' });
+			field_preset = new Morebits.QuickForm.Element({ type: 'field', label: 'Forudindstilling', name: 'field_preset' });
 			field_preset.append({
 				type: 'select',
 				name: 'category',
-				label: 'Choose a preset:',
+				label: 'Vælg en forudindstilling:',
 				event: Twinkle.protect.callback.changePreset,
 				list: mw.config.get('wgArticleId') ? Twinkle.protect.protectionTypes : Twinkle.protect.protectionTypesCreate
 			});
 
-			field2 = new Morebits.QuickForm.Element({ type: 'field', label: 'Protection options', name: 'field2' });
+			field2 = new Morebits.QuickForm.Element({ type: 'field', label: 'Beskyttelsesindstillinger', name: 'field2' });
 			field2.append({ type: 'div', name: 'currentprot', label: ' ' }); // holds the current protection level, as filled out by the async callback
 			field2.append({ type: 'div', name: 'hasprotectlog', label: ' ' });
 			// for existing pages
@@ -341,9 +339,9 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 					event: Twinkle.protect.formevents.editmodify,
 					list: [
 						{
-							label: 'Modify edit protection',
+							label: 'Rediger redigeringsbeskyttelse',
 							name: 'editmodify',
-							tooltip: 'If this is turned off, the edit protection level, and expiry time, will be left as is.',
+							tooltip: 'Hvis dette er slået fra, vil redigeringsbeskyttelsesniveauet og udløbstiden forblive uændret.',
 							checked: true
 						}
 					]
@@ -351,7 +349,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'editlevel',
-					label: 'Who can edit:',
+					label: 'Hvem kan redigere:',
 					event: Twinkle.protect.formevents.editlevel,
 					// Filter TE outside of templates and modules
 					list: Twinkle.protect.protectionLevels.filter((level) => isTemplate || level.value !== 'templateeditor')
@@ -359,7 +357,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'editexpiry',
-					label: 'Expires:',
+					label: 'Udløber:',
 					event: function(e) {
 						if (e.target.value === 'custom') {
 							Twinkle.protect.doCustomExpiry(e.target);
@@ -373,9 +371,9 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 					event: Twinkle.protect.formevents.movemodify,
 					list: [
 						{
-							label: 'Modify move protection',
+							label: 'Rediger flytningsbeskyttelse',
 							name: 'movemodify',
-							tooltip: 'If this is turned off, the move protection level, and expiry time, will be left as is.',
+							tooltip: 'Hvis dette er slået fra, vil flytningsbeskyttelsesniveauet og udløbstiden forblive uændret.',
 							checked: true
 						}
 					]
@@ -383,7 +381,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'movelevel',
-					label: 'Who can move:',
+					label: 'Hvem kan flytte:',
 					event: Twinkle.protect.formevents.movelevel,
 					// Autoconfirmed is required for a move, redundant
 					list: Twinkle.protect.protectionLevels.filter((level) => level.value !== 'autoconfirmed' && (isTemplate || level.value !== 'templateeditor'))
@@ -391,7 +389,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'moveexpiry',
-					label: 'Expires:',
+					label: 'Udløber:',
 					event: function(e) {
 						if (e.target.value === 'custom') {
 							Twinkle.protect.doCustomExpiry(e.target);
@@ -406,9 +404,9 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 						event: Twinkle.protect.formevents.pcmodify,
 						list: [
 							{
-								label: 'Modify pending changes protection',
+								label: 'Rediger beskyttelse af afventende ændringer',
 								name: 'pcmodify',
-								tooltip: 'If this is turned off, the pending changes level, and expiry time, will be left as is.',
+								tooltip: 'Hvis dette er slået fra, vil niveauet for afventende ændringer og udløbstiden forblive uændret.',
 								checked: true
 							}
 						]
@@ -416,17 +414,17 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 					field2.append({
 						type: 'select',
 						name: 'pclevel',
-						label: 'Pending changes:',
+						label: 'Afventende ændringer:',
 						event: Twinkle.protect.formevents.pclevel,
 						list: [
-							{ label: 'None', value: 'none' },
-							{ label: 'Pending change', value: 'autoconfirmed', selected: true }
+							{ label: 'Ingen', value: 'none' },
+							{ label: 'Afventende ændring', value: 'autoconfirmed', selected: true }
 						]
 					});
 					field2.append({
 						type: 'select',
 						name: 'pcexpiry',
-						label: 'Expires:',
+						label: 'Udløber:',
 						event: function(e) {
 							if (e.target.value === 'custom') {
 								Twinkle.protect.doCustomExpiry(e.target);
@@ -440,7 +438,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'createlevel',
-					label: 'Create protection:',
+					label: 'Oprettelsesbeskyttelse:',
 					event: Twinkle.protect.formevents.createlevel,
 					// Filter TE always, and autoconfirmed in mainspace, redundant since WP:ACPERM
 					list: Twinkle.protect.protectionLevels.filter((level) => level.value !== 'templateeditor' && (mw.config.get('wgNamespaceNumber') !== 0 || level.value !== 'autoconfirmed'))
@@ -448,7 +446,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 					type: 'select',
 					name: 'createexpiry',
-					label: 'Expires:',
+					label: 'Udløber:',
 					event: function(e) {
 						if (e.target.value === 'custom') {
 							Twinkle.protect.doCustomExpiry(e.target);
@@ -461,14 +459,14 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 			field2.append({
 				type: 'textarea',
 				name: 'protectReason',
-				label: 'Reason (for protection log):'
+				label: 'Årsag (til beskyttelsesloggen):'
 			});
 			field2.append({
 				type: 'div',
 				name: 'protectReason_notes',
-				label: 'Notes:',
+				label: 'Noter:',
 				style: 'display:inline-block; margin-top:4px;',
-				tooltip: 'Add a note to the protection log that this was requested at RfPP.'
+				tooltip: 'Tilføj en note til beskyttelsesloggen om, at dette blev anmodet på anmodningssiden.'
 			});
 			field2.append({
 				type: 'checkbox',
@@ -476,33 +474,33 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				style: 'display:inline-block; margin-top:4px;',
 				list: [
 					{
-						label: 'RfPP request',
+						label: 'Anmodning om beskyttelse',
 						name: 'protectReason_notes_rfpp',
 						checked: false,
-						value: 'requested at [[WP:RfPP]]'
+						value: 'anmodet på [[Wikipedia:Anmodning om beskyttelse]]'
 					}
 				]
 			});
 			field2.append({
 				type: 'input',
 				event: Twinkle.protect.callback.annotateProtectReason,
-				label: 'RfPP revision ID',
+				label: 'Versions-ID for anmodning',
 				name: 'protectReason_notes_rfppRevid',
 				value: '',
-				tooltip: 'Optional revision ID of the RfPP page where protection was requested.'
+				tooltip: 'Valgfrit versions-ID for anmodningssiden, hvor beskyttelsen blev anmodet.'
 			});
 			if (!mw.config.get('wgArticleId') || mw.config.get('wgPageContentModel') === 'Scribunto' || mw.config.get('wgNamespaceNumber') === 710) { // tagging isn't relevant for non-existing, module, or TimedText pages
 				break;
 			}
 			/* falls through */
 		case 'tag':
-			field1 = new Morebits.QuickForm.Element({ type: 'field', label: 'Tagging options', name: 'field1' });
+			field1 = new Morebits.QuickForm.Element({ type: 'field', label: 'Mærkningsindstillinger', name: 'field1' });
 			field1.append({ type: 'div', name: 'currentprot', label: ' ' }); // holds the current protection level, as filled out by the async callback
 			field1.append({ type: 'div', name: 'hasprotectlog', label: ' ' });
 			field1.append({
 				type: 'select',
 				name: 'tagtype',
-				label: 'Choose protection template:',
+				label: 'Vælg beskyttelseskabelon:',
 				list: Twinkle.protect.protectionTags,
 				event: Twinkle.protect.formevents.tagtype
 			});
@@ -515,14 +513,14 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				list: [
 					{
 						name: 'small',
-						label: 'Iconify (small=yes)',
-						tooltip: 'Will use the |small=yes feature of the template, and only render it as a keylock',
+						label: 'Ikonificér (small=yes)',
+						tooltip: 'Vil bruge |small=yes-funktionen i skabelonen og kun vise den som et låseikon',
 						checked: true
 					},
 					{
 						name: 'noinclude',
-						label: 'Wrap protection template with &lt;noinclude&gt;',
-						tooltip: 'Will wrap the protection template in &lt;noinclude&gt; tags, so that it won\'t transclude',
+						label: 'Omslut beskyttelseskabelon med &lt;noinclude&gt;',
+						tooltip: 'Vil omfatte beskyttelseskabelonen i &lt;noinclude&gt;-tags, så den ikke transskluderes',
 						checked: (isTemplateNamespace || isAFD) && !isCode
 					}
 				]
@@ -530,36 +528,36 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 			break;
 
 		case 'request':
-			field_preset = new Morebits.QuickForm.Element({ type: 'field', label: 'Type of protection', name: 'field_preset' });
+			field_preset = new Morebits.QuickForm.Element({ type: 'field', label: 'Type af beskyttelse', name: 'field_preset' });
 			field_preset.append({
 				type: 'select',
 				name: 'category',
-				label: 'Type and reason:',
+				label: 'Type og årsag:',
 				event: Twinkle.protect.callback.changePreset,
 				list: mw.config.get('wgArticleId') ? Twinkle.protect.protectionTypes : Twinkle.protect.protectionTypesCreate
 			});
 
-			field1 = new Morebits.QuickForm.Element({ type: 'field', label: 'Options', name: 'field1' });
+			field1 = new Morebits.QuickForm.Element({ type: 'field', label: 'Indstillinger', name: 'field1' });
 			field1.append({ type: 'div', name: 'currentprot', label: ' ' }); // holds the current protection level, as filled out by the async callback
 			field1.append({ type: 'div', name: 'hasprotectlog', label: ' ' });
 			field1.append({
 				type: 'select',
 				name: 'expiry',
-				label: 'Duration:',
+				label: 'Varighed:',
 				list: [
 					{ label: '', selected: true, value: '' },
-					{ label: 'Temporary', value: 'temporary' },
-					{ label: 'Indefinite', value: 'infinity' }
+					{ label: 'Midlertidig', value: 'temporary' },
+					{ label: 'Ubestemt', value: 'infinity' }
 				]
 			});
 			field1.append({
 				type: 'textarea',
 				name: 'reason',
-				label: 'Reason:'
+				label: 'Årsag:'
 			});
 			break;
 		default:
-			alert("Something's afoot in twinkleprotect");
+			alert('Noget er galt i twinkleprotect');
 			break;
 	}
 
@@ -642,7 +640,7 @@ Twinkle.protect.formevents = {
 };
 
 Twinkle.protect.doCustomExpiry = function twinkleprotectDoCustomExpiry(target) {
-	const custom = prompt('Enter a custom expiry time.  \nYou can use relative times, like "1 minute" or "19 days", or absolute timestamps, "yyyymmddhhmm" (e.g. "200602011405" is Feb 1, 2006, at 14:05 UTC).', '');
+	const custom = prompt('Angiv en brugerdefineret udløbstid.  \nDu kan bruge relative tider som "1 minute" eller "19 days", eller absolutte tidsstempler "yyyymmddhhmm" (f.eks. "200602011405" er 1. februar 2006 kl. 14:05 UTC).', '');
 	if (custom) {
 		const option = document.createElement('option');
 		option.setAttribute('value', custom);
@@ -656,110 +654,111 @@ Twinkle.protect.doCustomExpiry = function twinkleprotectDoCustomExpiry(target) {
 
 // NOTE: This list is used by batchprotect as well
 Twinkle.protect.protectionLevels = [
-	{ label: 'All', value: 'all' },
-	{ label: 'Autoconfirmed', value: 'autoconfirmed' },
-	{ label: 'Extended confirmed', value: 'extendedconfirmed' },
-	{ label: 'Template editor', value: 'templateeditor' },
-	{ label: 'Sysop', value: 'sysop', selected: true }
+	{ label: 'Alle brugere (fjern beskyttelse)', value: 'all' },
+	{ label: 'Autobekræftede brugere', value: 'autoconfirmed' },
+	{ label: 'Udvidet bekræftede brugere', value: 'extendedconfirmed' },
+	{ label: 'Skabelonredaktører', value: 'templateeditor' },
+	{ label: 'Kun administratorer', value: 'sysop', selected: true }
 ];
 
 // default expiry selection is conditionally set in Twinkle.protect.callback.changePreset
 // NOTE: This list is used by batchprotect as well
 Twinkle.protect.protectionLengths = [
-	{ label: '1 hour', value: '1 hour' },
-	{ label: '2 hours', value: '2 hours' },
-	{ label: '3 hours', value: '3 hours' },
-	{ label: '6 hours', value: '6 hours' },
-	{ label: '12 hours', value: '12 hours' },
-	{ label: '1 day', value: '1 day' },
-	{ label: '2 days', value: '2 days' },
-	{ label: '3 days', value: '3 days' },
-	{ label: '4 days', value: '4 days' },
-	{ label: '10 days', value: '10 days' },
-	{ label: '1 week', value: '1 week' },
-	{ label: '2 weeks', value: '2 weeks' },
-	{ label: '1 month', value: '1 month' },
-	{ label: '2 months', value: '2 months' },
-	{ label: '3 months', value: '3 months' },
-	{ label: '6 months', value: '6 months' },
-	{ label: '1 year', value: '1 year' },
-	{ label: '2 years', value: '2 years' },
-	{ label: 'indefinite', value: 'infinity' },
-	{ label: 'Custom...', value: 'custom' }
+	{ label: '1 time', value: '1 hour' },
+	{ label: '2 timer', value: '2 hours' },
+	{ label: '3 timer', value: '3 hours' },
+	{ label: '6 timer', value: '6 hours' },
+	{ label: '12 timer', value: '12 hours' },
+	{ label: '1 dag', value: '1 day' },
+	{ label: '2 dage', value: '2 days' },
+	{ label: '3 dage', value: '3 days' },
+	{ label: '4 dage', value: '4 days' },
+	{ label: '10 dage', value: '10 days' },
+	{ label: '1 uge', value: '1 week' },
+	{ label: '2 uger', value: '2 weeks' },
+	{ label: '1 måned', value: '1 month' },
+	{ label: '2 måneder', value: '2 months' },
+	{ label: '3 måneder', value: '3 months' },
+	{ label: '6 måneder', value: '6 months' },
+	{ label: '1 år', value: '1 year' },
+	{ label: '2 år', value: '2 years' },
+	{ label: 'ubestemt', value: 'infinity' },
+	{ label: 'Brugerdefineret...', value: 'custom' }
 ];
 
 Twinkle.protect.protectionTypes = [
-	{ label: 'Unprotection', value: 'unprotect' },
+	{ label: 'Fjern beskyttelse', value: 'unprotect' },
 	{
-		label: 'Full protection',
+		label: 'Fuld beskyttelse',
 		list: [
-			{ label: 'Generic (full)', value: 'pp-protected' },
-			{ label: 'Content dispute/edit warring (full)', value: 'pp-dispute' },
-			{ label: 'Persistent vandalism (full)', value: 'pp-vandalism' },
-			{ label: 'User talk of blocked user (full)', value: 'pp-usertalk' }
+			{ label: 'Generel (fuld)', value: 'pp-protected' },
+			{ label: 'Indholdskonflikt/redigeringskrig (fuld)', value: 'pp-dispute' },
+			{ label: 'Vedvarende hærværk (fuld)', value: 'pp-vandalism' },
+			{ label: 'Brugerdiskussionsside for blokeret bruger (fuld)', value: 'pp-usertalk' }
 		]
 	},
 	{
-		label: 'Template protection',
+		label: 'Skabelonbeskyttelse',
 		list: [
-			{ label: 'Highly visible template (TE)', value: 'pp-template' }
+			// Skabelonnavn pp-template beholdes da dansk ækvivalent er ukendt
+			{ label: 'Meget synlig skabelon (skabelonredaktør)', value: 'pp-template' }
 		]
 	},
 	{
-		label: 'Extended confirmed protection',
+		label: 'Udvidet bekræftet beskyttelse',
 		list: [
-			{ label: 'Generic (ECP)', value: 'pp-30-500' },
-			{ label: 'Arbitration enforcement (ECP)', selected: true, value: 'pp-30-500-arb' },
-			{ label: 'Persistent vandalism (ECP)', value: 'pp-30-500-vandalism' },
-			{ label: 'Disruptive editing (ECP)', value: 'pp-30-500-disruptive' },
-			{ label: 'BLP policy violations (ECP)', value: 'pp-30-500-blp' },
-			{ label: 'Sockpuppetry (ECP)', value: 'pp-30-500-sock' }
+			{ label: 'Generel (udvidet bekræftet)', value: 'pp-30-500' },
+			{ label: 'Voldgiftshåndhævelse (udvidet bekræftet)', selected: true, value: 'pp-30-500-arb' },
+			{ label: 'Vedvarende hærværk (udvidet bekræftet)', value: 'pp-30-500-vandalism' },
+			{ label: 'Forstyrrende redigering (udvidet bekræftet)', value: 'pp-30-500-disruptive' },
+			{ label: 'BLP-politikbrud (udvidet bekræftet)', value: 'pp-30-500-blp' },
+			{ label: 'Sockpuppetry (udvidet bekræftet)', value: 'pp-30-500-sock' }
 		]
 	},
 	{
-		label: 'Semi-protection',
+		label: 'Semiprotection',
 		list: [
-			{ label: 'Generic (semi)', value: 'pp-semi-protected' },
-			{ label: 'Persistent vandalism (semi)', selected: true, value: 'pp-semi-vandalism' },
-			{ label: 'Disruptive editing (semi)', value: 'pp-semi-disruptive' },
-			{ label: 'Adding unsourced content (semi)', value: 'pp-semi-unsourced' },
-			{ label: 'BLP policy violations (semi)', value: 'pp-semi-blp' },
+			{ label: 'Generel (semi)', value: 'pp-semi-protected' },
+			{ label: 'Vedvarende hærværk (semi)', selected: true, value: 'pp-semi-vandalism' },
+			{ label: 'Forstyrrende redigering (semi)', value: 'pp-semi-disruptive' },
+			{ label: 'Tilføjelse af ukildeangivet indhold (semi)', value: 'pp-semi-unsourced' },
+			{ label: 'BLP-politikbrud (semi)', value: 'pp-semi-blp' },
 			{ label: 'Sockpuppetry (semi)', value: 'pp-semi-sock' },
-			{ label: 'User talk of blocked user (semi)', value: 'pp-semi-usertalk' },
-			{ label: 'Noticeboard LTA (semi)', value: 'pp-sock-noticeboard' }
+			{ label: 'Brugerdiskussionsside for blokeret bruger (semi)', value: 'pp-semi-usertalk' },
+			{ label: 'Opslagstavle for LTA (semi)', value: 'pp-sock-noticeboard' }
 		]
 	},
 	{
-		label: 'Pending changes',
+		label: 'Afventende ændringer',
 		list: [
-			{ label: 'Generic (PC)', value: 'pp-pc-protected' },
-			{ label: 'Persistent vandalism (PC)', value: 'pp-pc-vandalism' },
-			{ label: 'Disruptive editing (PC)', value: 'pp-pc-disruptive' },
-			{ label: 'Adding unsourced content (PC)', value: 'pp-pc-unsourced' },
-			{ label: 'BLP policy violations (PC)', value: 'pp-pc-blp' }
+			{ label: 'Generel (afventende ændringer)', value: 'pp-pc-protected' },
+			{ label: 'Vedvarende hærværk (afventende ændringer)', value: 'pp-pc-vandalism' },
+			{ label: 'Forstyrrende redigering (afventende ændringer)', value: 'pp-pc-disruptive' },
+			{ label: 'Tilføjelse af ukildeangivet indhold (afventende ændringer)', value: 'pp-pc-unsourced' },
+			{ label: 'BLP-politikbrud (afventende ændringer)', value: 'pp-pc-blp' }
 		]
 	},
 	{
-		label: 'Move protection',
+		label: 'Flytningsbeskyttelse',
 		list: [
-			{ label: 'Generic (move)', value: 'pp-move' },
-			{ label: 'Dispute/move warring (move)', value: 'pp-move-dispute' },
-			{ label: 'Page-move vandalism (move)', value: 'pp-move-vandalism' },
-			{ label: 'Highly visible page (move)', value: 'pp-move-indef' }
+			{ label: 'Generel (flytning)', value: 'pp-move' },
+			{ label: 'Tvist/flytningskrig (flytning)', value: 'pp-move-dispute' },
+			{ label: 'Sideflytningshærværk (flytning)', value: 'pp-move-vandalism' },
+			{ label: 'Meget synlig side (flytning)', value: 'pp-move-indef' }
 		]
 	}
 ]
 // Filter for templates and flaggedrevs
-.filter((type) => (isTemplate || type.label !== 'Template protection') && (hasFlaggedRevs || type.label !== 'Pending changes'));
+.filter((type) => (isTemplate || type.label !== 'Skabelonbeskyttelse') && (hasFlaggedRevs || type.label !== 'Afventende ændringer'));
 
 Twinkle.protect.protectionTypesCreate = [
-	{ label: 'Unprotection', value: 'unprotect' },
+	{ label: 'Fjern beskyttelse', value: 'unprotect' },
 	{
-		label: 'Create protection',
+		label: 'Oprettelsesbeskyttelse',
 		list: [
-			{ label: 'Offensive name', value: 'pp-create-offensive' },
-			{ label: 'Repeatedly recreated', selected: true, value: 'pp-create-salt' },
-			{ label: 'Recently deleted BLP', value: 'pp-create-blp' }
+			{ label: 'Stødende navn', value: 'pp-create-offensive' },
+			{ label: 'Gentagne gange genskabt', selected: true, value: 'pp-create-salt' },
+			{ label: 'Nyligt slettet BLP', value: 'pp-create-blp' }
 		]
 	}
 ];
@@ -788,60 +787,61 @@ Twinkle.protect.protectionPresetsInfo = {
 	'pp-dispute': {
 		edit: 'sysop',
 		move: 'sysop',
-		reason: '[[WP:PP#Content disputes|Edit warring / content dispute]]'
+		reason: '[[Wikipedia:Beskyttelse|Redigeringskrig / indholdskonflikt]]'
 	},
 	'pp-sock-noticeboard': {
 		edit: 'autoconfirmed',
 		expiry: '2 hours',
-		reason: 'Persistent [[WP:Sock puppetry|sock puppetry]]',
+		reason: 'Vedvarende [[Wikipedia:Sockpuppetry|sockpuppetry]]',
 		template: 'pp-sock'
 	},
 	'pp-vandalism': {
 		edit: 'sysop',
 		move: 'sysop',
-		reason: 'Persistent [[WP:Vandalism|vandalism]]'
+		reason: 'Vedvarende [[Wikipedia:Hærværk|hærværk]]'
 	},
 	'pp-usertalk': {
 		edit: 'sysop',
 		move: 'sysop',
 		expiry: 'infinity',
-		reason: '[[WP:PP#Talk-page protection|Inappropriate use of user talk page while blocked]]'
+		reason: '[[Wikipedia:Beskyttelse|Upassende brug af brugerdiskussionsside under blokering]]'
 	},
 	'pp-template': {
 		edit: 'templateeditor',
 		move: 'templateeditor',
 		expiry: 'infinity',
-		reason: '[[WP:High-risk templates|Highly visible template]]'
+		// Skabelonnavn pp-template beholdes da dansk ækvivalent er ukendt
+		reason: 'Meget synlig skabelon'
 	},
 	'pp-30-500-arb': {
 		edit: 'extendedconfirmed',
 		move: 'extendedconfirmed',
 		expiry: 'infinity',
-		reason: '[[WP:30/500|Arbitration enforcement]]',
+		reason: 'Voldgiftshåndhævelse',
 		template: 'pp-extended'
 	},
 	'pp-30-500-vandalism': {
 		edit: 'extendedconfirmed',
 		move: 'extendedconfirmed',
-		reason: 'Persistent [[WP:Vandalism|vandalism]] from (auto)confirmed accounts',
+		reason: 'Vedvarende [[Wikipedia:Hærværk|hærværk]] fra (auto)bekræftede konti',
 		template: 'pp-extended'
 	},
 	'pp-30-500-disruptive': {
 		edit: 'extendedconfirmed',
 		move: 'extendedconfirmed',
-		reason: 'Persistent [[WP:Disruptive editing|disruptive editing]] from (auto)confirmed accounts',
+		reason: 'Vedvarende [[Wikipedia:Forstyrrende redigering|forstyrrende redigering]] fra (auto)bekræftede konti',
 		template: 'pp-extended'
 	},
 	'pp-30-500-blp': {
 		edit: 'extendedconfirmed',
 		move: 'extendedconfirmed',
-		reason: 'Persistent violations of the [[WP:BLP|biographies of living persons policy]] from (auto)confirmed accounts',
+		reason: 'Vedvarende brud på [[Wikipedia:Biografier om levende personer|BLP-politikken]] fra (auto)bekræftede konti',
 		template: 'pp-extended'
 	},
 	'pp-30-500-sock': {
 		edit: 'extendedconfirmed',
 		move: 'extendedconfirmed',
-		reason: 'Persistent [[WP:Sock puppetry|sock puppetry]]',
+		reason: 'Vedvarende [[Wikipedia:Sockpuppetry|sockpuppetry]]',
 		template: 'pp-extended'
 	},
 	'pp-30-500': {
@@ -852,39 +852,39 @@ Twinkle.protect.protectionPresetsInfo = {
 	},
 	'pp-semi-vandalism': {
 		edit: 'autoconfirmed',
-		reason: 'Persistent [[WP:Vandalism|vandalism]]',
+		reason: 'Vedvarende [[Wikipedia:Hærværk|hærværk]]',
 		template: 'pp-vandalism'
 	},
 	'pp-semi-disruptive': {
 		edit: 'autoconfirmed',
-		reason: 'Persistent [[WP:Disruptive editing|disruptive editing]]',
+		reason: 'Vedvarende [[Wikipedia:Forstyrrende redigering|forstyrrende redigering]]',
 		template: 'pp-protected'
 	},
 	'pp-semi-unsourced': {
 		edit: 'autoconfirmed',
-		reason: 'Persistent addition of [[WP:INTREF|unsourced or poorly sourced content]]',
+		reason: 'Vedvarende tilføjelse af ukildeangivet eller dårligt kildeangivet indhold',
 		template: 'pp-protected'
 	},
 	'pp-semi-blp': {
 		edit: 'autoconfirmed',
-		reason: 'Violations of the [[WP:BLP|biographies of living persons policy]]',
+		reason: 'Brud på [[Wikipedia:Biografier om levende personer|BLP-politikken]]',
 		template: 'pp-blp'
 	},
 	'pp-semi-usertalk': {
 		edit: 'autoconfirmed',
 		expiry: 'infinity',
-		reason: '[[WP:PP#Talk-page protection|Inappropriate use of user talk page while blocked]]',
+		reason: '[[Wikipedia:Beskyttelse|Upassende brug af brugerdiskussionsside under blokering]]',
 		template: 'pp-usertalk'
 	},
 	'pp-semi-template': { // removed for now
 		edit: 'autoconfirmed',
 		expiry: 'infinity',
-		reason: '[[WP:High-risk templates|Highly visible template]]',
+		reason: 'Meget synlig skabelon',
 		template: 'pp-template'
 	},
 	'pp-semi-sock': {
 		edit: 'autoconfirmed',
-		reason: 'Persistent [[WP:Sock puppetry|sock puppetry]]',
+		reason: 'Vedvarende [[Wikipedia:Sockpuppetry|sockpuppetry]]',
 		template: 'pp-sock'
 	},
 	'pp-semi-protected': {
@@ -894,22 +894,22 @@ Twinkle.protect.protectionPresetsInfo = {
 	},
 	'pp-pc-vandalism': {
 		stabilize: 'autoconfirmed', // stabilize = Pending Changes
-		reason: 'Persistent [[WP:Vandalism|vandalism]]',
+		reason: 'Vedvarende [[Wikipedia:Hærværk|hærværk]]',
 		template: 'pp-pc'
 	},
 	'pp-pc-disruptive': {
 		stabilize: 'autoconfirmed',
-		reason: 'Persistent [[WP:Disruptive editing|disruptive editing]]',
+		reason: 'Vedvarende [[Wikipedia:Forstyrrende redigering|forstyrrende redigering]]',
 		template: 'pp-pc'
 	},
 	'pp-pc-unsourced': {
 		stabilize: 'autoconfirmed',
-		reason: 'Persistent addition of [[WP:INTREF|unsourced or poorly sourced content]]',
+		reason: 'Vedvarende tilføjelse af ukildeangivet eller dårligt kildeangivet indhold',
 		template: 'pp-pc'
 	},
 	'pp-pc-blp': {
 		stabilize: 'autoconfirmed',
-		reason: 'Violations of the [[WP:BLP|biographies of living persons policy]]',
+		reason: 'Brud på [[Wikipedia:Biografier om levende personer|BLP-politikken]]',
 		template: 'pp-pc'
 	},
 	'pp-pc-protected': {
@@ -923,16 +923,16 @@ Twinkle.protect.protectionPresetsInfo = {
 	},
 	'pp-move-dispute': {
 		move: 'sysop',
-		reason: '[[WP:MOVP|Move warring]]'
+		reason: '[[Wikipedia:Beskyttelse|Flytningskrig]]'
 	},
 	'pp-move-vandalism': {
 		move: 'sysop',
-		reason: '[[WP:MOVP|Page-move vandalism]]'
+		reason: '[[Wikipedia:Beskyttelse|Sideflytningshærværk]]'
 	},
 	'pp-move-indef': {
 		move: 'sysop',
 		expiry: 'infinity',
-		reason: '[[WP:MOVP|Highly visible page]]'
+		reason: '[[Wikipedia:Beskyttelse|Meget synlig side]]'
 	},
 	unprotect: {
 		edit: 'all',
@@ -944,59 +944,60 @@ Twinkle.protect.protectionPresetsInfo = {
 	},
 	'pp-create-offensive': {
 		create: 'sysop',
-		reason: '[[WP:SALT|Offensive name]]'
+		reason: 'Stødende navn'
 	},
 	'pp-create-salt': {
 		create: 'extendedconfirmed',
-		reason: '[[WP:SALT|Repeatedly recreated]]'
+		reason: 'Gentagne gange genskabt'
 	},
 	'pp-create-blp': {
 		create: 'extendedconfirmed',
-		reason: '[[WP:BLPDEL|Recently deleted BLP]]'
+		reason: 'Nyligt slettet [[Wikipedia:Biografier om levende personer|BLP]]'
 	}
 };
 
 Twinkle.protect.protectionTags = [
 	{
-		label: 'None (remove existing protection templates)',
+		label: 'Ingen (fjern eksisterende beskyttelseskabeloner)',
 		value: 'none'
 	},
 	{
-		label: 'None (do not remove existing protection templates)',
+		label: 'Ingen (behold eksisterende beskyttelseskabeloner)',
 		value: 'noop'
 	},
 	{
-		label: 'Edit protection templates',
+		label: 'Redigeringsbeskyttelseskabeloner',
 		list: [
-			{ label: '{{pp-vandalism}}: vandalism', value: 'pp-vandalism' },
-			{ label: '{{pp-dispute}}: dispute/edit war', value: 'pp-dispute' },
-			{ label: '{{pp-blp}}: BLP violations', value: 'pp-blp' },
+			// Skabelonnavne (pp-*) beholdes da danske ækvivalenter er ukendte
+			{ label: '{{pp-vandalism}}: hærværk', value: 'pp-vandalism' },
+			{ label: '{{pp-dispute}}: tvist/redigeringskrig', value: 'pp-dispute' },
+			{ label: '{{pp-blp}}: BLP-brud', value: 'pp-blp' },
 			{ label: '{{pp-sock}}: sockpuppetry', value: 'pp-sock' },
-			{ label: '{{pp-template}}: high-risk template', value: 'pp-template' },
-			{ label: '{{pp-usertalk}}: blocked user talk', value: 'pp-usertalk' },
-			{ label: '{{pp-protected}}: general protection', value: 'pp-protected' },
-			{ label: '{{pp-semi-indef}}: general long-term semi-protection', value: 'pp-semi-indef' },
-			{ label: '{{pp-extended}}: extended confirmed protection', value: 'pp-extended' }
+			{ label: '{{pp-template}}: højrisikoskabelon', value: 'pp-template' },
+			{ label: '{{pp-usertalk}}: blokeret brugers diskussionsside', value: 'pp-usertalk' },
+			{ label: '{{pp-protected}}: generel beskyttelse', value: 'pp-protected' },
+			{ label: '{{pp-semi-indef}}: generel langsigtet semiprotection', value: 'pp-semi-indef' },
+			{ label: '{{pp-extended}}: udvidet bekræftet beskyttelse', value: 'pp-extended' }
 		]
 	},
 	{
-		label: 'Pending changes templates',
+		label: 'Kabeloner for afventende ændringer',
 		list: [
-			{ label: '{{pp-pc}}: pending changes', value: 'pp-pc' }
+			{ label: '{{pp-pc}}: afventende ændringer', value: 'pp-pc' }
 		]
 	},
 	{
-		label: 'Move protection templates',
+		label: 'Flytningsbeskyttelseskabeloner',
 		list: [
-			{ label: '{{pp-move-dispute}}: dispute/move war', value: 'pp-move-dispute' },
-			{ label: '{{pp-move-vandalism}}: page-move vandalism', value: 'pp-move-vandalism' },
-			{ label: '{{pp-move-indef}}: general long-term', value: 'pp-move-indef' },
-			{ label: '{{pp-move}}: other', value: 'pp-move' }
+			{ label: '{{pp-move-dispute}}: tvist/flytningskrig', value: 'pp-move-dispute' },
+			{ label: '{{pp-move-vandalism}}: sideflytningshærværk', value: 'pp-move-vandalism' },
+			{ label: '{{pp-move-indef}}: generel langsigtet', value: 'pp-move-indef' },
+			{ label: '{{pp-move}}: andet', value: 'pp-move' }
 		]
 	}
 ]
 // Filter FlaggedRevs
-.filter((type) => hasFlaggedRevs || type.label !== 'Pending changes templates');
+.filter((type) => hasFlaggedRevs || type.label !== 'Kabeloner for afventende ændringer');
 
 Twinkle.protect.callback.changePreset = function twinkleprotectCallbackChangePreset(e) {
 	const form = e.target.form;
@@ -1116,14 +1117,14 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 		case 'protect':
 			// protect the page
 			Morebits.wiki.actionCompleted.redirect = mw.config.get('wgPageName');
-			Morebits.wiki.actionCompleted.notice = 'Protection complete';
+			Morebits.wiki.actionCompleted.notice = 'Beskyttelse fuldført';
 
 			var statusInited = false;
 			var thispage;
 
 			var allDone = function twinkleprotectCallbackAllDone() {
 				if (thispage) {
-					thispage.getStatusElement().info('done');
+					thispage.getStatusElement().info('udført');
 				}
 				if (tagparams) {
 					Twinkle.protect.callbacks.taggingPageInitial(tagparams);
@@ -1131,7 +1132,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 			};
 
 			var protectIt = function twinkleprotectCallbackProtectIt(next) {
-				thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Protecting page');
+				thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Beskytter side');
 				if (mw.config.get('wgArticleId')) {
 					if (input.editmodify) {
 						thispage.setEditProtection(input.editlevel, input.editexpiry);
@@ -1141,7 +1142,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 						if (input.movelevel) {
 							thispage.setMoveProtection(input.movelevel, input.moveexpiry);
 						} else {
-							alert('You must chose a move protection level!');
+							alert('Du skal vælge et flytningsbeskyttelsesniveau!');
 							return;
 						}
 					}
@@ -1154,12 +1155,12 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				if (input.protectReason) {
 					thispage.setEditSummary(input.protectReason);
 				} else {
-					alert('You must enter a protect reason, which will be inscribed into the protection log.');
+					alert('Du skal angive en beskyttelsesårsag, som vil blive indskrevet i beskyttelsesloggen.');
 					return;
 				}
 
 				if (input.protectReason_notes_rfppRevid && !/^\d+$/.test(input.protectReason_notes_rfppRevid)) {
-					alert('The provided revision ID is malformed. Please see https://en.wikipedia.org/wiki/Help:Permanent_link for information on how to find the correct ID (also called "oldid").');
+					alert('Det angivne versions-ID er forkert formateret. Se venligst https://da.wikipedia.org/wiki/Hjælp:Permanent_link for oplysninger om, hvordan du finder det korrekte ID (også kaldet "oldid").');
 					return;
 				}
 
@@ -1175,16 +1176,16 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 
 			var stabilizeIt = function twinkleprotectCallbackStabilizeIt() {
 				if (thispage) {
-					thispage.getStatusElement().info('done');
+					thispage.getStatusElement().info('udført');
 				}
 
-				thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Applying pending changes protection');
+				thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Anvender beskyttelse af afventende ændringer');
 				thispage.setFlaggedRevs(input.pclevel, input.pcexpiry);
 
 				if (input.protectReason) {
 					thispage.setEditSummary(input.protectReason + Twinkle.summaryAd); // flaggedrevs tag support: [[phab:T247721]]
 				} else {
-					alert('You must enter a protect reason, which will be inscribed into the protection log.');
+					alert('Du skal angive en beskyttelsesårsag, som vil blive indskrevet i beskyttelsesloggen.');
 					return;
 				}
 
@@ -1197,7 +1198,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				thispage.setWatchlist(Twinkle.getPref('watchProtectedPages'));
 				thispage.stabilize(allDone, (error) => {
 					if (error.errorCode === 'stabilize_denied') { // [[phab:T234743]]
-						thispage.getStatusElement().error('Failed trying to modify pending changes settings, likely due to a mediawiki bug. Other actions (tagging or regular protection) may have taken place. Please reload the page and try again.');
+						thispage.getStatusElement().error('Fejl ved forsøg på at ændre indstillinger for afventende ændringer, sandsynligvis på grund af en MediaWiki-fejl. Andre handlinger (mærkning eller almindelig beskyttelse) kan have fundet sted. Genindlæs venligst siden og prøv igen.');
 					}
 				});
 			};
@@ -1211,7 +1212,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 			} else if (input.pcmodify) {
 				stabilizeIt();
 			} else {
-				alert("Please give Twinkle something to do! \nIf you just want to tag the page, you can choose the 'Tag page with protection template' option at the top.");
+				alert('Giv venligst Twinkle noget at gøre! \nHvis du bare vil mærke siden, kan du vælge indstillingen \'Mærk side med beskyttelsesskabelon\' øverst.');
 			}
 
 			break;
@@ -1224,23 +1225,23 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 
 			Morebits.wiki.actionCompleted.redirect = mw.config.get('wgPageName');
 			Morebits.wiki.actionCompleted.followRedirect = false;
-			Morebits.wiki.actionCompleted.notice = 'Tagging complete';
+			Morebits.wiki.actionCompleted.notice = 'Mærkning fuldført';
 
 			Twinkle.protect.callbacks.taggingPageInitial(tagparams);
 			break;
 
 		case 'request':
-			// file request at RFPP
+			// file request at anmodningssiden
 			var typename, typereason;
 			switch (input.category) {
 				case 'pp-dispute':
 				case 'pp-vandalism':
 				case 'pp-usertalk':
 				case 'pp-protected':
-					typename = 'full protection';
+					typename = 'fuld beskyttelse';
 					break;
 				case 'pp-template':
-					typename = 'template protection';
+					typename = 'skabelonbeskyttelse';
 					break;
 				case 'pp-30-500-arb':
 				case 'pp-30-500-vandalism':
@@ -1248,7 +1249,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				case 'pp-30-500-blp':
 				case 'pp-30-500-sock':
 				case 'pp-30-500':
-					typename = 'extended confirmed protection';
+					typename = 'udvidet bekræftet beskyttelse';
 					break;
 				case 'pp-sock-noticeboard':
 				case 'pp-semi-vandalism':
@@ -1258,25 +1259,25 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				case 'pp-semi-sock':
 				case 'pp-semi-blp':
 				case 'pp-semi-protected':
-					typename = 'semi-protection';
+					typename = 'semiprotection';
 					break;
 				case 'pp-pc-vandalism':
 				case 'pp-pc-blp':
 				case 'pp-pc-protected':
 				case 'pp-pc-unsourced':
 				case 'pp-pc-disruptive':
-					typename = 'pending changes';
+					typename = 'afventende ændringer';
 					break;
 				case 'pp-move':
 				case 'pp-move-dispute':
 				case 'pp-move-indef':
 				case 'pp-move-vandalism':
-					typename = 'move protection';
+					typename = 'flytningsbeskyttelse';
 					break;
 				case 'pp-create-offensive':
 				case 'pp-create-blp':
 				case 'pp-create-salt':
-					typename = 'create protection';
+					typename = 'oprettelsesbeskyttelse';
 					break;
 				case 'unprotect':
 					var admins = $.map(Twinkle.protect.currentProtectionLevels, (pl) => {
@@ -1285,70 +1286,70 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 						}
 						return 'User:' + pl.admin;
 					});
-					if (admins.length && !confirm('Have you attempted to contact the protecting admins (' + Morebits.array.uniq(admins).join(', ') + ') first?')) {
+					if (admins.length && !confirm('Har du forsøgt at kontakte de beskyttende administratorer (' + Morebits.array.uniq(admins).join(', ') + ') først?')) {
 						return false;
 					}
 					// otherwise falls through
 				default:
-					typename = 'unprotection';
+					typename = 'fjernelse af beskyttelse';
 					break;
 			}
 			switch (input.category) {
 				case 'pp-dispute':
-					typereason = 'Content dispute/edit warring';
+					typereason = 'Indholdskonflikt/redigeringskrig';
 					break;
 				case 'pp-vandalism':
 				case 'pp-semi-vandalism':
 				case 'pp-pc-vandalism':
 				case 'pp-30-500-vandalism':
-					typereason = 'Persistent [[WP:VAND|vandalism]]';
+					typereason = 'Vedvarende [[Wikipedia:Hærværk|hærværk]]';
 					break;
 				case 'pp-semi-disruptive':
 				case 'pp-pc-disruptive':
 				case 'pp-30-500-disruptive':
-					typereason = 'Persistent [[Wikipedia:Disruptive editing|disruptive editing]]';
+					typereason = 'Vedvarende [[Wikipedia:Forstyrrende redigering|forstyrrende redigering]]';
 					break;
 				case 'pp-semi-unsourced':
 				case 'pp-pc-unsourced':
-					typereason = 'Persistent addition of [[WP:INTREF|unsourced or poorly sourced content]]';
+					typereason = 'Vedvarende tilføjelse af ukildeangivet eller dårligt kildeangivet indhold';
 					break;
 				case 'pp-template':
-					typereason = '[[WP:HIGHRISK|High-risk template]]';
+					typereason = 'Højrisikoskabelon';
 					break;
 				case 'pp-30-500-arb':
-					typereason = '[[WP:30/500|Arbitration enforcement]]';
+					typereason = 'Voldgiftshåndhævelse';
 					break;
 				case 'pp-usertalk':
 				case 'pp-semi-usertalk':
-					typereason = 'Inappropriate use of user talk page while blocked';
+					typereason = 'Upassende brug af brugerdiskussionsside under blokering';
 					break;
 				case 'pp-sock-noticeboard':
 				case 'pp-semi-sock':
 				case 'pp-30-500-sock':
-					typereason = 'Persistent [[WP:SOCK|sockpuppetry]]';
+					typereason = 'Vedvarende [[Wikipedia:Sockpuppetry|sockpuppetry]]';
 					break;
 				case 'pp-semi-blp':
 				case 'pp-pc-blp':
 				case 'pp-30-500-blp':
-					typereason = '[[WP:BLP|BLP]] policy violations';
+					typereason = '[[Wikipedia:Biografier om levende personer|BLP]]-politikbrud';
 					break;
 				case 'pp-move-dispute':
-					typereason = 'Page title dispute/move warring';
+					typereason = 'Tvist om sidetitel/flytningskrig';
 					break;
 				case 'pp-move-vandalism':
-					typereason = 'Page-move vandalism';
+					typereason = 'Sideflytningshærværk';
 					break;
 				case 'pp-move-indef':
-					typereason = 'Highly visible page';
+					typereason = 'Meget synlig side';
 					break;
 				case 'pp-create-offensive':
-					typereason = 'Offensive name';
+					typereason = 'Stødende navn';
 					break;
 				case 'pp-create-blp':
-					typereason = 'Recently deleted [[WP:BLP|BLP]]';
+					typereason = 'Nyligt slettet [[Wikipedia:Biografier om levende personer|BLP]]';
 					break;
 				case 'pp-create-salt':
-					typereason = 'Repeatedly recreated';
+					typereason = 'Gentagne gange genskabt';
 					break;
 				default:
 					typereason = '';
@@ -1358,7 +1359,7 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 			var reason = typereason;
 			if (input.reason !== '') {
 				if (typereason !== '') {
-					reason += '\u00A0\u2013 '; // U+00A0 NO-BREAK SPACE; U+2013 EN RULE
+					reason += ' – '; // U+00A0 NO-BREAK SPACE; U+2013 EN RULE
 				}
 				reason += input.reason;
 			}
@@ -1376,19 +1377,19 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 			Morebits.SimpleWindow.setButtonsEnabled(false);
 			Morebits.Status.init(form);
 
-			var rppName = 'Wikipedia:Requests for page protection/Increase';
+			var rppName = 'Wikipedia:Anmodning om beskyttelse/Forøgelse';
 
 			// Updating data for the action completed event
-			Morebits.wiki.actionCompleted.redirect = 'Wikipedia: Requests for page protection';
-			Morebits.wiki.actionCompleted.notice = 'Nomination completed, redirecting now to the discussion page';
+			Morebits.wiki.actionCompleted.redirect = 'Wikipedia:Anmodning om beskyttelse';
+			Morebits.wiki.actionCompleted.notice = 'Nominering fuldført, omdirigerer nu til diskussionssiden';
 
-			var rppPage = new Morebits.wiki.Page(rppName, 'Requesting protection of page');
+			var rppPage = new Morebits.wiki.Page(rppName, 'Anmoder om beskyttelse af side');
 			rppPage.setFollowRedirect(true);
 			rppPage.setCallbackParameters(rppparams);
 			rppPage.load(Twinkle.protect.callbacks.fileRequest);
 			break;
 		default:
-			alert('twinkleprotect: unknown kind of action');
+			alert('twinkleprotect: ukendt handlingstype');
 			break;
 	}
 };
@@ -1425,11 +1426,11 @@ Twinkle.protect.callback.annotateProtectReason = function twinkleprotectCallback
 Twinkle.protect.callbacks = {
 	taggingPageInitial: function(tagparams) {
 		if (tagparams.tag === 'noop') {
-			Morebits.Status.info('Applying protection template', 'nothing to do');
+			Morebits.Status.info('Anvender beskyttelseskabelon', 'intet at gøre');
 			return;
 		}
 
-		const protectedPage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Tagging page');
+		const protectedPage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Mærker side');
 		protectedPage.setCallbackParameters(tagparams);
 		protectedPage.load(Twinkle.protect.callbacks.taggingPage);
 	},
@@ -1441,13 +1442,13 @@ Twinkle.protect.callbacks = {
 		const oldtag_re = /(?:\/\*)?\s*(?:<noinclude>)?\s*\{\{\s*(pp-[^{}]*?|protected|(?:t|v|s|p-|usertalk-v|usertalk-s|sb|move)protected(?:2)?|protected template|privacy protection)\s*?\}\}\s*(?:<\/noinclude>)?\s*(?:\*\/)?\s*/gi;
 		const re_result = oldtag_re.exec(text);
 		if (re_result) {
-			if (params.tag === 'none' || confirm('{{' + re_result[1] + '}} was found on the page. \nClick OK to remove it, or click Cancel to leave it there.')) {
+			if (params.tag === 'none' || confirm('{{' + re_result[1] + '}} blev fundet på siden. \nKlik OK for at fjerne den, eller klik Annuller for at beholde den.')) {
 				text = text.replace(oldtag_re, '');
 			}
 		}
 
 		if (params.tag === 'none') {
-			summary = 'Removing protection template';
+			summary = 'Fjerner beskyttelseskabelon';
 		} else {
 			tag = params.tag;
 			if (params.reason) {
@@ -1462,7 +1463,7 @@ Twinkle.protect.callbacks = {
 				if (!text.match(/{{(?:redr|this is a redirect|r(?:edirect)?(?:.?cat.*)?[ _]?sh)/i)) {
 					text = text.replace(/#REDIRECT ?(\[\[.*?\]\])(.*)/i, '#REDIRECT $1$2\n\n{{' + tag + '}}');
 				} else {
-					Morebits.Status.info('Redirect category shell present', 'nothing to do');
+					Morebits.Status.info('Omdirigeringskategori-skal til stede', 'intet at gøre');
 					return;
 				}
 			} else {
@@ -1492,7 +1493,7 @@ Twinkle.protect.callbacks = {
 					text = wikipage.insertAfterTemplates(tag, Twinkle.hatnoteRegex).getText();
 				}
 			}
-			summary = 'Adding {{' + params.tag + '}}';
+			summary = 'Tilføjer {{' + params.tag + '}}';
 		}
 
 		protectedPage.setEditSummary(summary);
@@ -1506,7 +1507,7 @@ Twinkle.protect.callbacks = {
 
 	fileRequest: function(rppPage) {
 
-		const rppPage2 = new Morebits.wiki.Page('Wikipedia:Requests for page protection/Decrease', 'Loading requests pages');
+		const rppPage2 = new Morebits.wiki.Page('Wikipedia:Anmodning om beskyttelse/Reduktion', 'Indlæser anmodningssider');
 		rppPage2.load(() => {
 			const params = rppPage.getCallbackParameters();
 			let text = rppPage.getPageText();
@@ -1517,17 +1518,17 @@ Twinkle.protect.callbacks = {
 			const tag = rppRe.exec(text) || rppRe.exec(text2);
 
 			const rppLink = document.createElement('a');
-			rppLink.setAttribute('href', mw.util.getUrl('Wikipedia:Requests for page protection'));
-			rppLink.appendChild(document.createTextNode('Wikipedia:Requests for page protection'));
+			rppLink.setAttribute('href', mw.util.getUrl('Wikipedia:Anmodning om beskyttelse'));
+			rppLink.appendChild(document.createTextNode('Wikipedia:Anmodning om beskyttelse'));
 
 			if (tag) {
-				statusElement.error([ 'There is already a protection request for this page at ', rppLink, ', aborting.' ]);
+				statusElement.error([ 'Der er allerede en beskyttelsesanmodning for denne side på ', rppLink, ', afbryder.' ]);
 				return;
 			}
 
 			let newtag = '=== [[:' + Morebits.pageNameNorm + ']] ===\n';
 			if (new RegExp('^' + mw.util.escapeRegExp(newtag).replace(/\s+/g, '\\s*'), 'm').test(text) || new RegExp('^' + mw.util.escapeRegExp(newtag).replace(/\s+/g, '\\s*'), 'm').test(text2)) {
-				statusElement.error([ 'There is already a protection request for this page at ', rppLink, ', aborting.' ]);
+				statusElement.error([ 'Der er allerede en beskyttelsesanmodning for denne side på ', rppLink, ', afbryder.' ]);
 				return;
 			}
 			newtag += '* {{pagelinks|1=' + Morebits.pageNameNorm + '}}\n\n';
@@ -1535,10 +1536,10 @@ Twinkle.protect.callbacks = {
 			let words;
 			switch (params.expiry) {
 				case 'temporary':
-					words = 'Temporary ';
+					words = 'Midlertidig ';
 					break;
 				case 'infinity':
-					words = 'Indefinite ';
+					words = 'Ubestemt ';
 					break;
 				default:
 					words = '';
@@ -1588,13 +1589,13 @@ Twinkle.protect.callbacks = {
 				text += '\n' + newtag;
 				if (text.length === originalTextLength) {
 					const linknode = document.createElement('a');
-					linknode.setAttribute('href', mw.util.getUrl('Wikipedia:Twinkle/Fixing RPP'));
-					linknode.appendChild(document.createTextNode('How to fix RPP'));
-					statusElement.error([ 'Could not find relevant heading on WP:RPP. To fix this problem, please see ', linknode, '.' ]);
+					linknode.setAttribute('href', mw.util.getUrl('Wikipedia:Anmodning om beskyttelse'));
+					linknode.appendChild(document.createTextNode('Sådan rettes anmodningssiden'));
+					statusElement.error([ 'Kunne ikke finde relevant overskrift på anmodningssiden. Se venligst ', linknode, '.' ]);
 					return;
 				}
-				statusElement.status('Adding new request...');
-				rppPage.setEditSummary('/* ' + Morebits.pageNameNorm + ' */ Requesting ' + params.typename + (params.typename === 'pending changes' ? ' on [[:' : ' of [[:') +
+				statusElement.status('Tilføjer ny anmodning...');
+				rppPage.setEditSummary('/* ' + Morebits.pageNameNorm + ' */ Anmoder om ' + params.typename + (params.typename === 'afventende ændringer' ? ' på [[:' : ' af [[:') +
 					Morebits.pageNameNorm + ']].');
 				rppPage.setChangeTags(Twinkle.changeTags);
 				rppPage.setPageText(text);
@@ -1616,7 +1617,7 @@ Twinkle.protect.callbacks = {
 						if (Twinkle.protect.watched !== true && watchPref !== 'default' && watchPref !== 'yes') {
 							watch_query.expiry = watchPref;
 						}
-						new Morebits.wiki.Api('Adding requested page to watchlist', watch_query).post();
+						new Morebits.wiki.Api('Tilføjer anmodet side til overvågningsliste', watch_query).post();
 					}
 				});
 			} else {
@@ -1624,13 +1625,13 @@ Twinkle.protect.callbacks = {
 				text2 += '\n' + newtag;
 				if (text2.length === originalTextLength2) {
 					const linknode2 = document.createElement('a');
-					linknode2.setAttribute('href', mw.util.getUrl('Wikipedia:Twinkle/Fixing RPP'));
-					linknode2.appendChild(document.createTextNode('How to fix RPP'));
-					statusElement.error([ 'Could not find relevant heading on WP:RPP. To fix this problem, please see ', linknode2, '.' ]);
+					linknode2.setAttribute('href', mw.util.getUrl('Wikipedia:Anmodning om beskyttelse'));
+					linknode2.appendChild(document.createTextNode('Sådan rettes anmodningssiden'));
+					statusElement.error([ 'Kunne ikke finde relevant overskrift på anmodningssiden. Se venligst ', linknode2, '.' ]);
 					return;
 				}
-				statusElement.status('Adding new request...');
-				rppPage2.setEditSummary('/* ' + Morebits.pageNameNorm + ' */ Requesting ' + params.typename + (params.typename === 'pending changes' ? ' on [[:' : ' of [[:') +
+				statusElement.status('Tilføjer ny anmodning...');
+				rppPage2.setEditSummary('/* ' + Morebits.pageNameNorm + ' */ Anmoder om ' + params.typename + (params.typename === 'afventende ændringer' ? ' på [[:' : ' af [[:') +
 					Morebits.pageNameNorm + ']].');
 				rppPage2.setChangeTags(Twinkle.changeTags);
 				rppPage2.setPageText(text2);
@@ -1652,7 +1653,7 @@ Twinkle.protect.callbacks = {
 						if (Twinkle.protect.watched !== true && watchPref !== 'default' && watchPref !== 'yes') {
 							watch_query.expiry = watchPref;
 						}
-						new Morebits.wiki.Api('Adding requested page to watchlist', watch_query).post();
+						new Morebits.wiki.Api('Tilføjer anmodet side til overvågningsliste', watch_query).post();
 					}
 				});
 			}

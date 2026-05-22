@@ -1,4 +1,4 @@
-// <nowiki>
+﻿// <nowiki>
 
 (function() {
 
@@ -15,7 +15,7 @@ Twinkle.warn = function twinklewarn() {
 
 	// Users and IPs but not IP ranges
 	if (mw.config.exists('wgRelevantUserName') && !Morebits.ip.isRange(mw.config.get('wgRelevantUserName'))) {
-		Twinkle.addPortletLink(Twinkle.warn.callback, 'Warn', 'tw-warn', 'Warn/notify user');
+		Twinkle.addPortletLink(Twinkle.warn.callback, 'Advar', 'tw-warn', 'Advar/underret bruger');
 		if (Twinkle.getPref('autoMenuAfterRollback') &&
 			mw.config.get('wgNamespaceNumber') === 3 &&
 			Twinkle.getPrefill('vanarticle') &&
@@ -50,59 +50,46 @@ Twinkle.warn.dialog = null;
 
 Twinkle.warn.callback = function twinklewarnCallback() {
 	if (mw.config.get('wgRelevantUserName') === mw.config.get('wgUserName') &&
-		!confirm('You are about to warn yourself! Are you sure you want to proceed?')) {
+		!confirm('Du er ved at advare dig selv! Er du sikker på, at du vil fortsætte?')) {
 		return;
 	}
 
 	Twinkle.warn.dialog = new Morebits.SimpleWindow(600, 440);
 	const dialog = Twinkle.warn.dialog;
-	dialog.setTitle('Warn/notify user');
+	dialog.setTitle('Advar/underret bruger');
 	dialog.setScriptName('Twinkle');
-	dialog.addFooterLink('Choosing a warning level', 'WP:UWUL#Levels');
-	dialog.addFooterLink('Warn prefs', 'WP:TW/PREF#warn');
-	dialog.addFooterLink('Twinkle help', 'WP:TW/DOC#warn');
-	dialog.addFooterLink('Give feedback', 'WT:TW');
 
 	const form = new Morebits.QuickForm(Twinkle.warn.callback.evaluate);
 	const main_select = form.append({
 		type: 'field',
-		label: 'Choose type of warning/notice to issue',
-		tooltip: 'First choose a main warning group, then the specific warning to issue.'
+		label: 'Vælg type advarsel/meddelelse',
+		tooltip: 'Vælg først en overordnet advarselskategori, derefter den specifikke advarsel.'
 	});
 
 	const main_group = main_select.append({
 		type: 'select',
 		name: 'main_group',
-		tooltip: 'You can customize the default selection in your Twinkle preferences',
+		tooltip: 'Du kan tilpasse standardvalget i dine Twinkle-præferencer',
 		event: Twinkle.warn.callback.change_category
 	});
 
 	const defaultGroup = parseInt(Twinkle.getPref('defaultWarningGroup'), 10);
-	main_group.append({ type: 'option', label: 'Auto-select level (1-4)', value: 'autolevel', selected: defaultGroup === 11 });
-	main_group.append({ type: 'option', label: '1: General note', value: 'level1', selected: defaultGroup === 1 });
-	main_group.append({ type: 'option', label: '2: Caution', value: 'level2', selected: defaultGroup === 2 });
-	main_group.append({ type: 'option', label: '3: Warning', value: 'level3', selected: defaultGroup === 3 });
-	main_group.append({ type: 'option', label: '4: Final warning', value: 'level4', selected: defaultGroup === 4 });
-	main_group.append({ type: 'option', label: '4im: Only warning', value: 'level4im', selected: defaultGroup === 5 });
-	if (Twinkle.getPref('combinedSingletMenus')) {
-		main_group.append({ type: 'option', label: 'Single-issue messages', value: 'singlecombined', selected: defaultGroup === 6 || defaultGroup === 7 });
-	} else {
-		main_group.append({ type: 'option', label: 'Single-issue notices', value: 'singlenotice', selected: defaultGroup === 6 });
-		main_group.append({ type: 'option', label: 'Single-issue warnings', value: 'singlewarn', selected: defaultGroup === 7 });
-	}
+	// Dansk Wikipedia bruger Test/Test2/Test3 – ingen niveaudelt uw-*-system
+	main_group.append({ type: 'option', label: 'Første besked ({{Test}})', value: 'singlenotice', selected: defaultGroup === 6 || defaultGroup === 1 });
+	main_group.append({ type: 'option', label: 'Advarsler ({{Test2}}/{{Test3}})', value: 'singlewarn', selected: defaultGroup === 7 || defaultGroup === 2 || defaultGroup === 3 });
 	if (Twinkle.getPref('customWarningList').length) {
-		main_group.append({ type: 'option', label: 'Custom warnings', value: 'custom', selected: defaultGroup === 9 });
+		main_group.append({ type: 'option', label: 'Brugerdefinerede advarsler', value: 'custom', selected: defaultGroup === 9 });
 	}
-	main_group.append({ type: 'option', label: 'All warning templates', value: 'kitchensink', selected: defaultGroup === 10 });
+	main_group.append({ type: 'option', label: 'Alle advarsler', value: 'kitchensink', selected: defaultGroup === 10 });
 
 	main_select.append({ type: 'select', name: 'sub_group', event: Twinkle.warn.callback.change_subcategory }); // Will be empty to begin with.
 
 	form.append({
 		type: 'input',
 		name: 'article',
-		label: 'Linked page',
+		label: 'Linket side',
 		value: Twinkle.getPrefill('vanarticle') || '',
-		tooltip: 'A page can be linked within the notice, perhaps because it was a revert to said page that dispatched this notice. Leave empty for no page to be linked.'
+		tooltip: 'En side kan linkes fra advarslen, f.eks. fordi det var en tilbageføring på den pågældende side, der udløste advarslen. Lad feltet stå tomt, hvis ingen side skal linkes.'
 	});
 
 	form.append({
@@ -112,19 +99,19 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 		id: 'twinkle-warn-warning-messages'
 	});
 
-	const more = form.append({ type: 'field', name: 'reasonGroup', label: 'Warning information' });
-	more.append({ type: 'textarea', label: 'Optional message:', name: 'reason', tooltip: 'Perhaps a reason, or that a more detailed notice must be appended' });
+	const more = form.append({ type: 'field', name: 'reasonGroup', label: 'Advarselsinformation' });
+	more.append({ type: 'textarea', label: 'Valgfri besked:', name: 'reason', tooltip: 'Måske en begrundelse, eller at en mere detaljeret meddelelse skal tilføjes' });
 
 	const previewlink = document.createElement('a');
 	$(previewlink).on('click', () => {
 		Twinkle.warn.callbacks.preview(result); // |result| is defined below
 	});
 	previewlink.style.cursor = 'pointer';
-	previewlink.textContent = 'Preview';
+	previewlink.textContent = 'Forhåndsvisning';
 	more.append({ type: 'div', id: 'warningpreview', label: [ previewlink ] });
 	more.append({ type: 'div', id: 'twinklewarn-previewbox', style: 'display: none' });
 
-	more.append({ type: 'submit', label: 'Submit' });
+	more.append({ type: 'submit', label: 'Send' });
 
 	var result = form.render();
 	dialog.setContent(result);
@@ -151,12 +138,12 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 				format: 'json'
 			};
 
-			new Morebits.wiki.Api('Checking if you successfully reverted the page', query, ((apiobj) => {
+			new Morebits.wiki.Api('Kontrollerer om du tilbageførte siden', query, ((apiobj) => {
 				const rev = apiobj.getResponse().query.pages[0].revisions;
 				const revertUser = rev && rev[1].user;
 				if (revertUser && revertUser !== mw.config.get('wgUserName')) {
-					message += ' Someone else reverted the page and may have already warned the user.';
-					$('#twinkle-warn-warning-messages').text('Note:' + message);
+					message += ' En anden har tilbageført siden og har muligvis allerede advaret brugeren.';
+					$('#twinkle-warn-warning-messages').text('Bemærk:' + message);
 				}
 			})).post();
 		}
@@ -166,8 +153,8 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 			const revDate = new Morebits.Date(vantimestamp);
 			if (vantimestamp && revDate.isValid()) {
 				if (revDate.add(24, 'hours').isBefore(new Date())) {
-					message += ' This edit was made more than 24 hours ago so a warning may be stale.';
-					$('#twinkle-warn-warning-messages').text('Note:' + message);
+					message += ' Denne redigering blev foretaget for mere end 24 timer siden, så en advarsel kan være forældet.';
+					$('#twinkle-warn-warning-messages').text('Bemærk:' + message);
 				}
 			}
 		};
@@ -184,7 +171,7 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 				revids: vanrevid,
 				format: 'json'
 			};
-			new Morebits.wiki.Api('Grabbing the revision timestamps', query, ((apiobj) => {
+			new Morebits.wiki.Api('Henter versions-tidsstempler', query, ((apiobj) => {
 				const rev = apiobj.getResponse().query.pages[0].revisions;
 				vantimestamp = rev && rev[0].timestamp;
 				checkStale(vantimestamp);
@@ -198,1184 +185,36 @@ Twinkle.warn.callback = function twinklewarnCallback() {
 	result.main_group.dispatchEvent(evt);
 };
 
-// This is all the messages that might be dispatched by the code
-// Each of the individual templates require the following information:
-//   label (required): A short description displayed in the dialog
-//   summary (required): The edit summary used. If an article name is entered, the summary is postfixed with "on [[article]]", and it is always postfixed with "."
-//   suppressArticleInSummary (optional): Set to true to suppress showing the article name in the edit summary. Useful if the warning relates to attack pages, or some such.
-//   hideLinkedPage (optional): Set to true to hide the "Linked page" text box. Some warning templates do not have a linked article parameter.
-//   hideReason (optional): Set to true to hide the "Optional message" text box. Some warning templates do not have a reason parameter.
+// Dette er alle advarsler der kan sendes af modulet.
+// Hvert template kræver følgende oplysninger:
+//   label (påkrævet): En kort beskrivelse vist i dialogen
+//   summary (påkrævet): Redigeringsopsummeringen.
+//   suppressArticleInSummary (valgfri): true = artikelnavn undertrykkes i opsummeringen.
+//   hideLinkedPage (valgfri): true = skjul "Linket side"-feltet.
+//   hideReason (valgfri): true = skjul "Valgfri besked"-feltet.
+//
+// Dansk Wikipedia bruger {{Test}}, {{Test2}}, {{Test3}} som advarselsskabeloner.
 Twinkle.warn.messages = {
-	levels: {
-		'Common warnings': {
-			'uw-vandalism': {
-				level1: {
-					label: 'Vandalism',
-					summary: 'General note: Unconstructive editing'
-				},
-				level2: {
-					label: 'Vandalism',
-					summary: 'Caution: Unconstructive editing'
-				},
-				level3: {
-					label: 'Vandalism',
-					summary: 'Warning: Vandalism'
-				},
-				level4: {
-					label: 'Vandalism',
-					summary: 'Final warning: Vandalism'
-				},
-				level4im: {
-					label: 'Vandalism',
-					summary: 'Only warning: Vandalism'
-				}
-			},
-			'uw-disruptive': {
-				level1: {
-					label: 'Disruptive editing',
-					summary: 'General note: Unconstructive editing'
-				},
-				level2: {
-					label: 'Disruptive editing',
-					summary: 'Caution: Unconstructive editing'
-				},
-				level3: {
-					label: 'Disruptive editing',
-					summary: 'Warning: Disruptive editing'
-				}
-			},
-			'uw-test': {
-				level1: {
-					label: 'Editing tests',
-					summary: 'General note: Editing tests'
-				},
-				level2: {
-					label: 'Editing tests',
-					summary: 'Caution: Editing tests'
-				},
-				level3: {
-					label: 'Editing tests',
-					summary: 'Warning: Editing tests'
-				}
-			},
-			'uw-delete': {
-				level1: {
-					label: 'Removal of content, blanking',
-					summary: 'General note: Removal of content, blanking'
-				},
-				level2: {
-					label: 'Removal of content, blanking',
-					summary: 'Caution: Removal of content, blanking'
-				},
-				level3: {
-					label: 'Removal of content, blanking',
-					summary: 'Warning: Removal of content, blanking'
-				},
-				level4: {
-					label: 'Removal of content, blanking',
-					summary: 'Final warning: Removal of content, blanking'
-				},
-				level4im: {
-					label: 'Removal of content, blanking',
-					summary: 'Only warning: Removal of content, blanking'
-				}
-			},
-			'uw-generic': {
-				level4: {
-					label: 'Generic warning (for template series missing level 4)',
-					summary: 'Final warning notice'
-				}
-			}
-		},
-		'Behavior in articles': {
-			'uw-ai': {
-				level1: {
-					label: 'Using a large language model',
-					summary: 'General note: Using a large language model'
-				},
-				level2: {
-					label: 'Using a large language model',
-					summary: 'Caution: Using a large language model'
-				},
-				level3: {
-					label: 'Using a large language model',
-					summary: 'Warning: Using a large language model'
-				},
-				level4: {
-					label: 'Using a large language model',
-					summary: 'Final warning: Using a large language model'
-				}
-			},
-			'uw-biog': {
-				level1: {
-					label: 'Adding unreferenced controversial information about living persons',
-					summary: 'General note: Adding unreferenced controversial information about living persons'
-				},
-				level2: {
-					label: 'Adding unreferenced controversial information about living persons',
-					summary: 'Caution: Adding unreferenced controversial information about living persons'
-				},
-				level3: {
-					label: 'Adding unreferenced controversial/defamatory information about living persons',
-					summary: 'Warning: Adding unreferenced controversial information about living persons'
-				},
-				level4: {
-					label: 'Adding unreferenced defamatory information about living persons',
-					summary: 'Final warning: Adding unreferenced controversial information about living persons'
-				},
-				level4im: {
-					label: 'Adding unreferenced defamatory information about living persons',
-					summary: 'Only warning: Adding unreferenced controversial information about living persons'
-				}
-			},
-			'uw-defamatory': {
-				level1: {
-					label: 'Addition of defamatory content',
-					summary: 'General note: Addition of defamatory content'
-				},
-				level2: {
-					label: 'Addition of defamatory content',
-					summary: 'Caution: Addition of defamatory content'
-				},
-				level3: {
-					label: 'Addition of defamatory content',
-					summary: 'Warning: Addition of defamatory content'
-				},
-				level4: {
-					label: 'Addition of defamatory content',
-					summary: 'Final warning: Addition of defamatory content'
-				},
-				level4im: {
-					label: 'Addition of defamatory content',
-					summary: 'Only warning: Addition of defamatory content'
-				}
-			},
-			'uw-error': {
-				level1: {
-					label: 'Introducing deliberate factual errors',
-					summary: 'General note: Introducing factual errors'
-				},
-				level2: {
-					label: 'Introducing deliberate factual errors',
-					summary: 'Caution: Introducing factual errors'
-				},
-				level3: {
-					label: 'Introducing deliberate factual errors',
-					summary: 'Warning: Introducing deliberate factual errors'
-				},
-				level4: {
-					label: 'Introducing deliberate factual errors',
-					summary: 'Final warning: Introducing deliberate factual errors'
-				}
-			},
-			'uw-fringe': {
-				level1: {
-					label: 'Introducing fringe theories',
-					summary: 'General note: Introducing fringe theories'
-				},
-				level2: {
-					label: 'Introducing fringe theories',
-					summary: 'Caution: Introducing fringe theories'
-				},
-				level3: {
-					label: 'Introducing fringe theories',
-					summary: 'Warning: Introducing fringe theories'
-				}
-			},
-			'uw-genre': {
-				level1: {
-					label: 'Frequent or mass changes to genres without consensus or references',
-					summary: 'General note: Frequent or mass changes to genres without consensus or references'
-				},
-				level2: {
-					label: 'Frequent or mass changes to genres without consensus or references',
-					summary: 'Caution: Frequent or mass changes to genres without consensus or references'
-				},
-				level3: {
-					label: 'Frequent or mass changes to genres without consensus or reference',
-					summary: 'Warning: Frequent or mass changes to genres without consensus or reference'
-				},
-				level4: {
-					label: 'Frequent or mass changes to genres without consensus or reference',
-					summary: 'Final warning: Frequent or mass changes to genres without consensus or reference'
-				}
-			},
-			'uw-image': {
-				level1: {
-					label: 'Image-related vandalism in articles',
-					summary: 'General note: Image-related vandalism in articles'
-				},
-				level2: {
-					label: 'Image-related vandalism in articles',
-					summary: 'Caution: Image-related vandalism in articles'
-				},
-				level3: {
-					label: 'Image-related vandalism in articles',
-					summary: 'Warning: Image-related vandalism in articles'
-				},
-				level4: {
-					label: 'Image-related vandalism in articles',
-					summary: 'Final warning: Image-related vandalism in articles'
-				},
-				level4im: {
-					label: 'Image-related vandalism',
-					summary: 'Only warning: Image-related vandalism'
-				}
-			},
-			'uw-joke': {
-				level1: {
-					label: 'Using improper humor in articles',
-					summary: 'General note: Using improper humor in articles'
-				},
-				level2: {
-					label: 'Using improper humor in articles',
-					summary: 'Caution: Using improper humor in articles'
-				},
-				level3: {
-					label: 'Using improper humor in articles',
-					summary: 'Warning: Using improper humor in articles'
-				},
-				level4: {
-					label: 'Using improper humor in articles',
-					summary: 'Final warning: Using improper humor in articles'
-				},
-				level4im: {
-					label: 'Using improper humor',
-					summary: 'Only warning: Using improper humor'
-				}
-			},
-			'uw-nor': {
-				level1: {
-					label: 'Adding original research',
-					summary: 'General note: Adding original research'
-				},
-				level2: {
-					label: 'Adding original research',
-					summary: 'Caution: Adding original research'
-				},
-				level3: {
-					label: 'Adding original research',
-					summary: 'Warning: Adding original research'
-				},
-				level4: {
-					label: 'Adding original research',
-					summary: 'Final warning: Adding original research'
-				}
-			},
-			'uw-notcensored': {
-				level1: {
-					label: 'Censorship of material',
-					summary: 'General note: Censorship of material'
-				},
-				level2: {
-					label: 'Censorship of material',
-					summary: 'Caution: Censorship of material'
-				},
-				level3: {
-					label: 'Censorship of material',
-					summary: 'Warning: Censorship of material'
-				}
-			},
-			'uw-own': {
-				level1: {
-					label: 'Ownership of articles',
-					summary: 'General note: Ownership of articles'
-				},
-				level2: {
-					label: 'Ownership of articles',
-					summary: 'Caution: Ownership of articles'
-				},
-				level3: {
-					label: 'Ownership of articles',
-					summary: 'Warning: Ownership of articles'
-				},
-				level4: {
-					label: 'Ownership of articles',
-					summary: 'Final warning: Ownership of articles'
-				},
-				level4im: {
-					label: 'Ownership of articles',
-					summary: 'Only warning: Ownership of articles'
-				}
-			},
-			'uw-pronouns': {
-				level1: {
-					label: 'Introducing incorrect pronouns',
-					summary: 'General note: Introducing incorrect pronouns'
-				},
-				level2: {
-					label: 'Introducing incorrect pronouns',
-					summary: 'Caution: Introducing incorrect pronouns'
-				},
-				level3: {
-					label: 'Introducing incorrect pronouns',
-					summary: 'Warning: Introducing incorrect pronouns'
-				}
-			},
-			'uw-subtle': {
-				level1: {
-					label: 'Subtle vandalism',
-					summary: 'General note: Possible unconstructive editing'
-				},
-				level2: {
-					label: 'Subtle vandalism',
-					summary: 'Caution: Likely unconstructive editing'
-				},
-				level3: {
-					label: 'Subtle vandalism',
-					summary: 'Warning: Subtle vandalism'
-				},
-				level4: {
-					label: 'Subtle vandalism',
-					summary: 'Final warning: Subtle vandalism'
-				}
-			},
-			'uw-talkinarticle': {
-				level1: {
-					label: 'Adding commentary to an article',
-					summary: 'General note: Adding commentary to an article'
-				},
-				level2: {
-					label: 'Adding commentary to an article',
-					summary: 'Caution: Adding commentary to an article'
-				},
-				level3: {
-					label: 'Adding commentary to an article',
-					summary: 'Warning: Adding commentary to an article'
-				}
-			},
-			'uw-tdel': {
-				level1: {
-					label: 'Removal of maintenance templates',
-					summary: 'General note: Removal of maintenance templates'
-				},
-				level2: {
-					label: 'Removal of maintenance templates',
-					summary: 'Caution: Removal of maintenance templates'
-				},
-				level3: {
-					label: 'Removal of maintenance templates',
-					summary: 'Warning: Removal of maintenance templates'
-				},
-				level4: {
-					label: 'Removal of maintenance templates',
-					summary: 'Final warning: Removal of maintenance templates'
-				}
-			},
-			'uw-unsourced': {
-				level1: {
-					label: 'Addition of unsourced or improperly cited material',
-					summary: 'General note: Addition of unsourced or improperly cited material'
-				},
-				level2: {
-					label: 'Addition of unsourced or improperly cited material',
-					summary: 'Caution: Addition of unsourced or improperly cited material'
-				},
-				level3: {
-					label: 'Addition of unsourced or improperly cited material',
-					summary: 'Warning: Addition of unsourced or improperly cited material'
-				},
-				level4: {
-					label: 'Addition of unsourced or improperly cited material',
-					summary: 'Final warning: Addition of unsourced or improperly cited material'
-				}
-			}
-		},
-		'Promotions and spam': {
-			'uw-advert': {
-				level1: {
-					label: 'Using Wikipedia for advertising or promotion',
-					summary: 'General note: Using Wikipedia for advertising or promotion'
-				},
-				level2: {
-					label: 'Using Wikipedia for advertising or promotion',
-					summary: 'Caution: Using Wikipedia for advertising or promotion'
-				},
-				level3: {
-					label: 'Using Wikipedia for advertising or promotion',
-					summary: 'Warning: Using Wikipedia for advertising or promotion'
-				},
-				level4: {
-					label: 'Using Wikipedia for advertising or promotion',
-					summary: 'Final warning: Using Wikipedia for advertising or promotion'
-				},
-				level4im: {
-					label: 'Using Wikipedia for advertising or promotion',
-					summary: 'Only warning: Using Wikipedia for advertising or promotion'
-				}
-			},
-			'uw-npov': {
-				level1: {
-					label: 'Not adhering to neutral point of view',
-					summary: 'General note: Not adhering to neutral point of view'
-				},
-				level2: {
-					label: 'Not adhering to neutral point of view',
-					summary: 'Caution: Not adhering to neutral point of view'
-				},
-				level3: {
-					label: 'Not adhering to neutral point of view',
-					summary: 'Warning: Not adhering to neutral point of view'
-				},
-				level4: {
-					label: 'Not adhering to neutral point of view',
-					summary: 'Final warning: Not adhering to neutral point of view'
-				}
-			},
-			'uw-paid': {
-				level1: {
-					label: 'Paid editing without disclosure under the Wikimedia Terms of Use',
-					summary: 'General note: Disclosure requirements for paid editing under the Wikimedia Terms of Use'
-				},
-				level2: {
-					label: 'Paid editing without disclosure under the Wikimedia Terms of Use',
-					summary: 'Caution: Disclosure requirements for paid editing under the Wikimedia Terms of Use'
-				},
-				level3: {
-					label: 'Paid editing without disclosure under the Wikimedia Terms of Use',
-					summary: 'Warning: Disclosure requirements for paid editing under the Wikimedia Terms of Use'
-				},
-				level4: {
-					label: 'Paid editing without disclosure under the Wikimedia Terms of Use',
-					summary: 'Final warning: Disclosure requirements for paid editing under the Wikimedia Terms of Use'
-				}
-			},
-			'uw-spam': {
-				level1: {
-					label: 'Adding inappropriate external links',
-					summary: 'General note: Adding inappropriate external links'
-				},
-				level2: {
-					label: 'Adding spam links',
-					summary: 'Caution: Adding spam links'
-				},
-				level3: {
-					label: 'Adding spam links',
-					summary: 'Warning: Adding spam links'
-				},
-				level4: {
-					label: 'Adding spam links',
-					summary: 'Final warning: Adding spam links'
-				},
-				level4im: {
-					label: 'Adding spam links',
-					summary: 'Only warning: Adding spam links'
-				}
-			}
-		},
-		'Behavior towards other editors': {
-			'uw-agf': {
-				level1: {
-					label: 'Not assuming good faith',
-					summary: 'General note: Not assuming good faith'
-				},
-				level2: {
-					label: 'Not assuming good faith',
-					summary: 'Caution: Not assuming good faith'
-				},
-				level3: {
-					label: 'Not assuming good faith',
-					summary: 'Warning: Not assuming good faith'
-				}
-			},
-			'uw-harass': {
-				level1: {
-					label: 'Harassment of other users',
-					summary: 'General note: Harassment of other users'
-				},
-				level2: {
-					label: 'Harassment of other users',
-					summary: 'Caution: Harassment of other users'
-				},
-				level3: {
-					label: 'Harassment of other users',
-					summary: 'Warning: Harassment of other users'
-				},
-				level4: {
-					label: 'Harassment of other users',
-					summary: 'Final warning: Harassment of other users'
-				},
-				level4im: {
-					label: 'Harassment of other users',
-					summary: 'Only warning: Harassment of other users'
-				}
-			},
-			'uw-npa': {
-				level1: {
-					label: 'Personal attack directed at a specific editor',
-					summary: 'General note: Personal attack directed at a specific editor'
-				},
-				level2: {
-					label: 'Personal attack directed at a specific editor',
-					summary: 'Caution: Personal attack directed at a specific editor'
-				},
-				level3: {
-					label: 'Personal attack directed at a specific editor',
-					summary: 'Warning: Personal attack directed at a specific editor'
-				},
-				level4: {
-					label: 'Personal attack directed at a specific editor',
-					summary: 'Final warning: Personal attack directed at a specific editor'
-				},
-				level4im: {
-					label: 'Personal attack directed at a specific editor',
-					summary: 'Only warning: Personal attack directed at a specific editor'
-				}
-			},
-			'uw-tempabuse': {
-				level1: {
-					label: 'Improper use of warning or blocking template',
-					summary: 'General note: Improper use of warning or blocking template'
-				},
-				level2: {
-					label: 'Improper use of warning or blocking template',
-					summary: 'Caution: Improper use of warning or blocking template'
-				}
-			}
-		},
-		'Removal of deletion tags': {
-			'uw-afd': {
-				level1: {
-					label: 'Removing {{afd}} templates',
-					summary: 'General note: Removing {{afd}} templates'
-				},
-				level2: {
-					label: 'Removing {{afd}} templates',
-					summary: 'Caution: Removing {{afd}} templates'
-				},
-				level3: {
-					label: 'Removing {{afd}} templates',
-					summary: 'Warning: Removing {{afd}} templates'
-				},
-				level4: {
-					label: 'Removing {{afd}} templates',
-					summary: 'Final warning: Removing {{afd}} templates'
-				}
-			},
-			'uw-blpprod': {
-				level1: {
-					label: 'Removing {{blp prod}} templates',
-					summary: 'General note: Removing {{blp prod}} templates'
-				},
-				level2: {
-					label: 'Removing {{blp prod}} templates',
-					summary: 'Caution: Removing {{blp prod}} templates'
-				},
-				level3: {
-					label: 'Removing {{blp prod}} templates',
-					summary: 'Warning: Removing {{blp prod}} templates'
-				},
-				level4: {
-					label: 'Removing {{blp prod}} templates',
-					summary: 'Final warning: Removing {{blp prod}} templates'
-				}
-			},
-			'uw-idt': {
-				level1: {
-					label: 'Removing file deletion tags',
-					summary: 'General note: Removing file deletion tags'
-				},
-				level2: {
-					label: 'Removing file deletion tags',
-					summary: 'Caution: Removing file deletion tags'
-				},
-				level3: {
-					label: 'Removing file deletion tags',
-					summary: 'Warning: Removing file deletion tags'
-				},
-				level4: {
-					label: 'Removing file deletion tags',
-					summary: 'Final warning: Removing file deletion tags'
-				}
-			},
-			'uw-rfd': {
-				level1: {
-					label: 'Removing redirects for discussion tags',
-					summary: 'General note: Removing redirects for discussion tags'
-				},
-				level2: {
-					label: 'Removing redirects for discussion tags',
-					summary: 'Caution: Removing redirects for discussion tags'
-				},
-				level3: {
-					label: 'Removing redirects for discussion tags',
-					summary: 'Warning: Removing redirects for discussion tags'
-				},
-				level4: {
-					label: 'Removing redirects for discussion tags',
-					summary: 'Final warning: Removing redirects for discussion tags'
-				}
-			},
-			'uw-speedy': {
-				level1: {
-					label: 'Removing speedy deletion tags',
-					summary: 'General note: Removing speedy deletion tags'
-				},
-				level2: {
-					label: 'Removing speedy deletion tags',
-					summary: 'Caution: Removing speedy deletion tags'
-				},
-				level3: {
-					label: 'Removing speedy deletion tags',
-					summary: 'Warning: Removing speedy deletion tags'
-				},
-				level4: {
-					label: 'Removing speedy deletion tags',
-					summary: 'Final warning: Removing speedy deletion tags'
-				}
-			},
-			'uw-tfd': {
-				level1: {
-					label: 'Removing {{tfd}} templates',
-					summary: 'General note: Removing {{tfd}} templates'
-				},
-				level2: {
-					label: 'Removing {{tfd}} templates',
-					summary: 'Caution: Removing {{tfd}} templates'
-				},
-				level3: {
-					label: 'Removing {{tfd}} templates',
-					summary: 'Warning: Removing {{tfd}} templates'
-				},
-				level4: {
-					label: 'Removing {{tfd}} templates',
-					summary: 'Final warning: Removing {{tfd}} templates'
-				}
-			}
-		},
-		Other: {
-			'uw-attempt': {
-				level1: {
-					label: 'Triggering the edit filter',
-					summary: 'General note: Triggering the edit filter'
-				},
-				level2: {
-					label: 'Triggering the edit filter',
-					summary: 'Caution: Triggering the edit filter'
-				},
-				level3: {
-					label: 'Triggering the edit filter',
-					summary: 'Warning: Triggering the edit filter'
-				},
-				level4: {
-					label: 'Triggering the edit filter',
-					summary: 'Final warning: Triggering the edit filter'
-				},
-				level4im: {
-					label: 'Triggering the edit filter',
-					summary: 'Only warning: Triggering the edit filter'
-				}
-			},
-			'uw-chat': {
-				level1: {
-					label: 'Using talk page as forum',
-					summary: 'General note: Using talk page as forum'
-				},
-				level2: {
-					label: 'Using talk page as forum',
-					summary: 'Caution: Using talk page as forum'
-				},
-				level3: {
-					label: 'Using talk page as forum',
-					summary: 'Warning: Using talk page as forum'
-				},
-				level4: {
-					label: 'Using talk page as forum',
-					summary: 'Final warning: Using talk page as forum'
-				}
-			},
-			'uw-create': {
-				level1: {
-					label: 'Creating inappropriate pages',
-					summary: 'General note: Creating inappropriate pages'
-				},
-				level2: {
-					label: 'Creating inappropriate pages',
-					summary: 'Caution: Creating inappropriate pages'
-				},
-				level3: {
-					label: 'Creating inappropriate pages',
-					summary: 'Warning: Creating inappropriate pages'
-				},
-				level4: {
-					label: 'Creating inappropriate pages',
-					summary: 'Final warning: Creating inappropriate pages'
-				},
-				level4im: {
-					label: 'Creating inappropriate pages',
-					summary: 'Only warning: Creating inappropriate pages'
-				}
-			},
-			'uw-fv': {
-				level1: {
-					label: 'Added statement had source, but it did not verify content',
-					summary: 'General note: Added statement had source, but it did not verify content'
-				}
-			},
-			'uw-mislead': {
-				level1: {
-					label: 'Using misleading edit summaries',
-					summary: 'General note: Using misleading edit summaries'
-				},
-				level2: {
-					label: 'Using misleading edit summaries',
-					summary: 'Caution: Using misleading edit summaries'
-				},
-				level3: {
-					label: 'Using misleading edit summaries',
-					summary: 'Warning: Using misleading edit summaries'
-				}
-			},
-			'uw-mos': {
-				level1: {
-					label: 'Manual of style',
-					summary: 'General note: Formatting, date, language, etc (Manual of style)'
-				},
-				level2: {
-					label: 'Manual of style',
-					summary: 'Caution: Formatting, date, language, etc (Manual of style)'
-				},
-				level3: {
-					label: 'Manual of style',
-					summary: 'Warning: Formatting, date, language, etc (Manual of style)'
-				},
-				level4: {
-					label: 'Manual of style',
-					summary: 'Final warning: Formatting, date, language, etc (Manual of style)'
-				}
-			},
-			'uw-move': {
-				level1: {
-					label: 'Page moves against naming conventions or consensus',
-					summary: 'General note: Page moves against naming conventions or consensus'
-				},
-				level2: {
-					label: 'Page moves against naming conventions or consensus',
-					summary: 'Caution: Page moves against naming conventions or consensus'
-				},
-				level3: {
-					label: 'Page moves against naming conventions or consensus',
-					summary: 'Warning: Page moves against naming conventions or consensus'
-				},
-				level4: {
-					label: 'Page moves against naming conventions or consensus',
-					summary: 'Final warning: Page moves against naming conventions or consensus'
-				},
-				level4im: {
-					label: 'Page moves against naming conventions or consensus',
-					summary: 'Only warning: Page moves against naming conventions or consensus'
-				}
-			},
-			'uw-redirect': {
-				level1: {
-					label: 'Creating inappropriate redirects',
-					summary: 'General note: Creating inappropriate redirects'
-				},
-				level2: {
-					label: 'Creating inappropriate redirects',
-					summary: 'Caution: Creating inappropriate redirects'
-				},
-				level3: {
-					label: 'Creating inappropriate redirects',
-					summary: 'Warning: Creating inappropriate redirects'
-				},
-				level4: {
-					label: 'Creating inappropriate redirects',
-					summary: 'Final warning: Creating inappropriate redirects'
-				},
-				level4im: {
-					label: 'Creating inappropriate redirects',
-					summary: 'Only warning: Creating inappropriate redirects'
-				}
-			},
-			'uw-tpv': {
-				level1: {
-					label: "Refactoring others' talk page comments",
-					summary: "General note: Refactoring others' talk page comments"
-				},
-				level2: {
-					label: "Refactoring others' talk page comments",
-					summary: "Caution: Refactoring others' talk page comments"
-				},
-				level3: {
-					label: "Refactoring others' talk page comments",
-					summary: "Warning: Refactoring others' talk page comments"
-				},
-				level4: {
-					label: "Refactoring others' talk page comments",
-					summary: "Final warning: Refactoring others' talk page comments"
-				},
-				level4im: {
-					label: "Refactoring others' talk page comments",
-					summary: "Only warning: Refactoring others' talk page comments"
-				}
-			},
-			'uw-upload': {
-				level1: {
-					label: 'Uploading unencyclopedic images',
-					summary: 'General note: Uploading unencyclopedic images'
-				},
-				level2: {
-					label: 'Uploading unencyclopedic images',
-					summary: 'Caution: Uploading unencyclopedic images'
-				},
-				level3: {
-					label: 'Uploading unencyclopedic images',
-					summary: 'Warning: Uploading unencyclopedic images'
-				},
-				level4: {
-					label: 'Uploading unencyclopedic images',
-					summary: 'Final warning: Uploading unencyclopedic images'
-				},
-				level4im: {
-					label: 'Uploading unencyclopedic images',
-					summary: 'Only warning: Uploading unencyclopedic images'
-				}
-			}
-		}
-	},
+	// levels er tomt – dansk Wikipedia bruger ikke niveaudelte uw-*-skabeloner
+	levels: {},
 
+	// Første besked – {{Test}}
 	singlenotice: {
-		'uw-addalink': {
-			label: 'Mistakes with the Add a Link newcomer task',
-			summary: 'Notice: Mistakes with the Add a Link newcomer task'
-		},
-		'uw-agf-sock': {
-			label: 'Use of multiple accounts (assuming good faith)',
-			summary: 'Notice: Using multiple accounts'
-		},
-		'uw-aiv': {
-			label: 'Bad AIV report',
-			summary: 'Notice: Bad AIV report'
-		},
-		'uw-articletodraft': {
-			label: 'Article moved to draftspace',
-			summary: 'Notice: Article moved to draftspace',
-			hideReason: true
-		},
-		'uw-autobiography': {
-			label: 'Creating autobiographies',
-			summary: 'Notice: Creating autobiographies'
-		},
-		'uw-badcat': {
-			label: 'Adding incorrect categories',
-			summary: 'Notice: Adding incorrect categories'
-		},
-		'uw-badlistentry': {
-			label: 'Adding inappropriate entries to lists',
-			summary: 'Notice: Adding inappropriate entries to lists'
-		},
-		'uw-bareurl': {
-			label: 'Adding a bare URL',
-			summary: 'Notice: Adding a bare URL'
-		},
-		'uw-bite': {
-			label: '"Biting" newcomers',
-			summary: 'Notice: "Biting" newcomers',
-			suppressArticleInSummary: true // non-standard (user name, not article), and not necessary
-		},
-		'uw-blar': {
-			label: 'Article blanked and redirected',
-			summary: 'Notice: Article blanked and redirected',
-			hideReason: true
-		},
-		'uw-circular': {
-			label: 'Using circular sources',
-			summary: 'Notice: Using circular sources'
-		},
-		'uw-coi': {
-			label: 'Conflict of interest',
-			summary: 'Notice: Conflict of interest',
-			heading: 'Managing a conflict of interest'
-		},
-		'uw-copying': {
-			label: 'Copying text to another page',
-			summary: 'Notice: Copying text to another page'
-		},
-		'uw-crystal': {
-			label: 'Adding speculative or unconfirmed information',
-			summary: 'Notice: Adding speculative or unconfirmed information'
-		},
-		'uw-c&pmove': {
-			label: 'Cut and paste moves',
-			summary: 'Notice: Cut and paste moves'
-		},
-		'uw-dab': {
-			label: 'Incorrect edit to a disambiguation page',
-			summary: 'Notice: Incorrect edit to a disambiguation page'
-		},
-		'uw-date': {
-			label: 'Unnecessarily changing date formats',
-			summary: 'Notice: Unnecessarily changing date formats'
-		},
-		'uw-deadlink': {
-			label: 'Removing proper sources containing dead links',
-			summary: 'Notice: Removing proper sources containing dead links'
-		},
-		'uw-displaytitle': {
-			label: 'Incorrect use of DISPLAYTITLE',
-			summary: 'Notice: Incorrect use of DISPLAYTITLE'
-		},
-		'uw-draftfirst': {
-			label: 'User should draft in userspace without the risk of speedy deletion',
-			summary: 'Notice: Consider drafting your article in [[Help:Userspace draft|userspace]]'
-		},
-		'uw-editsummary': {
-			label: 'New user not using edit summary',
-			summary: 'Notice: Not using edit summary'
-		},
-		'uw-editsummary2': {
-			label: 'Experienced user not using edit summary',
-			summary: 'Notice: Not using edit summary',
-			hideLinkedPage: true,
-			hideReason: true
-		},
-		'uw-elinbody': {
-			label: 'Adding external links to the body of an article',
-			summary: 'Notice: Keep external links to External links sections at the bottom of an article'
-		},
-		'uw-english': {
-			label: 'Not communicating in English',
-			summary: 'Notice: Not communicating in English'
-		},
-		'uw-hasty': {
-			label: 'Hasty addition of speedy deletion tags',
-			summary: 'Notice: Allow creators time to improve their articles before tagging them for deletion'
-		},
-		'uw-islamhon': {
-			label: 'Use of Islamic honorifics',
-			summary: 'Notice: Use of Islamic honorifics'
-		},
-		'uw-italicize': {
-			label: 'Italicize books, films, albums, magazines, TV series, etc within articles',
-			summary: 'Notice: Italicize books, films, albums, magazines, TV series, etc within articles'
-		},
-		'uw-lang': {
-			label: 'Unnecessarily changing between British and American English',
-			summary: 'Notice: Unnecessarily changing between British and American English',
-			heading: 'National varieties of English'
-		},
-		'uw-linking': {
-			label: 'Excessive addition of redlinks or repeated blue links',
-			summary: 'Notice: Excessive addition of redlinks or repeated blue links'
-		},
-		'uw-longsd': {
-			label: 'Insertion of long short description',
-			summary: 'Notice: Insertion of long short description'
-		},
-		'uw-minor': {
-			label: 'Incorrect use of minor edits check box',
-			summary: 'Notice: Incorrect use of minor edits check box'
-		},
-		'uw-mostm': {
-			label: 'Formatting of trademarks',
-			summary: 'Notice: Formatting of trademarks'
-		},
-		'uw-multiple-accts': {
-			label: 'Inappropriate use of alternative accounts',
-			summary: 'Notice: Inappropriate use of alternative accounts'
-		},
-		'uw-notenglish': {
-			label: 'Creating non-English articles',
-			summary: 'Notice: Creating non-English articles'
-		},
-		'uw-notenglishedit': {
-			label: 'Adding non-English content to articles',
-			summary: 'Notice: Adding non-English content to articles'
-		},
-		'uw-notvote': {
-			label: 'We use consensus, not voting',
-			summary: 'Notice: We use consensus, not voting'
-		},
-		'uw-orphantalk': {
-			label: 'Talk page created with no article',
-			summary: 'Notice: Talk page created with no article'
-		},
-		'uw-plagiarism': {
-			label: 'Copying from public domain sources without attribution',
-			summary: 'Notice: Copying from public domain sources without attribution'
-		},
-		'uw-preview': {
-			label: 'Use preview button to avoid mistakes',
-			summary: 'Notice: Use preview button to avoid mistakes'
-		},
-		'uw-redlink': {
-			label: 'Indiscriminate removal of redlinks',
-			summary: 'Notice: Be careful when removing redlinks'
-		},
-		'uw-refspam': {
-			label: 'Adding citations to research published by a small group of researchers',
-			summary: 'Notice: Adding citations to research published by a small group of researchers',
-			hideLinkedPage: true,
-			hideReason: true
-		},
-		'uw-selfrevert': {
-			label: 'Self-reverted editing tests',
-			summary: 'Notice: Self-reverted editing tests'
-		},
-		'uw-socialnetwork': {
-			label: 'Wikipedia is not a social network',
-			summary: 'Notice: Wikipedia is not a social network'
-		},
-		'uw-sofixit': {
-			label: 'Be bold and fix things yourself',
-			summary: 'Notice: You can be bold and fix things yourself'
-		},
-		'uw-spoiler': {
-			label: 'Adding spoiler alerts or removing spoilers from appropriate sections',
-			summary: "Notice: Don't delete or flag potential 'spoilers' in Wikipedia articles"
-		},
-		'uw-talkinarticle': {
-			label: 'Talk in article',
-			summary: 'Notice: Talk in article'
-		},
-		'uw-tilde': {
-			label: 'Not signing posts',
-			summary: 'Notice: Not signing posts'
-		},
-		'uw-toppost': {
-			label: 'Posting at the top of talk pages',
-			summary: 'Notice: Posting at the top of talk pages'
-		},
-		'uw-translation': {
-			label: 'Adding translations without proper attribution',
-			summary: 'Notice: Attribution required when translating articles'
-		},
-		'uw-unattribcc': {
-			label: 'Copying from compatibly-licensed sources without attribution',
-			summary: 'Notice: Copying from compatibly-licensed sources without attribution'
-		},
-		'uw-userspace draft finish': {
-			label: 'Stale userspace draft',
-			summary: 'Notice: Stale userspace draft'
-		},
-		'uw-usertalk': {
-			label: 'Misuse of user talk page',
-			summary: 'Notice: Misuse of user talk page',
-			hideLinkedPage: true
-		},
-		'uw-vgscope': {
-			label: 'Adding video game walkthroughs, cheats or instructions',
-			summary: 'Notice: Adding video game walkthroughs, cheats or instructions'
-		},
-		'uw-warn': {
-			label: 'Place user warning templates when reverting vandalism',
-			summary: 'Notice: You can use user warning templates when reverting vandalism'
-		},
-		'uw-wrongsummary': {
-			label: 'Using inaccurate or inappropriate edit summaries',
-			summary: 'Notice: Using inaccurate or inappropriate edit summaries'
+		'Test': {
+			label: 'Ukonstruktiv redigering – første besked',
+			summary: 'Meddelelse: Ukonstruktiv redigering'
 		}
 	},
 
+	// Advarsler – {{Test2}} og {{Test3}}
 	singlewarn: {
-		'uw-3rr': {
-			label: 'Potential three-revert rule violation; see also uw-ew',
-			summary: 'Warning: Three-revert rule'
+		'Test2': {
+			label: 'Ukonstruktiv redigering – anden advarsel',
+			summary: 'Advarsel: Gentagen ukonstruktiv redigering'
 		},
-		'uw-affiliate': {
-			label: 'Affiliate marketing',
-			summary: 'Warning: Affiliate marketing'
-		},
-		'uw-attack': {
-			label: 'Creating attack pages',
-			summary: 'Warning: Creating attack pages',
-			suppressArticleInSummary: true
-		},
-		'uw-botun': {
-			label: 'Bot username',
-			summary: 'Warning: Bot username'
-		},
-		'uw-canvass': {
-			label: 'Canvassing',
-			summary: 'Warning: Canvassing'
-		},
-		'uw-copyright': {
-			label: 'Copyright violation',
-			summary: 'Warning: Copyright violation'
-		},
-		'uw-copyright-link': {
-			label: 'Linking to copyrighted works violation',
-			summary: 'Warning: Linking to copyrighted works violation'
-		},
-		'uw-copyright-new': {
-			label: 'Copyright violation (with explanation for new users)',
-			summary: 'Notice: Avoiding copyright problems',
-			heading: 'Wikipedia and copyright'
-		},
-		'uw-copyright-remove': {
-			label: 'Removing {{copyvio}} template from articles',
-			summary: 'Warning: Removing {{copyvio}} templates'
-		},
-		'uw-derogatory': {
-			label: 'Addition of derogatory/hateful content',
-			summary: 'Warning: Addition of derogatory content'
-		},
-		'uw-efsummary': {
-			label: 'Edit summary triggering the edit filter',
-			summary: 'Warning: Edit summary triggering the edit filter'
-		},
-		'uw-ew': {
-			label: 'Edit warring (stronger wording)',
-			summary: 'Warning: Edit warring'
-		},
-		'uw-ewsoft': {
-			label: 'Edit warring (softer wording for newcomers)',
-			summary: 'Warning: Edit warring'
-		},
-		'uw-hijacking': {
-			label: 'Hijacking articles',
-			summary: 'Warning: Hijacking articles'
-		},
-		'uw-hoax': {
-			label: 'Creating hoaxes',
-			summary: 'Warning: Creating hoaxes'
-		},
-		'uw-legal': {
-			label: 'Making legal threats',
-			summary: 'Warning: Making legal threats'
-		},
-		'uw-login': {
-			label: 'Editing while logged out',
-			summary: 'Warning: Editing while logged out'
-		},
-		'uw-multipleTAs': {
-			label: 'Usage of multiple temporary accounts',
-			summary: 'Warning: Vandalism using multiple temporary accounts'
-		},
-		'uw-paraphrase': {
-			label: 'Close paraphrasing',
-			summary: 'Warning: Close paraphrasing'
-		},
-		'uw-pinfo': {
-			label: 'Personal info (outing)',
-			summary: 'Warning: Personal info'
-		},
-		'uw-salt': {
-			label: 'Recreating salted articles under a different title',
-			summary: 'Notice: Recreating creation-protected articles under a different title'
-		},
-		'uw-socksuspect': {
-			label: 'Sockpuppetry',
-			summary: 'Warning: You are a suspected [[WP:SOCK|sockpuppet]]' // of User:...
-		},
-		'uw-upv': {
-			label: 'Userpage vandalism',
-			summary: 'Warning: Userpage vandalism'
-		},
-		'uw-username': {
-			label: 'Username is against policy',
-			summary: 'Warning: Your username might be against policy',
-			suppressArticleInSummary: true // not relevant for this template
-		},
-		'uw-coi-username': {
-			label: 'Username is against policy, and conflict of interest',
-			summary: 'Warning: Username and conflict of interest',
-			heading: 'Your username'
-		},
-		'uw-userpage': {
-			label: 'Userpage or subpage is against policy',
-			summary: 'Warning: Userpage or subpage is against policy'
+		'Test3': {
+			label: 'Ukonstruktiv redigering – endelig advarsel',
+			summary: 'Advarsel: Gentagen ukonstruktiv redigering – endelig advarsel'
 		}
 	}
 };
@@ -1452,7 +291,7 @@ Twinkle.warn.callback.change_category = function twinklewarnCallbackChangeCatego
 		if (wrapInOptgroup && $.client.profile().platform === 'iphone') {
 			let wrapperOptgroup = new Morebits.QuickForm.Element({
 				type: 'optgroup',
-				label: 'Available templates'
+				label: 'Tilgængelige skabeloner'
 			});
 			wrapperOptgroup = wrapperOptgroup.render();
 			container.appendChild(wrapperOptgroup);
@@ -1509,84 +348,17 @@ Twinkle.warn.callback.change_category = function twinklewarnCallbackChangeCatego
 			createEntries(Twinkle.getPref('customWarningList'), sub_group, true);
 			break;
 		case 'kitchensink':
-			['level1', 'level2', 'level3', 'level4', 'level4im'].forEach((lvl) => {
-				$.each(Twinkle.warn.messages.levels, (levelGroupLabel, levelGroup) => {
-					createGroup(levelGroup, 'Level ' + lvl.slice(5) + ': ' + levelGroupLabel, true, lvl);
-				});
-			});
-			createGroup(Twinkle.warn.messages.singlenotice, 'Single-issue notices');
-			createGroup(Twinkle.warn.messages.singlewarn, 'Single-issue warnings');
-			createGroup(Twinkle.getPref('customWarningList'), 'Custom warnings');
-			break;
-		case 'level1':
-		case 'level2':
-		case 'level3':
-		case 'level4':
-		case 'level4im':
-			// Creates subgroup regardless of whether there is anything to place in it;
-			// leaves "Removal of deletion tags" empty for 4im
-			$.each(Twinkle.warn.messages.levels, (groupLabel, groupContents) => {
-				createGroup(groupContents, groupLabel, false);
-			});
-			break;
-		case 'autolevel':
-			// Check user page to determine appropriate level
-			var autolevelProc = function() {
-				const wikitext = Twinkle.warn.talkpageObj.getPageText();
-				// history not needed for autolevel
-				const latest = Twinkle.warn.callbacks.dateProcessing(wikitext)[0];
-				// Pseudo-params with only what's needed to parse the level i.e. no messageData
-				const params = {
-					sub_group: old_subvalue,
-					article: e.target.root.article.value
-				};
-				const lvl = 'level' + Twinkle.warn.callbacks.autolevelParseWikitext(wikitext, params, latest)[1];
-
-				// Identical to level1, etc. above but explicitly provides the level
-				$.each(Twinkle.warn.messages.levels, (groupLabel, groupContents) => {
-					createGroup(groupContents, groupLabel, false, lvl);
-				});
-
-				// Trigger subcategory change, add select menu, etc.
-				Twinkle.warn.callback.postCategoryCleanup(e);
-			};
-
-			if (Twinkle.warn.talkpageObj) {
-				autolevelProc();
-			} else {
-				const usertalk_page = new Morebits.wiki.Page('User_talk:' + mw.config.get('wgRelevantUserName'), 'Loading previous warnings');
-				usertalk_page.setFollowRedirect(true, false);
-				usertalk_page.load((pageobj) => {
-					Twinkle.warn.talkpageObj = pageobj; // Update talkpageObj
-					autolevelProc();
-				}, () => {
-					// Catch and warn if the talkpage can't load,
-					// most likely because it's a cross-namespace redirect
-					// Supersedes the typical $autolevelMessage added in autolevelParseWikitext
-					const $noTalkPageNode = $('<strong>')
-						.text('Unable to load user talk page; it might be a cross-namespace redirect. Autolevel detection will not work.')
-						.attr('id', 'twinkle-warn-autolevel-message')
-						.css('color', 'red');
-					$noTalkPageNode.insertBefore($('#twinkle-warn-warning-messages'));
-					// If a preview was opened while in a different mode, close it
-					// Should nullify the need to catch the error in preview callback
-					e.target.root.previewer.closePreview();
-				});
-			}
+			// Dansk Wikipedia: ingen niveaudelte skabeloner
+			createGroup(Twinkle.warn.messages.singlenotice, 'Første beskeder');
+			createGroup(Twinkle.warn.messages.singlewarn, 'Advarsler');
+			createGroup(Twinkle.getPref('customWarningList'), 'Brugerdefinerede advarsler');
 			break;
 		default:
-			alert('Unknown warning group in twinklewarn');
+			alert('Ukendt advarselskategori i twinklewarn');
 			break;
 	}
 
-	// Trigger subcategory change, add select menu, etc.
-	// Here because of the async load for autolevel
-	if (value !== 'autolevel') {
-		// reset any autolevel-specific messages while we're here
-		$('#twinkle-warn-autolevel-message').remove();
-
-		Twinkle.warn.callback.postCategoryCleanup(e);
-	}
+	Twinkle.warn.callback.postCategoryCleanup(e);
 };
 
 Twinkle.warn.callback.postCategoryCleanup = function twinklewarnCallbackPostCategoryCleanup(e) {
@@ -1649,15 +421,9 @@ Twinkle.warn.callback.change_subcategory = function twinklewarnCallbackChangeSub
 		Morebits.QuickForm.setElementVisibility(e.target.form.reason.parentElement, true);
 	}
 
-	// Tags that don't take a linked article, but something else (often a username).
-	// The value of each tag is the label next to the input field
-	const notLinkedArticle = {
-		'uw-agf-sock': 'Optional username of other account (without User:) ',
-		'uw-bite': "Username of 'bitten' user (without User:) ",
-		'uw-socksuspect': 'Username of sock master, if known (without User:) ',
-		'uw-username': 'Username violates policy because... ',
-		'uw-aiv': 'Optional username that was reported (without User:) '
-	};
+	// Skabeloner der ikke tager en linket artikel, men noget andet (f.eks. et brugernavn).
+	// Værdien for hvert tag er etiketten ved siden af inputfeltet
+	const notLinkedArticle = {}; // Ingen da.wp-skabeloner kræver dette for nu
 
 	const hasLevel = ['singlenotice', 'singlewarn', 'singlecombined', 'kitchensink'].includes(selected_main_group);
 	if (hasLevel) {
@@ -1682,47 +448,25 @@ Twinkle.warn.callback.change_subcategory = function twinklewarnCallbackChangeSub
 		}
 	}
 
-	// add big red notice, warning users about how to use {{uw-[coi-]username}} appropriately
-	$('#tw-warn-red-notice').remove();
-	let $redWarning;
-	if (selected_template === 'uw-username') {
-		$redWarning = $("<div style='color: red;' id='tw-warn-red-notice'>{{uw-username}} should <b>not</b> be used for <b>blatant</b> username policy violations. " +
-			"Blatant violations should be reported directly to UAA (via Twinkle's ARV tab). " +
-			'{{uw-username}} should only be used in edge cases in order to engage in discussion with the user.</div>');
-		$redWarning.insertAfter(Morebits.QuickForm.getElementLabelObject(e.target.form.reasonGroup));
-	} else if (selected_template === 'uw-coi-username') {
-		$redWarning = $("<div style='color: red;' id='tw-warn-red-notice'>{{uw-coi-username}} should <b>not</b> be used for <b>blatant</b> username policy violations. " +
-			"Blatant violations should be reported directly to UAA (via Twinkle's ARV tab). " +
-			'{{uw-coi-username}} should only be used in edge cases in order to engage in discussion with the user.</div>');
-		$redWarning.insertAfter(Morebits.QuickForm.getElementLabelObject(e.target.form.reasonGroup));
-	}
+	$('#tw-warn-red-notice').remove(); // Ryd eventuelle røde advarsler fra tidligere valg
 };
 
 Twinkle.warn.callbacks = {
 	getWarningWikitext: function(templateName, article, reason, isCustom) {
 		let text = '{{subst:' + templateName;
 
-		// add linked article for user warnings
+		// Tilføj linket artikel til brugeradvarsler
 		if (article) {
-			// c&pmove has the source as the first parameter
-			if (templateName === 'uw-c&pmove') {
-				text += '|to=' + article;
-			} else {
-				text += '|1=' + article;
-			}
+			text += '|1=' + article;
 		}
 		if (reason && !isCustom) {
-			// add extra message
-			if (templateName === 'uw-userpage') {
-				text += "|3=''" + Morebits.string.formatReasonText(reason) + "''";
-			} else {
-				text += "|2=''" + Morebits.string.formatReasonText(reason) + "''";
-			}
+			// Tilføj ekstra besked
+			text += "|2=''" + Morebits.string.formatReasonText(reason) + "''";
 		}
 		text += '}}';
 
 		if (reason && isCustom) {
-			// we assume that custom warnings lack a {{{2}}} parameter
+			// brugerdefinerede advarsler antages at mangle {{{2}}}-parameteren
 			text += " ''" + reason + "''";
 		}
 
@@ -1738,39 +482,9 @@ Twinkle.warn.callbacks = {
 
 		form.previewer.beginRender(templatetext, 'User_talk:' + mw.config.get('wgRelevantUserName')); // Force wikitext/correct username
 	},
-	// Just a pass-through unless the autolevel option was selected
+	// Forhåndsvisning af skabelon
 	preview: function(form) {
-		if (form.main_group.value === 'autolevel') {
-			// Always get a new, updated talkpage for autolevel processing
-			const usertalk_page = new Morebits.wiki.Page('User_talk:' + mw.config.get('wgRelevantUserName'), 'Loading previous warnings');
-			usertalk_page.setFollowRedirect(true, false);
-			// Will fail silently if the talk page is a cross-ns redirect,
-			// removal of the preview box handled when loading the menu
-			usertalk_page.load((pageobj) => {
-				Twinkle.warn.talkpageObj = pageobj; // Update talkpageObj
-
-				const wikitext = pageobj.getPageText();
-				// history not needed for autolevel
-				const latest = Twinkle.warn.callbacks.dateProcessing(wikitext)[0];
-				const params = {
-					sub_group: form.sub_group.value,
-					article: form.article.value,
-					messageData: $(form.sub_group).find('option[value="' + $(form.sub_group).val() + '"]').data('messageData')
-				};
-				const template = Twinkle.warn.callbacks.autolevelParseWikitext(wikitext, params, latest)[0];
-				Twinkle.warn.callbacks.showPreview(form, template);
-
-				// If the templates have diverged, fake a change event
-				// to reload the menu with the updated pageobj
-				if (form.sub_group.value !== template) {
-					const evt = document.createEvent('Event');
-					evt.initEvent('change', true, true);
-					form.main_group.dispatchEvent(evt);
-				}
-			});
-		} else {
-			Twinkle.warn.callbacks.showPreview(form);
-		}
+		Twinkle.warn.callbacks.showPreview(form);
 	},
 	/**
 	 * Used in the main and autolevel loops to determine when to warn
@@ -1798,107 +512,6 @@ Twinkle.warn.callbacks = {
 		}
 		return [latest, history];
 	},
-
-	// False positive
-	// eslint-disable-next-line jsdoc/require-returns-check
-	/**
-	 * Main loop for deciding what the level should increment to. Most of
-	 * this is really just error catching and updating the subsequent data.
-	 * May produce up to two notices in a twinkle-warn-autolevel-messages div
-	 *
-	 * @param {string} wikitext  The text of a user's talk page, from getPageText() (required)
-	 * @param {Object} params  Params object: sub_group is the template (required);
-	 * article is the user-provided article (form.article) used to link ARV on recent level4 warnings;
-	 * messageData is only necessary if getting the full template, as it's
-	 * used to ensure a valid template of that level exists
-	 * @param {Object} latest  First element of the array returned from
-	 * dateProcessing. Provided here rather than processed within to avoid
-	 * repeated call to dateProcessing
-	 * @param {(Date|Morebits.Date)} date  Date from which staleness is determined
-	 * @param {Morebits.Status} statelem  Status element, only used for handling error in final execution
-	 *
-	 * @return {Array} - Array that contains the full template and just the warning level
-	 */
-	autolevelParseWikitext: function(wikitext, params, latest, date, statelem) {
-		let level; // undefined rather than '' means the isNaN below will return true
-		if (/\d(?:im)?$/.test(latest.type)) { // level1-4im
-			level = parseInt(latest.type.replace(/.*(\d)(?:im)?$/, '$1'), 10);
-		} else if (latest.type) { // Non-numbered warning
-			// Try to leverage existing categorization of
-			// warnings, all but one are universally lowercased
-			const loweredType = /uw-multipleTAs/i.test(latest.type) ? 'uw-multipleTAs' : latest.type.toLowerCase();
-			// It would be nice to account for blocks, but in most
-			// cases the hidden message is terminal, not the sig
-			if (Twinkle.warn.messages.singlewarn[loweredType]) {
-				level = 3;
-			} else {
-				level = 1; // singlenotice or not found
-			}
-		}
-
-		const $autolevelMessage = $('<div>')
-			.attr('id', 'twinkle-warn-autolevel-message');
-
-		if (isNaN(level)) { // No prior warnings found, this is the first
-			level = 1;
-		} else if (level > 4 || level < 1) { // Shouldn't happen
-			const message = 'Unable to parse previous warning level, please manually select a warning level.';
-			if (statelem) {
-				statelem.error(message);
-			} else {
-				alert(message);
-			}
-			return;
-		} else {
-			date = date || new Date();
-			const autoTimeout = new Morebits.Date(latest.date.getTime()).add(parseInt(Twinkle.getPref('autolevelStaleDays'), 10), 'days');
-			if (autoTimeout.isAfter(date)) {
-				if (level === 4) {
-					level = 4;
-					// Basically indicates whether we're in the final Main evaluation or not,
-					// and thus whether we can continue or need to display the warning and link
-					if (!statelem) {
-						const $link = $('<a>')
-							.attr('href', '#')
-							.text('click here to open the ARV tool.')
-							.css('fontWeight', 'bold')
-							.on('click', () => {
-								Morebits.wiki.actionCompleted.redirect = null;
-								Twinkle.warn.dialog.close();
-								Twinkle.arv.callback(mw.config.get('wgRelevantUserName'));
-								$('input[name=page]').val(params.article); // Target page
-								$('input[value=final]').prop('checked', true); // Vandalism after final
-							});
-						const $statusNode = $('<div>')
-							.text(mw.config.get('wgRelevantUserName') + ' recently received a level 4 warning (' + latest.type + ') so it might be better to report them instead; ')
-							.css('color', 'red');
-						$statusNode.append($link[0]);
-						$autolevelMessage.append($statusNode);
-					}
-				} else { // Automatically increase severity
-					level += 1;
-				}
-			} else { // Reset warning level if most-recent warning is too old
-				level = 1;
-			}
-		}
-
-		$autolevelMessage.prepend($('<div>Will issue a <span style="font-weight: bold;">level ' + level + '</span> template.</div>'));
-		// Place after the stale and other-user-reverted (text-only) messages
-		$('#twinkle-warn-autolevel-message').remove(); // clean slate
-		$autolevelMessage.insertAfter($('#twinkle-warn-warning-messages'));
-
-		let template = params.sub_group.replace(/(.*)\d$/, '$1');
-		// Validate warning level, falling back to the uw-generic series.
-		// Only a few items are missing a level, and in all but a handful
-		// of cases, the uw-generic series is explicitly used elsewhere per WP:UTM.
-		if (params.messageData && !params.messageData['level' + level]) {
-			template = 'uw-generic';
-		}
-		template += level;
-
-		return [template, level];
-	},
 	main: function(pageobj) {
 		const text = pageobj.getPageText();
 		const statelem = pageobj.getStatusElement();
@@ -1909,33 +522,22 @@ Twinkle.warn.callbacks = {
 
 		const now = new Morebits.Date(pageobj.getLoadTime());
 
-		Twinkle.warn.talkpageObj = pageobj; // Update talkpageObj, just in case
-		if (params.main_group === 'autolevel') {
-			// [template, level]
-			const templateAndLevel = Twinkle.warn.callbacks.autolevelParseWikitext(text, params, latest, now, statelem);
+		Twinkle.warn.talkpageObj = pageobj; // Opdater talkpageObj, for en sikkerheds skyld
 
-			// Only if there's a change from the prior display/load
-			if (params.sub_group !== templateAndLevel[0] && !confirm('Will issue a {{' + templateAndLevel[0] + '}} template to the user, okay?')) {
-				statelem.error('aborted per user request');
-				return;
-			}
-			// Update params now that we've selected a warning
-			params.sub_group = templateAndLevel[0];
-			messageData = params.messageData['level' + templateAndLevel[1]];
-		} else if (params.sub_group in history) {
+		if (params.sub_group in history) {
 			if (new Morebits.Date(history[params.sub_group]).add(1, 'day').isAfter(now)) {
-				if (!confirm('An identical ' + params.sub_group + ' has been issued in the last 24 hours.  \nWould you still like to add this warning/notice?')) {
-					statelem.error('aborted per user request');
+				if (!confirm('En identisk {{' + params.sub_group + '}} er blevet udsendt inden for de sidste 24 timer.\nVil du stadig tilføje denne advarsel?')) {
+					statelem.error('Afbrudt af brugeren.');
 					return;
 				}
 			}
 		}
 
-		latest.date.add(1, 'minute'); // after long debate, one minute is max
+		latest.date.add(1, 'minute'); // efter lang debat er ét minut max
 
 		if (latest.date.isAfter(now)) {
-			if (!confirm('A ' + latest.type + ' has been issued in the last minute.  \nWould you still like to add this warning/notice?')) {
-				statelem.error('aborted per user request');
+			if (!confirm('En {{' + latest.type + '}} er blevet udsendt inden for det seneste minut.\nVil du stadig tilføje denne advarsel?')) {
+				statelem.error('Afbrudt af brugeren.');
 				return;
 			}
 		}
@@ -1947,25 +549,25 @@ Twinkle.warn.callbacks = {
 			let prefix;
 			switch (template.slice(-1)) {
 				case '1':
-					prefix = 'General note';
+					prefix = 'Generel bemærkning';
 					break;
 				case '2':
-					prefix = 'Caution';
+					prefix = 'Forsigtighed';
 					break;
 				case '3':
-					prefix = 'Warning';
+					prefix = 'Advarsel';
 					break;
 				case '4':
-					prefix = 'Final warning';
+					prefix = 'Endelig advarsel';
 					break;
 				case 'm':
 					if (template.slice(-3) === '4im') {
-						prefix = 'Only warning';
+						prefix = 'Eneste advarsel';
 						break;
 					}
 					// falls through
 				default:
-					prefix = 'Notice';
+					prefix = 'Meddelelse';
 					break;
 			}
 			return prefix + ': ' + Morebits.string.toUpperCaseFirstChar(messageData.label);
@@ -1993,13 +595,7 @@ Twinkle.warn.callbacks = {
 				summary = customProcess(params.sub_group);
 			}
 			if (messageData.suppressArticleInSummary !== true && params.article) {
-				if (params.sub_group === 'uw-agf-sock' ||
-						params.sub_group === 'uw-socksuspect' ||
-						params.sub_group === 'uw-aiv') { // these templates require a username
-					summary += ' of [[:User:' + params.article + ']]';
-				} else {
-					summary += ' on [[:' + params.article + ']]';
-				}
+				summary += ' på [[:' + params.article + ']]';
 			}
 		}
 
@@ -2033,7 +629,7 @@ Twinkle.warn.callbacks = {
 			if (messageData.heading) { // create new section
 				pageobj.setNewSectionTitle(messageData.heading);
 			} else {
-				Morebits.Status.info('Info', 'Will create a new talk page section for this month, as none was found');
+				Morebits.Status.info('Oplysning', 'Opretter ny diskussionsafsnit for denne måned, da intet eksisterede');
 				pageobj.setNewSectionTitle(now.monthHeader(0));
 			}
 			pageobj.setNewSectionText(warningText);
@@ -2048,17 +644,7 @@ Twinkle.warn.callback.evaluate = function twinklewarnCallbackEvaluate(e) {
 	// reason, main_group, sub_group, article
 	const params = Morebits.QuickForm.getInputData(e.target);
 
-	// Check that a reason was filled in if uw-username was selected
-	if (params.sub_group === 'uw-username' && !params.article) {
-		alert('You must supply a reason for the {{uw-username}} template.');
-		return;
-	}
-
-	// The autolevel option will already know by now if a user talk page
-	// is a cross-namespace redirect (via !!Twinkle.warn.talkpageObj), so
-	// technically we could alert an error here, but the user will have
-	// already ignored the bold red error above.  Moreover, they probably
-	// *don't* want to actually issue a warning, so the error handling
+	// The error handling
 	// after the form is submitted is probably preferable
 
 	// Find the selected <option> element so we can fetch the data structure
@@ -2069,9 +655,9 @@ Twinkle.warn.callback.evaluate = function twinklewarnCallbackEvaluate(e) {
 	Morebits.Status.init(e.target);
 
 	Morebits.wiki.actionCompleted.redirect = userTalkPage;
-	Morebits.wiki.actionCompleted.notice = 'Warning complete, reloading talk page in a few seconds';
+	Morebits.wiki.actionCompleted.notice = 'Advarsel afsendt, genindlæser diskussionssiden om få sekunder';
 
-	const wikipedia_page = new Morebits.wiki.Page(userTalkPage, 'User talk page modification');
+	const wikipedia_page = new Morebits.wiki.Page(userTalkPage, 'Ændring af brugerens diskussionsside');
 	wikipedia_page.setCallbackParameters(params);
 	wikipedia_page.setFollowRedirect(true, false);
 	wikipedia_page.load(Twinkle.warn.callbacks.main);

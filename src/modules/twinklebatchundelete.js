@@ -4,9 +4,9 @@
 
 /*
  ****************************************
- *** twinklebatchundelete.js: Batch undelete module
+ *** twinklebatchundelete.js: Masse-gensletningsmodul
  ****************************************
- * Mode of invocation:     Tab ("Und-batch")
+ * Mode of invocation:     Tab ("M-gendan")
  * Active on:              Existing user and project pages
  */
 
@@ -16,22 +16,20 @@ Twinkle.batchundelete = function twinklebatchundelete() {
 		mw.config.get('wgNamespaceNumber') !== mw.config.get('wgNamespaceIds').project)) {
 		return;
 	}
-	Twinkle.addPortletLink(Twinkle.batchundelete.callback, 'Und-batch', 'tw-batch-undel', "Undelete 'em all");
+	Twinkle.addPortletLink(Twinkle.batchundelete.callback, 'M-gendan', 'tw-batch-undel', 'Gendan dem alle');
 };
 
 Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 	const Window = new Morebits.SimpleWindow(600, 400);
 	Window.setScriptName('Twinkle');
-	Window.setTitle('Batch undelete');
-	Window.addFooterLink('Twinkle help', 'WP:TW/DOC#batchundelete');
-	Window.addFooterLink('Give feedback', 'WT:TW');
+	Window.setTitle('Masse-gendannelse');
 
 	const form = new Morebits.QuickForm(Twinkle.batchundelete.callback.evaluate);
 	form.append({
 		type: 'checkbox',
 		list: [
 			{
-				label: 'Restore talk pages of undeleted pages if they existed',
+				label: 'Gendan diskussionssider for gendannede sider, hvis de eksisterede',
 				name: 'undel_talk',
 				value: 'undel_talk',
 				checked: true
@@ -41,7 +39,7 @@ Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 	form.append({
 		type: 'input',
 		name: 'reason',
-		label: 'Reason:',
+		label: 'Begrundelse:',
 		size: 60
 	});
 
@@ -60,8 +58,8 @@ Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 		gpllimit: Twinkle.getPref('batchMax'),
 		format: 'json'
 	};
-	const statelem = new Morebits.Status('Grabbing list of pages');
-	const wikipediaApi = new Morebits.wiki.Api('loading...', query, ((apiobj) => {
+	const statelem = new Morebits.Status('Henter liste over sider');
+	const wikipediaApi = new Morebits.wiki.Api('indlæser...', query, ((apiobj) => {
 		const response = apiobj.getResponse();
 		let pages = (response.query && response.query.pages) || [];
 		pages = pages.filter((page) => page.missing);
@@ -72,24 +70,24 @@ Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 
 			const title = page.title;
 			list.push({
-				label: title + (editProt ? ' (fully create protected' +
-					(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.Date(editProt.expiry).calendar('utc') + ' (UTC)') + ')' : ''),
+				label: title + (editProt ? ' (fuldt oprettelsesbeskyttet' +
+					(editProt.expiry === 'infinity' ? ' på ubestemt tid' : ', udløber ' + new Morebits.Date(editProt.expiry).calendar('utc') + ' (UTC)') + ')' : ''),
 				value: title,
 				checked: true,
 				style: editProt ? 'color:red' : ''
 			});
 		});
-		apiobj.params.form.append({ type: 'header', label: 'Pages to undelete' });
+		apiobj.params.form.append({ type: 'header', label: 'Sider at gendanne' });
 		apiobj.params.form.append({
 			type: 'button',
-			label: 'Select All',
+			label: 'Vælg alle',
 			event: function(e) {
 				$(Morebits.QuickForm.getElements(e.target.form, 'pages')).prop('checked', true);
 			}
 		});
 		apiobj.params.form.append({
 			type: 'button',
-			label: 'Deselect All',
+			label: 'Fravælg alle',
 			event: function(e) {
 				$(Morebits.QuickForm.getElements(e.target.form, 'pages')).prop('checked', false);
 			}
@@ -113,28 +111,28 @@ Twinkle.batchundelete.callback = function twinklebatchundeleteCallback() {
 };
 
 Twinkle.batchundelete.callback.evaluate = function(event) {
-	Morebits.wiki.actionCompleted.notice = 'Batch undeletion is now complete';
+	Morebits.wiki.actionCompleted.notice = 'Masse-gendannelse er nu fuldført';
 
 	const numProtected = Morebits.QuickForm.getElements(event.target, 'pages').filter((element) => element.checked && element.nextElementSibling.style.color === 'red').length;
-	if (numProtected > 0 && !confirm('You are about to undelete ' + numProtected + ' fully create protected page(s). Are you sure?')) {
+	if (numProtected > 0 && !confirm('Du er ved at gendanne ' + numProtected + ' fuldt oprettelsesbeskyttet(e) side(r). Er du sikker?')) {
 		return;
 	}
 
 	const input = Morebits.QuickForm.getInputData(event.target);
 
 	if (!input.reason) {
-		alert('You need to give a reason, you cabal crony!');
+		alert('Du skal angive en begrundelse!');
 		return;
 	}
 	Morebits.SimpleWindow.setButtonsEnabled(false);
 	Morebits.Status.init(event.target);
 
 	if (!input.pages || !input.pages.length) {
-		Morebits.Status.error('Error', 'nothing to undelete, aborting');
+		Morebits.Status.error('Fejl', 'intet at gendanne, afbryder');
 		return;
 	}
 
-	const pageUndeleter = new Morebits.BatchOperation('Undeleting pages');
+	const pageUndeleter = new Morebits.BatchOperation('Gendanner sider');
 	pageUndeleter.setOption('chunkSize', Twinkle.getPref('batchChunks'));
 	pageUndeleter.setOption('preserveIndividualStatusLines', true);
 	pageUndeleter.setPageList(input.pages);
@@ -146,7 +144,7 @@ Twinkle.batchundelete.callback.evaluate = function(event) {
 			pageUndeleter: pageUndeleter
 		};
 
-		const wikipediaPage = new Morebits.wiki.Page(pageName, 'Undeleting page ' + pageName);
+		const wikipediaPage = new Morebits.wiki.Page(pageName, 'Gendanner side ' + pageName);
 		wikipediaPage.setCallbackParameters(params);
 		wikipediaPage.setEditSummary(input.reason);
 		wikipediaPage.setChangeTags(Twinkle.changeTags);
@@ -179,7 +177,7 @@ Twinkle.batchundelete.callbacks = {
 					titles: talkpagename,
 					format: 'json'
 				};
-				wikipediaApi = new Morebits.wiki.Api('Checking talk page for deleted revisions', query, Twinkle.batchundelete.callbacks.undeleteTalk);
+				wikipediaApi = new Morebits.wiki.Api('Kontrollerer diskussionsside for slettede versioner', query, Twinkle.batchundelete.callbacks.undeleteTalk);
 				wikipediaApi.params = params;
 				wikipediaApi.params.talkPage = talkpagename;
 				wikipediaApi.post();
@@ -196,7 +194,7 @@ Twinkle.batchundelete.callbacks = {
 			return;
 		}
 
-		const talkpage = new Morebits.wiki.Page(apiobj.params.talkPage, 'Undeleting talk page of ' + apiobj.params.page);
+		const talkpage = new Morebits.wiki.Page(apiobj.params.talkPage, 'Gendanner diskussionssiden for ' + apiobj.params.page);
 		talkpage.setEditSummary('Undeleting [[Help:Talk page|talk page]] of "' + apiobj.params.page + '"');
 		talkpage.setChangeTags(Twinkle.changeTags);
 		talkpage.undeletePage();
