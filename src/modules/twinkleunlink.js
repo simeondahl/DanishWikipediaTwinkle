@@ -16,7 +16,7 @@ Twinkle.unlink = function twinkleunlink() {
 		(!Morebits.userIsInGroup('extendedconfirmed') && !Morebits.userIsSysop)) {
 		return;
 	}
-	Twinkle.addPortletLink(Twinkle.unlink.callback, 'Unlink', 'tw-unlink', 'Unlink backlinks');
+	Twinkle.addPortletLink(Twinkle.unlink.callback, 'Ophæv', 'tw-unlink', 'Ophæv backlinks');
 };
 
 // the parameter is used when invoking unlink from admin speedy
@@ -24,11 +24,8 @@ Twinkle.unlink.callback = function(presetReason) {
 	const fileSpace = mw.config.get('wgNamespaceNumber') === 6;
 
 	const Window = new Morebits.SimpleWindow(600, 440);
-	Window.setTitle('Unlink backlinks' + (fileSpace ? ' and file usages' : ''));
+	Window.setTitle('Ophæv backlinks' + (fileSpace ? ' og filanvendelser' : ''));
 	Window.setScriptName('Twinkle');
-	Window.addFooterLink('Unlink prefs', 'WP:TW/PREF#unlink');
-	Window.addFooterLink('Twinkle help', 'WP:TW/DOC#unlink');
-	Window.addFooterLink('Give feedback', 'WT:TW');
 
 	const form = new Morebits.QuickForm(Twinkle.unlink.callback.evaluate);
 
@@ -48,18 +45,18 @@ Twinkle.unlink.callback = function(presetReason) {
 		type: 'div',
 		style: 'margin-bottom: 0.5em',
 		label: [
-			'This tool allows you to unlink all incoming links ("backlinks") from the checked pages below that point to this page' +
-				(fileSpace ? ', and/or hide all inclusions of this file by wrapping them in <!-- --> comment markup' : '') +
-				'. For instance, ',
-			linkTextBefore, ' would become ', linkTextAfter, ' and ',
-			linkPlainBefore, ' would become ', linkPlainAfter, '. This tool will not unlink redirects or links within this page ("selflinks") that point to this page. Use it with caution.'
+			'Dette værktøj ophæver alle indgående links ("backlinks") fra de valgte sider nedenfor, som peger på denne side' +
+				(fileSpace ? ', og/eller skjuler alle anvendelser af denne fil ved at pakke dem ind i <!-- --> kommentarmærkning' : '') +
+				'. For eksempel vil ',
+			linkTextBefore, ' blive til ', linkTextAfter, ' og ',
+			linkPlainBefore, ' blive til ', linkPlainAfter, '. Værktøjet ophæver ikke omdirigeringer eller selflinks. Brug med forsigtighed.'
 		]
 	});
 
 	form.append({
 		type: 'input',
 		name: 'reason',
-		label: 'Reason:',
+		label: 'Begrundelse:',
 		value: presetReason || '',
 		size: 60
 	});
@@ -81,14 +78,14 @@ Twinkle.unlink.callback = function(presetReason) {
 	} else {
 		query.blfilterredir = 'nonredirects';
 	}
-	const wikipedia_api = new Morebits.wiki.Api('Grabbing backlinks', query, Twinkle.unlink.callbacks.display.backlinks);
+	const wikipedia_api = new Morebits.wiki.Api('Henter backlinks', query, Twinkle.unlink.callbacks.display.backlinks);
 	wikipedia_api.params = { form: form, Window: Window, image: fileSpace };
 	wikipedia_api.post();
 
 	const root = document.createElement('div');
 	root.style.padding = '15px'; // just so it doesn't look broken
 	Morebits.Status.init(root);
-	wikipedia_api.statelem.status('loading...');
+	wikipedia_api.statelem.status('indlæser...');
 	Window.setContent(root);
 	Window.display();
 };
@@ -98,7 +95,7 @@ Twinkle.unlink.callback.evaluate = function twinkleunlinkCallbackEvaluate(event)
 	const input = Morebits.QuickForm.getInputData(form);
 
 	if (!input.reason) {
-		alert('You must specify a reason for unlinking.');
+		alert('Du skal angive en begrundelse for at ophæve links.');
 		return;
 	}
 
@@ -106,20 +103,20 @@ Twinkle.unlink.callback.evaluate = function twinkleunlinkCallbackEvaluate(event)
 	input.imageusage = input.imageusage || [];
 	const pages = Morebits.array.uniq(input.backlinks.concat(input.imageusage));
 	if (!pages.length) {
-		alert('You must select at least one item to unlink.');
+		alert('Du skal vælge mindst ét element at ophæve links på.');
 		return;
 	}
 
 	Morebits.SimpleWindow.setButtonsEnabled(false);
 	Morebits.Status.init(form);
 
-	const unlinker = new Morebits.BatchOperation('Unlinking ' + (input.backlinks.length ? 'backlinks' +
-			(input.imageusage.length ? ' and instances of file usage' : '') : 'instances of file usage'));
+	const unlinker = new Morebits.BatchOperation('Ophæver ' + (input.backlinks.length ? 'backlinks' +
+			(input.imageusage.length ? ' og filanvendelser' : '') : 'filanvendelser'));
 	unlinker.setOption('preserveIndividualStatusLines', true);
 	unlinker.setPageList(pages);
 	const params = { reason: input.reason, unlinker: unlinker };
 	unlinker.run((pageName) => {
-		const wikipedia_page = new Morebits.wiki.Page(pageName, 'Unlinking in page "' + pageName + '"');
+		const wikipedia_page = new Morebits.wiki.Page(pageName, 'Ophæver links på siden "' + pageName + '"');
 		wikipedia_page.setBotEdit(true); // unlink considered a floody operation
 		wikipedia_page.setCallbackParameters($.extend({
 			doBacklinks: input.backlinks.includes(pageName),
@@ -144,34 +141,34 @@ Twinkle.unlink.callbacks = {
 					list.push({ label: '', value: imageusage[i].title, checked: true });
 				}
 				if (!list.length) {
-					apiobj.params.form.append({ type: 'div', label: 'No instances of file usage found.' });
+					apiobj.params.form.append({ type: 'div', label: 'Ingen filanvendelser fundet.' });
 				} else {
-					apiobj.params.form.append({ type: 'header', label: 'File usage' });
+					apiobj.params.form.append({ type: 'header', label: 'Filanvendelse' });
 					namespaces = [];
 					$.each(Twinkle.getPref('unlinkNamespaces'), (k, v) => {
-						namespaces.push(v === '0' ? '(Article)' : mw.config.get('wgFormattedNamespaces')[v]);
+						namespaces.push(v === '0' ? '(Artikel)' : mw.config.get('wgFormattedNamespaces')[v]);
 					});
 					apiobj.params.form.append({
 						type: 'div',
-						label: 'Selected namespaces: ' + namespaces.join(', '),
-						tooltip: 'You can change this with your Twinkle preferences, at [[WP:TWPREFS]]'
+						label: 'Valgte navnerum: ' + namespaces.join(', '),
+						tooltip: 'Du kan ændre dette i dine Twinkle-præferencer'
 					});
 					if (response['query-continue'] && response['query-continue'].imageusage) {
 						apiobj.params.form.append({
 							type: 'div',
-							label: 'First ' + mw.language.convertNumber(list.length) + ' file usages shown.'
+							label: 'Viser de første ' + mw.language.convertNumber(list.length) + ' filanvendelser.'
 						});
 					}
 					apiobj.params.form.append({
 						type: 'button',
-						label: 'Select All',
+						label: 'Vælg alle',
 						event: function(e) {
 							$(Morebits.QuickForm.getElements(e.target.form, 'imageusage')).prop('checked', true);
 						}
 					});
 					apiobj.params.form.append({
 						type: 'button',
-						label: 'Deselect All',
+						label: 'Fravælg alle',
 						event: function(e) {
 							$(Morebits.QuickForm.getElements(e.target.form, 'imageusage')).prop('checked', false);
 						}
@@ -196,29 +193,29 @@ Twinkle.unlink.callbacks = {
 				apiobj.params.form.append({ type: 'header', label: 'Backlinks' });
 				namespaces = [];
 				$.each(Twinkle.getPref('unlinkNamespaces'), (k, v) => {
-					namespaces.push(v === '0' ? '(Article)' : mw.config.get('wgFormattedNamespaces')[v]);
+					namespaces.push(v === '0' ? '(Artikel)' : mw.config.get('wgFormattedNamespaces')[v]);
 				});
 				apiobj.params.form.append({
 					type: 'div',
-					label: 'Selected namespaces: ' + namespaces.join(', '),
-					tooltip: 'You can change this with your Twinkle preferences, linked at the bottom of this Twinkle window'
+					label: 'Valgte navnerum: ' + namespaces.join(', '),
+					tooltip: 'Du kan ændre dette i dine Twinkle-præferencer'
 				});
 				if (response['query-continue'] && response['query-continue'].backlinks) {
 					apiobj.params.form.append({
 						type: 'div',
-						label: 'First ' + mw.language.convertNumber(list.length) + ' backlinks shown.'
+						label: 'Viser de første ' + mw.language.convertNumber(list.length) + ' backlinks.'
 					});
 				}
 				apiobj.params.form.append({
 					type: 'button',
-					label: 'Select All',
+					label: 'Vælg alle',
 					event: function(e) {
 						$(Morebits.QuickForm.getElements(e.target.form, 'backlinks')).prop('checked', true);
 					}
 				});
 				apiobj.params.form.append({
 					type: 'button',
-					label: 'Deselect All',
+					label: 'Fravælg alle',
 					event: function(e) {
 						$(Morebits.QuickForm.getElements(e.target.form, 'backlinks')).prop('checked', false);
 					}
@@ -231,7 +228,7 @@ Twinkle.unlink.callbacks = {
 				});
 				havecontent = true;
 			} else {
-				apiobj.params.form.append({ type: 'div', label: 'No backlinks found.' });
+				apiobj.params.form.append({ type: 'div', label: 'Ingen backlinks fundet.' });
 			}
 
 			if (havecontent) {
@@ -259,9 +256,9 @@ Twinkle.unlink.callbacks = {
 			text = wikiPage.commentOutImage(mw.config.get('wgTitle'), 'Commented out').getText();
 			// did we actually make any changes?
 			if (text === oldtext) {
-				warningString = 'file usages';
+				warningString = 'filanvendelser';
 			} else {
-				summaryText = 'Commenting out use(s) of file';
+				summaryText = 'Kommenterer filanvendelse(r) ud';
 				oldtext = text;
 			}
 		}
@@ -271,16 +268,16 @@ Twinkle.unlink.callbacks = {
 			text = wikiPage.removeLink(Morebits.pageNameNorm).getText();
 			// did we actually make any changes?
 			if (text === oldtext) {
-				warningString = warningString ? 'backlinks or file usages' : 'backlinks';
+				warningString = warningString ? 'backlinks eller filanvendelser' : 'backlinks';
 			} else {
-				summaryText = (summaryText ? summaryText + ' / ' : '') + 'Removing link(s) to';
+				summaryText = (summaryText ? summaryText + ' / ' : '') + 'Fjerner link(s) til';
 				oldtext = text;
 			}
 		}
 
 		if (warningString) {
 			// nothing to do!
-			pageobj.getStatusElement().error("Didn't find any " + warningString + ' on the page.');
+			pageobj.getStatusElement().error('Fandt ingen ' + warningString + ' på siden.');
 			params.unlinker.workerFailure(pageobj);
 			return;
 		}

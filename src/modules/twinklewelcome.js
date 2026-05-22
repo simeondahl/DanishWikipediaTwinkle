@@ -151,7 +151,7 @@ Twinkle.welcome.callback = function twinklewelcomeCallback(uid) {
 	form.append({
 		type: 'input',
 		name: 'article',
-		label: '* Linked article (if supported by template):',
+		label: '* Linket artikel (hvis understøttet af skabelonen):',
 		value: Twinkle.getPrefill('vanarticle') || '',
 		tooltip: 'En artikel kan blive linket fra velkomsten, hvis skabelonen understøtter det. Lad feltet stå tomt, hvis ingen artikel skal linkes. Skabeloner, der understøtter et linket artikel, er markeret med en stjerne.'
 	});
@@ -161,7 +161,7 @@ Twinkle.welcome.callback = function twinklewelcomeCallback(uid) {
 		Twinkle.welcome.callbacks.preview(result); // |result| is defined below
 	});
 	previewlink.style.cursor = 'pointer';
-	previewlink.textContent = 'linkedArticle';
+	previewlink.textContent = 'Forhåndsvisning';
 	form.append({ type: 'div', name: 'welcomepreview', label: [ previewlink ] });
 
 	form.append({ type: 'submit' });
@@ -182,7 +182,7 @@ Twinkle.welcome.populateWelcomeList = function(e) {
 	const container = new Morebits.QuickForm.Element({ type: 'fragment' });
 
 	if ((type === 'standard' || type === 'unregistered') && Twinkle.getPref('customWelcomeList').length) {
-		container.append({ type: 'header', label: 'Custom welcome templates' });
+		container.append({ type: 'header', label: 'Brugerdefinerede velkomstskabeloner' });
 		container.append({
 			type: 'radio',
 			name: 'template',

@@ -2,16 +2,16 @@
  * +-------------------------------------------------------------------------+
  * |                  === WARNING: GLOBAL GADGET FILE ===                    |
  * |                Changes to this page affect many users.                  |
- * |           Please discuss changes at [[WT:TW]] before editing.           |
+ * |     Diskutér ændringer på diskussionssiden inden du redigerer.           |
  * +-------------------------------------------------------------------------+
  *
- * Imported from github [https://github.com/wikimedia-gadgets/twinkle].
- * All changes should be made in the repository, otherwise they will be lost.
+ * Importeret fra github [https://github.com/wikimedia-gadgets/twinkle].
+ * Alle ændringer bør foretages i repositoriet, ellers mistes de.
  *
  * ----------
  *
- * This is AzaToth's Twinkle, the popular script sidekick for newbies, admins, and
- * every Wikipedian in between. Visit [[WP:TW]] for more information.
+ * Dette er Twinkle, tilpasset til dansk Wikipedia.
+ * Besøg [[Wikipedia:Twinkle]] for mere information.
  */
 // <nowiki>
 
@@ -140,9 +140,9 @@ Twinkle.defaultConfig = {
 	batchChunks: 50,
 
 	// Deprecated options, as a fallback for add-on scripts/modules
-	summaryAd: ' ([[WP:TW|TW]])',
-	deletionSummaryAd: ' ([[WP:TW|TW]])',
-	protectionSummaryAd: ' ([[WP:TW|TW]])',
+	summaryAd: ' ([[Wikipedia:Twinkle|TW]])',
+	deletionSummaryAd: ' ([[Wikipedia:Twinkle|TW]])',
+	protectionSummaryAd: ' ([[Wikipedia:Twinkle|TW]])',
 
 	// Tag
 	groupByDefault: true,
@@ -168,8 +168,8 @@ Twinkle.defaultConfig = {
 	// Talkback
 	markTalkbackAsMinor: false,
 	insertTalkbackSignature: true, // always sign talkback templates
-	talkbackHeading: 'New message from ' + mw.config.get('wgUserName'),
-	mailHeading: "You've got mail!",
+	talkbackHeading: 'Ny besked fra ' + mw.config.get('wgUserName'),
+	mailHeading: 'Du har post!',
 
 	// Shared
 	markSharedIPAsMinor: true
@@ -315,7 +315,7 @@ $.ajax({
 	dataType: 'text'
 })
 	.fail(() => {
-		console.log('Could not load your Twinkle preferences, resorting to default preferences'); // eslint-disable-line no-console
+		console.log('Kunne ikke indlæse dine Twinkle-præferencer, bruger standardpræferencer'); // eslint-disable-line no-console
 	})
 	.done((optionsText) => {
 
@@ -344,7 +344,7 @@ $.ajax({
 				Twinkle.prefs.optionsVersion = Twinkle.prefs.optionsVersion || 1;
 			}
 		} catch (e) {
-			mw.notify('Could not parse your Twinkle preferences', {type: 'error'});
+			mw.notify('Kunne ikke indlæse dine Twinkle-præferencer', {type: 'error'});
 		}
 	})
 	.always(() => {
@@ -403,7 +403,7 @@ Twinkle.load = function () {
 	// If using a skin with space for lots of modules, display a link to Twinkle Preferences
 	const usingSkinWithDropDownMenu = mw.config.get('skin') === 'vector' || mw.config.get('skin') === 'vector-2022' || mw.config.get('skin') === 'timeless';
 	if (usingSkinWithDropDownMenu) {
-		Twinkle.addPortletLink(mw.util.getUrl('Wikipedia:Twinkle/Preferences'), 'Config', 'tw-config', 'Open Twinkle preferences page');
+		Twinkle.addPortletLink(mw.util.getUrl('Wikipedia:Twinkle/Præferencer'), 'Config', 'tw-config', 'Åbn Twinkle-præferencesiden');
 	}
 };
 
@@ -416,7 +416,7 @@ Twinkle.load = function () {
 Twinkle.changeTags = 'twinkle';
 // Available for actions that don't (yet) support tags
 // currently: FlaggedRevs and PageTriage
-Twinkle.summaryAd = ' ([[WP:TW|TW]])';
+Twinkle.summaryAd = ' ([[Wikipedia:Twinkle|TW]])';
 
 // Various hatnote templates, used when tagging (csd/xfd/tag/prod/protect) to
 // ensure MOS:ORDER
@@ -452,7 +452,7 @@ Twinkle.makeFindSourcesDiv = function makeSourcesDiv(divID) {
 	}
 	if (!Twinkle.findSources) {
 		const parser = new Morebits.wiki.Preview($(divID)[0]);
-		parser.beginRender('({{Find sources|' + Morebits.pageNameNorm + '}})', 'WP:AFD').then(() => {
+		parser.beginRender('({{Find sources|' + Morebits.pageNameNorm + '}})', 'Wikipedia:Sletningsforslag').then(() => {
 			// Save for second-time around
 			Twinkle.findSources = parser.previewbox.innerHTML;
 			$(divID).removeClass('morebits-previewbox');

@@ -935,17 +935,17 @@ Twinkle.speedy.initDialog = function twinklespeedyInitDialog(callbackfunc) {
 		});
 		deleteOptions.append({
 			type: 'header',
-			label: 'Delete-related options'
+			label: 'Sletningsrelaterede indstillinger'
 		});
 		if (mw.config.get('wgNamespaceNumber') % 2 === 0 && (mw.config.get('wgNamespaceNumber') !== 2 || (/\//).test(mw.config.get('wgTitle')))) { // hide option for user pages, to avoid accidentally deleting user talk page
 			deleteOptions.append({
 				type: 'checkbox',
 				list: [
 					{
-						label: 'Also delete talk page',
+						label: 'Slet også diskussionsside',
 						value: 'talkpage',
 						name: 'talkpage',
-						tooltip: "This option deletes the page's talk page in addition. If you choose the F8 (moved to Commons) criterion, this option is ignored and the talk page is *not* deleted.",
+						tooltip: 'Denne mulighed sletter også sidens diskussionsside. Hvis du vælger kriteriet F8 (flyttet til Commons), ignoreres denne mulighed og diskussionssiden slettes *ikke*.',
 						checked: Twinkle.getPref('deleteTalkPageOnDelete'),
 						event: function(event) {
 							event.stopPropagation();
@@ -1079,11 +1079,11 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 	if (mode.isSysop) {
 		$('[name=delete_options]').show();
 		$('[name=tag_options]').hide();
-		$('button.tw-speedy-submit').text('Delete page');
+		$('button.tw-speedy-submit').text('Slet side');
 	} else {
 		$('[name=delete_options]').hide();
 		$('[name=tag_options]').show();
-		$('button.tw-speedy-submit').text('Tag page');
+		$('button.tw-speedy-submit').text('Mærk siden');
 	}
 
 	const work_area = new Morebits.QuickForm.Element({
@@ -1139,7 +1139,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 			case 7: // file talk
 				appendList('Filer', Twinkle.speedy.fileList);
 				if (!mode.isSysop) {
-					work_area.append({ type: 'div', label: 'Tagging for CSD F4 (no license), F5 (orphaned non-free use), F6 (no non-free use rationale), and F11 (no permission) can be done using Twinkle\'s "DI" tab.' });
+					work_area.append({ type: 'div', label: 'Mærkning for kriterierne F4 (ingen licens), F5 (ubrugt ikke-fri fil), F6 (ingen begrundelse for ikke-fri brug) og F11 (ingen tilladelse) kan gøres via Twinkles "DI"-fane.' });
 				}
 				break;
 
@@ -1157,7 +1157,7 @@ Twinkle.speedy.callback.modeChanged = function twinklespeedyCallbackModeChanged(
 
 			case 710: // timed text
 			case 711: // timed text talk
-				appendList('Timed Text pages', Twinkle.speedy.timedTextList);
+				appendList('Timed Text-sider', Twinkle.speedy.timedTextList);
 				break;
 
 			default:
@@ -1207,15 +1207,15 @@ Twinkle.speedy.callback.priorDeletionCount = function () {
 		lelimit: 5 // A little bit goes a long way
 	};
 
-	new Morebits.wiki.Api('Checking for past deletions', query, ((apiobj) => {
+	new Morebits.wiki.Api('Tjekker for tidligere sletninger', query, ((apiobj) => {
 		const response = apiobj.getResponse();
 		const delCount = response.query.logevents.length;
 		if (delCount) {
-			let message = delCount + ' previous deletion';
+			let message = delCount + ' tidligere sletning';
 			if (delCount > 1) {
-				message += 's';
+				message += 'er';
 				if (response.continue) {
-					message = 'More than ' + message;
+					message = 'Mere end ' + message;
 				}
 
 				// 3+ seems problematic
@@ -1225,7 +1225,7 @@ Twinkle.speedy.callback.priorDeletionCount = function () {
 			}
 
 			// Provide a link to page logs (CSD templates have one for sysops)
-			const link = Morebits.htmlNode('a', '(logs)');
+			const link = Morebits.htmlNode('a', '(logge)');
 			link.setAttribute('href', mw.util.getUrl('Special:Log', {page: mw.config.get('wgPageName')}));
 			link.setAttribute('target', '_blank');
 
@@ -1303,7 +1303,7 @@ Twinkle.speedy.generateCsdList = function twinklespeedyGenerateCsdList(list, mod
 				criterion.subgroup = criterion.subgroup.concat({
 					type: 'button',
 					name: 'submit',
-					label: mode.isSysop ? 'Delete page' : 'Tag page',
+					label: mode.isSysop ? 'Slet side' : 'Mærk siden',
 					event: submitSubgroupHandler
 				});
 			} else {
@@ -1312,7 +1312,7 @@ Twinkle.speedy.generateCsdList = function twinklespeedyGenerateCsdList(list, mod
 					{
 						type: 'button',
 						name: 'submit', // ends up being called "csd.submit" so this is OK
-						label: mode.isSysop ? 'Delete page' : 'Tag page',
+						label: mode.isSysop ? 'Slet side' : 'Mærk siden',
 						event: submitSubgroupHandler
 					}
 				];
@@ -1372,13 +1372,13 @@ Twinkle.speedy.callbacks = {
 			format: 'json'
 		};
 
-		const statusIndicator = new Morebits.Status('Building deletion summary');
-		const api = new Morebits.wiki.Api('Parsing deletion template', query, ((apiobj) => {
+		const statusIndicator = new Morebits.Status('Bygger sletningsopsummering');
+		const api = new Morebits.wiki.Api('Parser sletningsskabelon', query, ((apiobj) => {
 			const reason = decodeURIComponent($(apiobj.getResponse().parse.text).find('#delete-reason').text()).replace(/\+/g, ' ');
 			if (!reason) {
-				statusIndicator.warn('Unable to generate summary from deletion template');
+				statusIndicator.warn('Kunne ikke generere opsummering fra sletningsskabelon');
 			} else {
-				statusIndicator.info('complete');
+				statusIndicator.info('færdig');
 			}
 			callback(reason);
 		}), statusIndicator);
@@ -1440,11 +1440,11 @@ Twinkle.speedy.callbacks = {
 			}
 			notifytext += (params.welcomeuser ? '' : '|nowelcome=yes') + '}} ~~~~';
 
-			editsummary = 'Notification: speedy deletion' + (params.warnUser ? '' : ' nomination');
+			editsummary = 'Underretning: hurtig sletning' + (params.warnUser ? '' : ' nominering');
 			if (!params.normalizeds.includes('g10')) { // no article name in summary for G10 taggings
-				editsummary += ' of [[:' + Morebits.pageNameNorm + ']].';
+				editsummary += ' af [[:' + Morebits.pageNameNorm + ']].';
 			} else {
-				editsummary += ' of an attack page.';
+				editsummary += ' af en angrebsside.';
 			}
 
 			usertalkpage.setAppendText(notifytext);
@@ -1474,20 +1474,20 @@ Twinkle.speedy.callbacks = {
 		main: function(params) {
 			let reason;
 			if (!params.normalizeds.length && params.normalizeds[0] === 'db') {
-				reason = prompt('Enter the deletion summary to use, which will be entered into the deletion log:', '');
+				reason = prompt('Angiv den sletningsopsummering, der skal bruges og indføres i sletningsloggen:', '');
 				Twinkle.speedy.callbacks.sysop.deletePage(reason, params);
 			} else {
 				const code = Twinkle.speedy.callbacks.getTemplateCodeAndParams(params)[0];
 				Twinkle.speedy.callbacks.parseWikitext(code, (reason) => {
 					if (params.promptForSummary) {
-						reason = prompt('Enter the deletion summary to use, or press OK to accept the automatically generated one.', reason);
+						reason = prompt('Angiv den sletningsopsummering, der skal bruges, eller tryk OK for at acceptere den automatisk genererede.', reason);
 					}
 					Twinkle.speedy.callbacks.sysop.deletePage(reason, params);
 				});
 			}
 		},
 		deletePage: function(reason, params) {
-			const thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Deleting page');
+			const thispage = new Morebits.wiki.Page(mw.config.get('wgPageName'), 'Sletter siden');
 
 			if (reason === null) {
 				return Morebits.Status.error('Spørger efter begrundelse', 'Brugeren annullerede');
@@ -1524,8 +1524,8 @@ Twinkle.speedy.callbacks = {
 			if (params.deleteTalkPage &&
 					params.normalized !== 'f8' &&
 					!document.getElementById('ca-talk').classList.contains('new')) {
-				const talkpage = new Morebits.wiki.Page(mw.config.get('wgFormattedNamespaces')[mw.config.get('wgNamespaceNumber') + 1] + ':' + mw.config.get('wgTitle'), 'Deleting talk page');
-				talkpage.setEditSummary('[[WP:CSD#G8|G8]]: Talk page of deleted page [[' + Morebits.pageNameNorm + ']]');
+				const talkpage = new Morebits.wiki.Page(mw.config.get('wgFormattedNamespaces')[mw.config.get('wgNamespaceNumber') + 1] + ':' + mw.config.get('wgTitle'), 'Sletter diskussionsside');
+				talkpage.setEditSummary('[[WP:RFS#G8|G8]]: Diskussionsside til slettet side [[' + Morebits.pageNameNorm + ']]');
 				talkpage.setChangeTags(Twinkle.changeTags);
 				talkpage.deletePage();
 				// this is ugly, but because of the architecture of wiki.api, it is needed
@@ -1547,8 +1547,8 @@ Twinkle.speedy.callbacks = {
 					rdlimit: 'max', // 500 is max for normal users, 5000 for bots and sysops
 					format: 'json'
 				};
-				const wikipedia_api = new Morebits.wiki.Api('getting list of redirects...', query, Twinkle.speedy.callbacks.sysop.deleteRedirectsMain,
-					new Morebits.Status('Deleting redirects'));
+				const wikipedia_api = new Morebits.wiki.Api('Henter liste over omdirigeringer...', query, Twinkle.speedy.callbacks.sysop.deleteRedirectsMain,
+					new Morebits.Status('Sletter omdirigeringer'));
 				wikipedia_api.params = params;
 				wikipedia_api.post();
 			}
@@ -1558,7 +1558,7 @@ Twinkle.speedy.callbacks = {
 			if (mw.config.get('wgNamespaceNumber') === 6 && params.normalized !== 'f8') {
 				$link = $('<a>')
 					.attr('href', '#')
-					.text('click here to go to the Unlink tool')
+					.text('klik her for at gå til Ophæv links-værktøjet')
 					.css({
 						fontSize: '130%',
 						fontWeight: 'bold'
@@ -1566,10 +1566,10 @@ Twinkle.speedy.callbacks = {
 					.on('click', () => {
 						Morebits.wiki.actionCompleted.redirect = null;
 						Twinkle.speedy.dialog.close();
-						Twinkle.unlink.callback('Removing usages of and/or links to deleted file ' + Morebits.pageNameNorm);
+						Twinkle.unlink.callback('Fjerner anvendelser af og/eller links til slettet fil ' + Morebits.pageNameNorm);
 					});
 				$bigtext = $('<span>')
-					.text('To orphan backlinks and remove instances of file usage')
+					.text('For at forælde tilbagelinks og fjerne anvendelser af filen')
 					.css({
 						fontSize: '130%',
 						fontWeight: 'bold'
@@ -1578,7 +1578,7 @@ Twinkle.speedy.callbacks = {
 			} else if (params.normalized !== 'f8') {
 				$link = $('<a>')
 					.attr('href', '#')
-					.text('click here to go to the Unlink tool')
+					.text('klik her for at gå til Ophæv links-værktøjet')
 					.css({
 						fontSize: '130%',
 						fontWeight: 'bold'
@@ -1586,10 +1586,10 @@ Twinkle.speedy.callbacks = {
 					.on('click', () => {
 						Morebits.wiki.actionCompleted.redirect = null;
 						Twinkle.speedy.dialog.close();
-						Twinkle.unlink.callback('Removing links to deleted page ' + Morebits.pageNameNorm);
+						Twinkle.unlink.callback('Fjerner links til slettet side ' + Morebits.pageNameNorm);
 					} );
 				$bigtext = $('<span>')
-					.text('To orphan backlinks')
+					.text('For at forælde tilbagelinks')
 					.css({
 						fontSize: '130%',
 						fontWeight: 'bold'
@@ -1604,7 +1604,7 @@ Twinkle.speedy.callbacks = {
 			const statusIndicator = apiobj.statelem;
 
 			if (!total) {
-				statusIndicator.status('no redirects found');
+				statusIndicator.status('ingen omdirigeringer fundet');
 				return;
 			}
 
@@ -1616,7 +1616,7 @@ Twinkle.speedy.callbacks = {
 				statusIndicator.update(now);
 				apiobjInner.statelem.unlink();
 				if (current >= total) {
-					statusIndicator.info(now + ' (completed)');
+					statusIndicator.info(now + ' (færdig)');
 					Morebits.wiki.removeCheckpoint();
 				}
 			};
@@ -1625,8 +1625,8 @@ Twinkle.speedy.callbacks = {
 
 			snapshot.forEach((value) => {
 				const title = value.title;
-				const page = new Morebits.wiki.Page(title, 'Deleting redirect "' + title + '"');
-				page.setEditSummary('[[WP:CSD#G8|G8]]: Redirect to deleted page [[' + Morebits.pageNameNorm + ']]');
+				const page = new Morebits.wiki.Page(title, 'Sletter omdirigering "' + title + '"');
+				page.setEditSummary('[[WP:RFS#G8|G8]]: Omdirigering til slettet side [[' + Morebits.pageNameNorm + ']]');
 				page.setChangeTags(Twinkle.changeTags);
 				page.deletePage(onsuccess);
 			});
@@ -1747,9 +1747,9 @@ Twinkle.speedy.callbacks = {
 
 					pageobj.getStatusElement().warn('Kan ikke redigere siden; placerer mærkning på diskussionssiden');
 
-					const talkPage = new Morebits.wiki.Page(talkName, 'Automatically placing tag on talk page');
-					talkPage.setNewSectionTitle(pageobj.getPageName() + ' nominated for CSD, request deletion');
-					talkPage.setNewSectionText(code + '\n\nI was unable to tag ' + pageobj.getPageName() + ' directly, so I have placed the speedy deletion tag on this page. I request deletion of the other page. ~~~~');
+					const talkPage = new Morebits.wiki.Page(talkName, 'Placerer automatisk mærkning på diskussionsside');
+					talkPage.setNewSectionTitle(pageobj.getPageName() + ' nomineret til hurtig sletning, anmoder om sletning');
+					talkPage.setNewSectionText(code + '\n\nJeg kunne ikke mærke ' + pageobj.getPageName() + ' direkte, så jeg har placeret hurtigsletningsmærket på denne side. Jeg anmoder om sletning af den anden side. ~~~~');
 					talkPage.setCreateOption('recreate');
 					talkPage.setFollowRedirect(true);
 					talkPage.setWatchlist(params.watch);
@@ -1757,7 +1757,7 @@ Twinkle.speedy.callbacks = {
 					talkPage.setCallbackParameters(params);
 					talkPage.newSection(Twinkle.speedy.callbacks.user.tagComplete);
 				} else {
-					pageobj.getStatusElement().error('Page cannot be edited and no other location to place a speedy deletion request, aborting');
+					pageobj.getStatusElement().error('Siden kan ikke redigeres, og der er intet andet sted at placere en hurtigsletningsmærkning. Afbryder.');
 				}
 			}
 		},
@@ -1779,10 +1779,10 @@ Twinkle.speedy.callbacks = {
 		addToLog: function(params, initialContrib) {
 			const usl = new Morebits.UserspaceLogger(Twinkle.getPref('speedyLogPageName'));
 			usl.initialText =
-				"This is a log of all [[WP:CSD|speedy deletion]] nominations made by this user using [[WP:TW|Twinkle]]'s CSD module.\n\n" +
-				'If you no longer wish to keep this log, you can turn it off using the [[Wikipedia:Twinkle/Preferences|preferences panel]], and ' +
-				'nominate this page for speedy deletion under [[WP:CSD#U1|CSD U1]].' +
-				(Morebits.userIsSysop ? '\n\nThis log does not track outright speedy deletions made using Twinkle.' : '');
+				'Dette er en log over alle [[WP:RFS|hurtigsletningsmærk]] foretaget af denne bruger via [[WP:TW|Twinkle]]s RFS-modul.\n\n' +
+				'Hvis du ikke længere ønsker at beholde denne log, kan du deaktivere den i [[Wikipedia:Twinkle/Præferencer|præferencepanelet]] og ' +
+				'nominere denne side til hurtig sletning under [[WP:RFS#U1|RFS U1]].' +
+				(Morebits.userIsSysop ? '\n\nDenne log registrerer ikke direkte sletninger foretaget med Twinkle.' : '');
 
 			const formatParamLog = function(normalize, csdparam, input) {
 				if ((normalize === 'G4' && csdparam === 'xfd') ||
@@ -1808,18 +1808,18 @@ Twinkle.speedy.callbacks = {
 			// If a logged file is deleted but exists on commons, the wikilink will be blue, so provide a link to the log
 			const fileLogLink = mw.config.get('wgNamespaceNumber') === 6 ? ' ([{{fullurl:Special:Log|page=' + mw.util.wikiUrlencode(mw.config.get('wgPageName')) + '}} log])' : '';
 
-			let editsummary = 'Logging speedy deletion nomination';
+			let editsummary = 'Logger hurtigsletningsmærkning';
 			let appendText = '# [[:' + Morebits.pageNameNorm;
 
 			if (!params.normalizeds.includes('g3')) { // no article name in log for G10 taggings
 				appendText += ']]' + fileLogLink + ': ';
 				editsummary += ' of [[:' + Morebits.pageNameNorm + ']].';
 			} else {
-				appendText += '|This]] attack page' + fileLogLink + ': ';
-				editsummary += ' of an attack page.';
+				appendText += '|Denne]] angrebsside' + fileLogLink + ': ';
+				editsummary += ' af en angrebsside.';
 			}
 			if (params.normalizeds.length > 1) {
-				appendText += 'multiple criteria (';
+				appendText += 'flere kriterier (';
 				$.each(params.normalizeds, (index, norm) => {
 					appendText += '[[WP:CSD#' + norm.toUpperCase() + '|' + norm.toUpperCase() + ']], ';
 				});
@@ -1853,13 +1853,13 @@ Twinkle.speedy.callbacks = {
 			}
 
 			if (params.requestsalt) {
-				appendText += '; requested creation protection ([[WP:SALT|salting]])';
+				appendText += '; anmodede om oprettelsesbeskyttelse ([[WP:SALT|salting]])';
 			}
 			if (extraInfo) {
-				appendText += '; additional information:' + extraInfo;
+				appendText += '; yderligere oplysninger:' + extraInfo;
 			}
 			if (initialContrib) {
-				appendText += '; notified {{user|1=' + initialContrib + '}}';
+				appendText += '; underrettede {{user|1=' + initialContrib + '}}';
 			}
 			appendText += ' ~~~~~\n';
 
@@ -1880,7 +1880,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.reason_1']) {
 					const dbrationale = form['csd.reason_1'].value;
 					if (!dbrationale || !dbrationale.trim()) {
-						alert('Custom rationale:  Please specify a rationale.');
+						alert('Brugerdefineret begrundelse: Angiv venligst en begrundelse.');
 						parameters = null;
 						return false;
 					}
@@ -1893,7 +1893,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 					const u1rationale = form['csd.userreq_rationale'].value;
 					if (mw.config.get('wgNamespaceNumber') === 3 && !(/\//).test(mw.config.get('wgTitle')) &&
 							(!u1rationale || !u1rationale.trim())) {
-						alert('CSD U1:  Please specify a rationale when nominating user talk pages.');
+						alert('RFS U1: Angiv venligst en begrundelse, når du nominerer brugerdiskussionssider.');
 						parameters = null;
 						return false;
 					}
@@ -1903,7 +1903,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 
 			case 'u6': // U6
 				if (mw.config.get('wgNamespaceNumber') !== 2 || !(/\//).test(mw.config.get('wgTitle'))) {
-					alert('CSD U6:  Please only nominate user subpages.');
+					alert('RFS U6: Nominer venligst kun brugerundersider.');
 					parameters = null;
 					return false;
 				}
@@ -1911,12 +1911,12 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 
 			case 'u7': // U7
 				if (mw.config.get('wgNamespaceNumber') !== 2) {
-					alert('CSD U7:  Please only nominate user subpages.');
+					alert('RFS U7: Nominer venligst kun brugerundersider.');
 					parameters = null;
 					return false;
 				}
 				if (!(/\//).test(mw.config.get('wgTitle'))) {
-					alert('CSD U7:  Please only nominate user subpages. Top-level userpages matching U7 criteria can be blanked instead.');
+					alert('RFS U7: Nominer venligst kun brugerundersider. Toplevel-brugersider, der opfylder U7-kriterierne, kan i stedet blot tømmes.');
 					parameters = null;
 					return false;
 				}
@@ -1960,12 +1960,12 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 					const movepage = form['csd.move_page'].value,
 						movereason = form['csd.move_reason'].value;
 					if (!movepage || !movepage.trim()) {
-						alert('CSD G6 (move):  Please specify the page to be moved here.');
+						alert('RFS G6 (flyt): Angiv venligst den side, der skal flyttes hertil.');
 						parameters = null;
 						return false;
 					}
 					if (!movereason || !movereason.trim()) {
-						alert('CSD G6 (move):  Please specify the reason for the move.');
+						alert('RFS G6 (flyt): Angiv venligst årsagen til flytningen.');
 						parameters = null;
 						return false;
 					}
@@ -1987,7 +1987,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.draft_page']) {
 					const draftpage = form['csd.draft_page'].value;
 					if (!draftpage || !draftpage.trim()) {
-						alert('CSD G6 (AfC move):  Please specify the draft to be moved here.');
+						alert('RFS G6 (AfC-flyt): Angiv venligst det udkast, der skal flyttes hertil.');
 						parameters = null;
 						return false;
 					}
@@ -1999,7 +1999,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.copypaste_sourcepage']) {
 					const copypaste = form['csd.copypaste_sourcepage'].value;
 					if (!copypaste || !copypaste.trim()) {
-						alert('CSD G6 (copypaste):  Please specify the source page name.');
+						alert('RFS G6 (kopier-indsæt): Angiv venligst kildesidensnavnet.');
 						parameters = null;
 						return false;
 					}
@@ -2053,9 +2053,9 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 					} else if (form['csd.subcriteria'].value === 'nonsensical' || form['csd.subcriteria'].value === 'implausible') {
 						currentParams.references = 'yes';
 						if ( form['csd.subcriteria'].value === 'nonsensical' ) {
-							currentParams.reason = 'Nonsensical references';
+							currentParams.reason = 'Meningsløse referencer';
 						} else {
-							currentParams.reason = 'Implausible references';
+							currentParams.reason = 'Usandsynlige referencer';
 						}
 
 						if (form['csd.reason'] && form['csd.reason'].value) {
@@ -2073,7 +2073,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.redundantimage_filename']) {
 					const redimage = form['csd.redundantimage_filename'].value;
 					if (!redimage || !redimage.trim()) {
-						alert('CSD F1:  Please specify the filename of the other file.');
+						alert('RFS F1: Angiv venligst filnavnet på den anden fil.');
 						parameters = null;
 						return false;
 					}
@@ -2101,7 +2101,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 					const f9url = form['csd.imgcopyvio_url'].value;
 					const f9rationale = form['csd.imgcopyvio_rationale'].value;
 					if ((!f9url || !f9url.trim()) && (!f9rationale || !f9rationale.trim())) {
-						alert('CSD F9: You must enter a url or reason (or both) when nominating a file under F9.');
+						alert('RFS F9: Du skal angive en URL eller en begrundelse (eller begge) ved nominering af en fil under F9.');
 						parameters = null;
 						return false;
 					}
@@ -2118,7 +2118,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.foreign_source']) {
 					const foreignlink = form['csd.foreign_source'].value;
 					if (!foreignlink || !foreignlink.trim()) {
-						alert('CSD A2:  Please specify an interwiki link to the article of which this is a copy.');
+						alert('RFS A2: Angiv venligst et interwikilink til den artikel, dette er en kopi af.');
 						parameters = null;
 						return false;
 					}
@@ -2130,7 +2130,7 @@ Twinkle.speedy.getParameters = function twinklespeedyGetParameters(form, values)
 				if (form['csd.a10_article']) {
 					const duptitle = form['csd.a10_article'].value;
 					if (!duptitle || !duptitle.trim()) {
-						alert('CSD A10:  Please specify the name of the article which is duplicated.');
+						alert('RFS A10: Angiv venligst navnet på den artikel, der er duplikeret.');
 						parameters = null;
 						return false;
 					}
@@ -2210,7 +2210,7 @@ Twinkle.speedy.getUserTalkParameters = function twinklespeedyGetUserTalkParamete
 Twinkle.speedy.resolveCsdValues = function twinklespeedyResolveCsdValues(e) {
 	const values = (e.target.form ? e.target.form : e.target).getChecked('csd');
 	if (values.length === 0) {
-		alert('Please select a criterion!');
+		alert('Vælg venligst et kriterium!');
 		return null;
 	}
 	return values;

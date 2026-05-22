@@ -71,7 +71,7 @@ Twinkle.rollback.trustedBots = ['AnomieBOT', 'SineBot', 'MajavahBot'];
 Twinkle.rollback.skipTalk = null;
 Twinkle.rollback.rollbackInPlace = null;
 // String to insert when a username is hidden
-Twinkle.rollback.hiddenName = 'an unknown user';
+Twinkle.rollback.hiddenName = 'en ukendt bruger';
 
 // Consolidated construction of rollback links
 Twinkle.rollback.linkBuilder = {
@@ -535,7 +535,7 @@ Twinkle.rollback.callbacks = {
 		const lastuser = top.user;
 
 		if (lastrevid < params.revid) {
-			Morebits.Status.error('Error', [ 'The most recent revision ID received from the server, ', Morebits.htmlNode('strong', lastrevid), ', is less than the ID of the displayed revision. This could indicate that the current revision has been deleted, the server is lagging, or that bad data has been received. Stopping revert.' ]);
+			Morebits.Status.error('Fejl', [ 'Den seneste versions-id modtaget fra serveren, ', Morebits.htmlNode('strong', lastrevid), ', er mindre end id\'et på den viste version. Dette kan skyldes, at den aktuelle version er blevet slettet, at serveren er forsinket, eller at der er modtaget forkerte data. Stopper tilbageførsel.' ]);
 			return;
 		}
 
@@ -543,22 +543,22 @@ Twinkle.rollback.callbacks = {
 		let userNorm = params.user || Twinkle.rollback.hiddenName;
 		let index = 1;
 		if (params.revid !== lastrevid) {
-			Morebits.Status.warn('Warning', [ 'Den seneste version ', Morebits.htmlNode('strong', lastrevid), ' stemmer ikke overens med vores version ', Morebits.htmlNode('strong', params.revid) ]);
+			Morebits.Status.warn('Advarsel', [ 'Den seneste version ', Morebits.htmlNode('strong', lastrevid), ' stemmer ikke overens med vores version ', Morebits.htmlNode('strong', params.revid) ]);
 
 			// Treat ipv6 users on same 64 block as the same
 			if (lastuser === params.user || (mw.util.isIPv6Address(params.user) && Morebits.ip.get64(lastuser) === Morebits.ip.get64(params.user))) {
 				switch (params.type) {
 					case 'vand':
 						var diffUser = lastuser !== params.user;
-						Morebits.Status.info('Info', [ 'Den seneste version blev ' + (diffUser ? '' : 'også ') + 'foretaget af ', Morebits.htmlNode('strong', userNorm),
+						Morebits.Status.info('Oplysning', [ 'Den seneste version blev ' + (diffUser ? '' : 'også ') + 'foretaget af ', Morebits.htmlNode('strong', userNorm),
 							diffUser ? ', som er på samme /64-undernet' : '', '. Da vi antager hærværk, fortsætter vi med at tilbageføre.' ]);
 
 						break;						
 					case 'agf':
-						Morebits.Status.warn('Warning', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), '. Da vi antager god tro, stopper vi tilbageførslen, da problemet muligvis er blevet rettet.' ]);
+						Morebits.Status.warn('Advarsel', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), '. Da vi antager god tro, stopper vi tilbageførslen, da problemet muligvis er blevet rettet.' ]);
 						return;
 					default:
-						Morebits.Status.warn('Notice', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), ', men vi stopper tilbageførslen.' ]);
+						Morebits.Status.warn('Bemærk', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', userNorm), ', men vi stopper tilbageførslen.' ]);
 						return;
 				}
 			} else if (params.type === 'vand' &&
@@ -566,11 +566,11 @@ Twinkle.rollback.callbacks = {
 					// Besides, none of the trusted bots are going to be revdel'd
 					Twinkle.rollback.trustedBots.includes(top.user) && revs.length > 1 &&
 					revs[1].revid === params.revid) {
-				Morebits.Status.info('Info', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', en betroet bot, og versionen før blev foretaget af vores hærværker, så vi fortsætter med at tilbageføre.' ]);
+				Morebits.Status.info('Oplysning', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', en betroet bot, og versionen før blev foretaget af vores hærværker, så vi fortsætter med at tilbageføre.' ]);
 
 				index = 2;
 			} else {
-				Morebits.Status.error('Error', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', så den kan allerede være blevet tilbageført; vi stopper tilbageførslen.' ]);
+				Morebits.Status.error('Fejl', [ 'Den seneste version blev foretaget af ', Morebits.htmlNode('strong', lastuser), ', så den kan allerede være blevet tilbageført; vi stopper tilbageførslen.' ]);
 
 				return;
 			}
@@ -585,14 +585,14 @@ Twinkle.rollback.callbacks = {
 		if (Twinkle.rollback.trustedBots.includes(params.user)) {
 			switch (params.type) {
 				case 'vand':
-					Morebits.Status.info('Info', [ 'Tilbageførsel af hærværk blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Da dette er en betroet bot, antager vi, at du i stedet ønskede at tilbageføre hærværk foretaget af den forrige bruger.' ]);
+					Morebits.Status.info('Oplysning', [ 'Tilbageførsel af hærværk blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Da dette er en betroet bot, antager vi, at du i stedet ønskede at tilbageføre hærværk foretaget af den forrige bruger.' ]);
 
 					index = 2;
 					params.user = revs[1].user;
 					params.userHidden = !!revs[1].userhidden;
 					break;
 				case 'agf':
-					Morebits.Status.warn('Notice', [ 'Tilbageførsel i god tro blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og derfor vil AGF-tilbagerulning ikke blive udført.' ]);
+					Morebits.Status.warn('Bemærk', [ 'Tilbageførsel i god tro blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og derfor vil AGF-tilbagerulning ikke blive udført.' ]);
 
 					return;
 				case 'norm':
@@ -601,14 +601,14 @@ Twinkle.rollback.callbacks = {
 					var cont = confirm('Normal tilbageførsel blev valgt, men den seneste redigering blev foretaget af en betroet bot (' + userNorm + '). Ønsker du i stedet at tilbageføre den forrige version?');
 
 					if (cont) {
-						Morebits.Status.info('Info', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og efter bekræftelse vil vi i stedet tilbageføre den forrige version.' ]);
+						Morebits.Status.info('Oplysning', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, og efter bekræftelse vil vi i stedet tilbageføre den forrige version.' ]);
 
 						index = 2;
 						params.user = revs[1].user;
 						params.userHidden = !!revs[1].userhidden;
 						userNorm = params.user || Twinkle.rollback.hiddenName;
 					} else {
-						Morebits.Status.warn('Notice', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, men efter bekræftelse fortsætter tilbageførslen på den valgte version.' ]);
+						Morebits.Status.warn('Bemærk', [ 'Normal tilbageførsel blev valgt på ', Morebits.htmlNode('strong', userNorm), '. Dette er en betroet bot, men efter bekræftelse fortsætter tilbageførslen på den valgte version.' ]);
 					}
 					break;
 			}
@@ -623,7 +623,7 @@ Twinkle.rollback.callbacks = {
 				// Treat ipv6 users on same 64 block as the same
 				if (mw.util.isIPv6Address(revs[i].user) && Morebits.ip.get64(revs[i].user) === Morebits.ip.get64(params.user)) {
 					if (!seen64) {
-						new Morebits.Status('Note', 'Behandler fortløbende IPv6-adresser i samme /64 som den samme bruger');
+						new Morebits.Status('Bemærk', 'Behandler fortløbende IPv6-adresser i samme /64 som den samme bruger');
 						seen64 = true;
 					}
 					continue;
@@ -639,7 +639,7 @@ Twinkle.rollback.callbacks = {
 		}
 
 		if (!count) {
-			Morebits.Status.error('Error', 'Da det ikke er muligt at tilbageføre nul versioner, stopper vi denne tilbageførsel. Det kan være, at redigeringen allerede er blevet tilbageført, men versions-id’et var stadig det samme.');
+			Morebits.Status.error(‘Fejl’, ‘Da det ikke er muligt at tilbageføre nul versioner, stopper vi denne tilbageførsel. Det kan være, at redigeringen allerede er blevet tilbageført, men versions-id\’et var stadig det samme.’);
 			return;
 		}
 
@@ -647,7 +647,7 @@ Twinkle.rollback.callbacks = {
 		let userHasAlreadyConfirmedAction = false;
 		if (params.type !== 'vand' && count > 1) {
 			if (!confirm(userNorm + ' har foretaget ' + mw.language.convertNumber(count) + ' redigeringer i træk. Er du sikker på, at du vil tilbageføre dem alle?')) {
-				Morebits.Status.info('Notice', 'Stopper tilbageførsel.');
+				Morebits.Status.info('Bemærk', 'Stopper tilbageførsel.');
 				return;
 			}
 			

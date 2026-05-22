@@ -4,7 +4,7 @@
 
 /*
  ****************************************
- *** twinklebatchprotect.js: Batch protect module (sysops only)
+ *** twinklebatchprotect.js: Massebeskyttelsesmodul (kun administratorer)
  ****************************************
  * Mode of invocation:     Tab ("P-batch")
  * Active on:              Existing project pages and user pages; existing and
@@ -15,18 +15,15 @@ Twinkle.batchprotect = function twinklebatchprotect() {
 	if (Morebits.userIsSysop && ((mw.config.get('wgArticleId') > 0 && (mw.config.get('wgNamespaceNumber') === 2 ||
 		mw.config.get('wgNamespaceNumber') === 4)) || mw.config.get('wgNamespaceNumber') === 14 ||
 		mw.config.get('wgCanonicalSpecialPageName') === 'Prefixindex')) {
-		Twinkle.addPortletLink(Twinkle.batchprotect.callback, 'P-batch', 'tw-pbatch', 'Protect pages linked from this page');
+		Twinkle.addPortletLink(Twinkle.batchprotect.callback, 'M-beskyt', 'tw-pbatch', 'Beskyt sider linket fra denne side');
 	}
 };
 
 Twinkle.batchprotect.unlinkCache = {};
 Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	const Window = new Morebits.SimpleWindow(600, 400);
-	Window.setTitle('Batch protection');
+	Window.setTitle('Massebeskyttelse');
 	Window.setScriptName('Twinkle');
-	Window.addFooterLink('Protection policy', 'WP:PROT');
-	Window.addFooterLink('Twinkle help', 'WP:TW/DOC#protect');
-	Window.addFooterLink('Give feedback', 'WT:TW');
 
 	const form = new Morebits.QuickForm(Twinkle.batchprotect.callback.evaluate);
 	form.append({
@@ -34,10 +31,10 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 		event: Twinkle.protect.formevents.editmodify,
 		list: [
 			{
-				label: 'Modify edit protection',
+				label: 'Rediger redigeringsbeskyttelse',
 				value: 'editmodify',
 				name: 'editmodify',
-				tooltip: 'Only for existing pages.',
+				tooltip: 'Kun for eksisterende sider.',
 				checked: true
 			}
 		]
@@ -45,14 +42,14 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	form.append({
 		type: 'select',
 		name: 'editlevel',
-		label: 'Edit protection:',
+		label: 'Redigeringsbeskyttelse:',
 		event: Twinkle.protect.formevents.editlevel,
 		list: Twinkle.protect.protectionLevels
 	});
 	form.append({
 		type: 'select',
 		name: 'editexpiry',
-		label: 'Expires:',
+		label: 'Udløber:',
 		event: function(e) {
 			if (e.target.value === 'custom') {
 				Twinkle.protect.doCustomExpiry(e.target);
@@ -66,10 +63,10 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 		event: Twinkle.protect.formevents.movemodify,
 		list: [
 			{
-				label: 'Modify move protection',
+				label: 'Rediger flytningsbeskyttelse',
 				value: 'movemodify',
 				name: 'movemodify',
-				tooltip: 'Only for existing pages.',
+				tooltip: 'Kun for eksisterende sider.',
 				checked: true
 			}
 		]
@@ -77,7 +74,7 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	form.append({
 		type: 'select',
 		name: 'movelevel',
-		label: 'Move protection:',
+		label: 'Flytningsbeskyttelse:',
 		event: Twinkle.protect.formevents.movelevel,
 		// Autoconfirmed is required for a move, redundant
 		list: Twinkle.protect.protectionLevels.filter((level) => level.value !== 'autoconfirmed')
@@ -85,7 +82,7 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	form.append({
 		type: 'select',
 		name: 'moveexpiry',
-		label: 'Expires:',
+		label: 'Udløber:',
 		event: function(e) {
 			if (e.target.value === 'custom') {
 				Twinkle.protect.doCustomExpiry(e.target);
@@ -103,10 +100,10 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 		},
 		list: [
 			{
-				label: 'Modify create protection',
+				label: 'Rediger oprettelsesbeskyttelse',
 				value: 'createmodify',
 				name: 'createmodify',
-				tooltip: 'Only for pages that do not exist.',
+				tooltip: 'Kun for sider der ikke eksisterer.',
 				checked: true
 			}
 		]
@@ -114,14 +111,14 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	form.append({
 		type: 'select',
 		name: 'createlevel',
-		label: 'Create protection:',
+		label: 'Oprettelsesbeskyttelse:',
 		event: Twinkle.protect.formevents.createlevel,
 		list: Twinkle.protect.protectionLevels
 	});
 	form.append({
 		type: 'select',
 		name: 'createexpiry',
-		label: 'Expires:',
+		label: 'Udløber:',
 		event: function(e) {
 			if (e.target.value === 'custom') {
 				Twinkle.protect.doCustomExpiry(e.target);
@@ -137,9 +134,9 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	form.append({
 		type: 'input',
 		name: 'reason',
-		label: 'Reason:',
+		label: 'Begrundelse:',
 		size: 60,
-		tooltip: 'For the protection log and page history.'
+		tooltip: 'Til beskyttelsesloggen og sidehistorikken.'
 	});
 
 	const query = {
@@ -171,9 +168,9 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 	Morebits.Status.init(statusdiv);
 	Window.display();
 
-	const statelem = new Morebits.Status('Grabbing list of pages');
+	const statelem = new Morebits.Status('Henter liste over sider');
 
-	const wikipediaApi = new Morebits.wiki.Api('loading...', query, ((apiobj) => {
+	const wikipediaApi = new Morebits.wiki.Api('indlæser...', query, ((apiobj) => {
 		const response = apiobj.getResponse();
 		const pages = (response.query && response.query.pages) || [];
 		const list = [];
@@ -184,18 +181,18 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 			let editProt;
 
 			if (missing) {
-				metadata.push('page does not exist');
+				metadata.push('siden eksisterer ikke');
 				editProt = page.protection.filter((pr) => pr.type === 'create' && pr.level === 'sysop').pop();
 			} else {
 				if (page.redirect) {
-					metadata.push('redirect');
+					metadata.push('omdirigering');
 				}
 
 				if (page.ns === 6) {
-					metadata.push('uploader: ' + page.imageinfo[0].user);
-					metadata.push('last edit from: ' + page.revisions[0].user);
+					metadata.push('oploader: ' + page.imageinfo[0].user);
+					metadata.push('seneste redigering fra: ' + page.revisions[0].user);
 				} else {
-					metadata.push(mw.language.convertNumber(page.revisions[0].size) + ' bytes');
+					metadata.push(mw.language.convertNumber(page.revisions[0].size) + ' byte');
 				}
 
 				editProt = page.protection
@@ -203,24 +200,24 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 					.pop();
 			}
 			if (editProt) {
-				metadata.push('fully' + (missing ? ' create' : '') + ' protected' +
-				(editProt.expiry === 'infinity' ? ' indefinitely' : ', expires ' + new Morebits.Date(editProt.expiry).calendar('utc') + ' (UTC)'));
+				metadata.push('fuldt' + (missing ? ' oprettelses' : '') + 'beskyttet' +
+				(editProt.expiry === 'infinity' ? ' på ubestemt tid' : ', udløber ' + new Morebits.Date(editProt.expiry).calendar('utc') + ' (UTC)'));
 			}
 
 			const title = page.title;
 			list.push({ label: title + (metadata.length ? ' (' + metadata.join('; ') + ')' : ''), value: title, checked: true, style: editProt ? 'color:red' : '' });
 		});
-		form.append({ type: 'header', label: 'Pages to protect' });
+		form.append({ type: 'header', label: 'Sider at beskytte' });
 		form.append({
 			type: 'button',
-			label: 'Select All',
+			label: 'Vælg alle',
 			event: function(e) {
 				$(Morebits.QuickForm.getElements(e.target.form, 'pages')).prop('checked', true);
 			}
 		});
 		form.append({
 			type: 'button',
-			label: 'Deselect All',
+			label: 'Fravælg alle',
 			event: function(e) {
 				$(Morebits.QuickForm.getElements(e.target.form, 'pages')).prop('checked', false);
 			}
@@ -251,21 +248,21 @@ Twinkle.batchprotect.callback = function twinklebatchprotectCallback() {
 Twinkle.batchprotect.currentProtectCounter = 0;
 Twinkle.batchprotect.currentprotector = 0;
 Twinkle.batchprotect.callback.evaluate = function twinklebatchprotectCallbackEvaluate(event) {
-	Morebits.wiki.actionCompleted.notice = 'Batch protection is now complete';
+	Morebits.wiki.actionCompleted.notice = 'Massebeskyttelse er nu fuldført';
 
 	const form = event.target;
 
 	const numProtected = $(Morebits.QuickForm.getElements(form, 'pages'))
 		.filter((index, element) => element.checked && element.nextElementSibling.style.color === 'red')
 		.length;
-	if (numProtected > 0 && !confirm('You are about to act on ' + mw.language.convertNumber(numProtected) + ' fully protected page(s). Are you sure?')) {
+	if (numProtected > 0 && !confirm('Du er ved at handle på ' + mw.language.convertNumber(numProtected) + ' fuldt beskyttet(e) side(r). Er du sikker?')) {
 		return;
 	}
 
 	const input = Morebits.QuickForm.getInputData(form);
 
 	if (!input.reason) {
-		alert("You've got to give a reason, you rouge admin!");
+		alert('Du skal angive en begrundelse!');
 		return;
 	}
 
@@ -273,11 +270,11 @@ Twinkle.batchprotect.callback.evaluate = function twinklebatchprotectCallbackEva
 	Morebits.Status.init(form);
 
 	if (input.pages.length === 0) {
-		Morebits.Status.error('Error', 'Nothing to protect, aborting');
+		Morebits.Status.error('Fejl', 'Intet at beskytte, afbryder');
 		return;
 	}
 
-	const batchOperation = new Morebits.BatchOperation('Applying protection settings');
+	const batchOperation = new Morebits.BatchOperation('Anvender beskyttelsesindstillinger');
 	batchOperation.setOption('chunkSize', Twinkle.getPref('batchChunks'));
 	batchOperation.setOption('preserveIndividualStatusLines', true);
 	batchOperation.setPageList(input.pages);
@@ -287,7 +284,7 @@ Twinkle.batchprotect.callback.evaluate = function twinklebatchprotectCallbackEva
 			titles: pageName,
 			format: 'json'
 		};
-		const wikipediaApi = new Morebits.wiki.Api('Checking if page ' + pageName + ' exists', query,
+		const wikipediaApi = new Morebits.wiki.Api('Kontrollerer om siden ' + pageName + ' eksisterer', query,
 			Twinkle.batchprotect.callbacks.main, null, batchOperation.workerFailure);
 		wikipediaApi.params = $.extend({
 			page: pageName,
@@ -307,7 +304,7 @@ Twinkle.batchprotect.callbacks = {
 
 		const exists = !response.query.pages[0].missing;
 
-		const page = new Morebits.wiki.Page(apiobj.params.page, 'Protecting ' + apiobj.params.page);
+		const page = new Morebits.wiki.Page(apiobj.params.page, 'Beskytter ' + apiobj.params.page);
 		let takenAction = false;
 		if (exists && apiobj.params.editmodify) {
 			page.setEditProtection(apiobj.params.editlevel, apiobj.params.editexpiry);
@@ -322,7 +319,7 @@ Twinkle.batchprotect.callbacks = {
 			takenAction = true;
 		}
 		if (!takenAction) {
-			Morebits.Status.warn('Protecting ' + apiobj.params.page, 'page ' + (exists ? 'exists' : 'does not exist') + '; nothing to do, skipping');
+			Morebits.Status.warn('Beskytter ' + apiobj.params.page, 'siden ' + (exists ? 'eksisterer' : 'eksisterer ikke') + '; intet at gøre, springer over');
 			apiobj.params.batchOperation.workerFailure(apiobj);
 			return;
 		}
